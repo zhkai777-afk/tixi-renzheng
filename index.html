@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体系认证项目页面目录</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: rgba(0, 0, 0, 0.9);
+            background: #f5f5f5;
+            font-size: 14px;
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .header {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .title {
+            margin: 0 0 8px;
+            font-size: 20px;
+            line-height: 1.3;
+            font-weight: 600;
+        }
+
+        .summary {
+            color: rgba(0, 0, 0, 0.6);
+            line-height: 1.6;
+        }
+
+        .system-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .system-tag {
+            min-width: 26px;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .q { color: #0052d9; background: #e8f1ff; border-color: #b7d3ff; }
+        .e { color: #00875a; background: #e6f7f1; border-color: #b8e8d7; }
+        .s { color: #c46000; background: #fff3e5; border-color: #ffd5a8; }
+        .f { color: #6339d8; background: #f1edff; border-color: #d6caff; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-title {
+            min-height: 48px;
+            padding: 14px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #e7e7e7;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .link-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0;
+        }
+
+        .page-link {
+            display: block;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: rgba(0, 0, 0, 0.9);
+            border-right: 1px solid #edf1f5;
+            border-bottom: 1px solid #edf1f5;
+            min-height: 72px;
+        }
+
+        .page-link:hover {
+            background: #fafafa;
+        }
+
+        .page-name {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .page-meta {
+            display: block;
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .info-list {
+            padding: 14px 16px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: rgba(0, 0, 0, 0.55);
+        }
+
+        .info-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        @media (max-width: 960px) {
+            .header,
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                display: block;
+            }
+
+            .system-tags {
+                justify-content: flex-start;
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="header">
+            <div>
+                <h1 class="title">体系认证项目页面目录</h1>
+                <div class="summary">任务号 TASK-2026-001，客户A，四体系整合审核。此页面用于 GitHub Pages 根地址访问和原型页面快速跳转。</div>
+            </div>
+            <div class="system-tags" aria-label="认证领域">
+                <span class="system-tag q">Q</span>
+                <span class="system-tag e">E</span>
+                <span class="system-tag s">S</span>
+                <span class="system-tag f">F</span>
+            </div>
+        </header>
+
+        <section class="layout">
+            <div class="panel">
+                <div class="panel-title">页面入口</div>
+                <div class="link-list">
+                    <a class="page-link" href="归档材料提交-详情-简化布局-v2.html">
+                        <span class="page-name">归档材料提交-详情-简化布局-v2</span>
+                        <span class="page-meta">项目管理人员 · 归档材料补齐与提交</span>
+                    </a>
+                    <a class="page-link" href="归档材料提交-自适应.html">
+                        <span class="page-name">归档材料提交-自适应</span>
+                        <span class="page-meta">项目管理人员 · 响应式归档提交页</span>
+                    </a>
+                    <a class="page-link" href="初次评定-详情-优化版.html">
+                        <span class="page-name">初次评定-详情-优化版</span>
+                        <span class="page-meta">初次评定管理员 · 专家覆盖与通过条件</span>
+                    </a>
+                    <a class="page-link" href="初次评定-详情-复核.html">
+                        <span class="page-name">初次评定-详情-复核</span>
+                        <span class="page-meta">初次评定管理员 · 复核问题处理</span>
+                    </a>
+                    <a class="page-link" href="二次评定-详情.html">
+                        <span class="page-name">二次评定-详情</span>
+                        <span class="page-meta">二次评定管理员 · 页面风格基准</span>
+                    </a>
+                    <a class="page-link" href="二次评定-详情-体系分流版.html">
+                        <span class="page-name">二次评定-详情-体系分流版</span>
+                        <span class="page-meta">二次评定管理员 · 体系级分流判断</span>
+                    </a>
+                    <a class="page-link" href="专家评审详情-预览登记优化.html">
+                        <span class="page-name">专家评审详情-预览登记优化</span>
+                        <span class="page-meta">评定专家 · 材料预览与问题登记</span>
+                    </a>
+                    <a class="page-link" href="专家评审详情.html">
+                        <span class="page-name">专家评审详情</span>
+                        <span class="page-meta">评定专家 · 材料审阅原型</span>
+                    </a>
+                    <a class="page-link" href="归档材料退回-详情-简化布局-v2.html">
+                        <span class="page-name">归档材料退回-详情-简化布局-v2</span>
+                        <span class="page-meta">项目管理人员 · 退回原因与补充材料</span>
+                    </a>
+                    <a class="page-link" href="归档材料提交-详情.html">
+                        <span class="page-name">归档材料提交-详情</span>
+                        <span class="page-meta">项目管理人员 · 归档提交基础版本</span>
+                    </a>
+                    <a class="page-link" href="归档材料退回-详情.html">
+                        <span class="page-name">归档材料退回-详情</span>
+                        <span class="page-meta">项目管理人员 · 退回处理基础版本</span>
+                    </a>
+                    <a class="page-link" href="materials-catalog-source.html">
+                        <span class="page-name">materials-catalog-source</span>
+                        <span class="page-meta">MSF11-20 材料清单来源页面</span>
+                    </a>
+                </div>
+            </div>
+
+            <aside class="panel">
+                <div class="panel-title">项目概况</div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">认证领域</span>
+                        <span class="info-value">Q / E / S / F</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">材料口径</span>
+                        <span class="info-value">MSF11-20 · 48项</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">业务链路</span>
+                        <span class="info-value">归档 / 初评 / 复评</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">GitHub Pages</span>
+                        <span class="info-value">根地址入口</span>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+</body>
+</html>
