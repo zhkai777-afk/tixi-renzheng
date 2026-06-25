@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>归档材料提交 - 审核材料归档系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            color: rgba(0,0,0,0.9);
+            overflow-x: auto;
+            overflow-y: hidden;
+            min-width: 1848px;
+        }
+        :root {
+            --qms-color: #0052D9;
+            --ems-color: #00A870;
+            --ohsms-color: #FF7D00;
+            --fsms-color: #7B4DFE;
+            --pass-color: #00A870;
+            --reject-color: #E34D59;
+            --pending-color: #ED7B2F;
+            --border-color: #e7e7e7;
+            --muted-color: rgba(0,0,0,0.6);
+            --weak-color: rgba(0,0,0,0.4);
+        }
+        .page-container {
+            width: 1848px;
+            height: 100vh;
+            margin: 0 auto;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px;
+            gap: 16px;
+        }
+        .top-header {
+            min-height: 214px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px 22px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 14px;
+            position: relative;
+            z-index: 100;
+        }
+        .header-left, .header-right, .task-info { display: flex; align-items: center; }
+        .header-left { gap: 16px; }
+        .header-right { gap: 12px; }
+        .logo { font-size: 20px; font-weight: 600; }
+        .task-info {
+            gap: 12px;
+            padding-left: 16px;
+            border-left: 1px solid var(--border-color);
+            font-size: 14px;
+            color: #666;
+        }
+        .project-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .project-title-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+        }
+        .project-title {
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .project-task {
+            font-size: 16px;
+            color: rgba(0,0,0,0.78);
+            white-space: nowrap;
+        }
+        .project-current {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 4px;
+            background: #F2F3F5;
+            color: rgba(0,0,0,0.56);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .project-tip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 1px solid #B7D3FF;
+            border-radius: 6px;
+            background: #F4F8FF;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #0B3B88;
+        }
+        .project-tip::before {
+            content: "i";
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--qms-color);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .system-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 258px);
+            gap: 16px;
+            align-items: stretch;
+        }
+        .system-overview-card {
+            min-height: 88px;
+            border: 1px solid #e5eaf3;
+            border-left: 3px solid var(--system-soft-border, #DCDDE1);
+            border-radius: 8px;
+            background: #fff;
+            padding: 13px 14px 12px;
+            cursor: pointer;
+            transition: all .2s;
+            overflow: hidden;
+        }
+        .system-overview-card:hover {
+            border-color: #d4e2f7;
+            border-left-color: var(--system-color, var(--qms-color));
+            background: #F8FBFF;
+            box-shadow: 0 2px 8px rgba(15, 35, 75, .05);
+        }
+        .system-overview-card.active {
+            border-color: #d4e2f7;
+            border-left-color: var(--system-color, var(--qms-color));
+            background: linear-gradient(90deg, var(--system-soft-bg, #F4F8FF) 0, #fff 64%);
+            box-shadow: 0 2px 8px rgba(15, 35, 75, .05);
+        }
+        .system-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            white-space: nowrap;
+        }
+        .system-card-letter {
+            min-width: 34px;
+            height: 28px;
+            border-radius: 4px;
+            background: var(--system-soft-bg, #F2F3F5);
+            border: 1px solid var(--system-soft-border, #DCDDE1);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 28px;
+        }
+        .system-card-name {
+            margin-left: 8px;
+            color: rgba(0,0,0,.72);
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .system-card-percent {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--system-color, var(--qms-color));
+            white-space: nowrap;
+        }
+        .system-card-meta {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.58);
+            white-space: nowrap;
+        }
+        .system-card-progress {
+            margin-top: 9px;
+            height: 6px;
+            border-radius: 999px;
+            background: #EEF0F3;
+            overflow: hidden;
+        }
+        .system-card-progress span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+        }
+        .system-card-missing {
+            color: var(--reject-color);
+            font-weight: 600;
+        }
+        .system-card-done {
+            color: var(--pass-color);
+            font-weight: 600;
+        }
+        .main-layout {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 334px minmax(0, 1fr);
+            gap: 16px;
+            overflow: hidden;
+        }
+        .sidebar-left {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .sidebar-header {
+            padding: 20px 14px 16px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .sidebar-title { font-size: 18px; font-weight: 600; margin-bottom: 18px; padding: 0 12px; }
+        .sidebar-stats { font-size: 12px; color: #666; margin: 0 12px 12px; }
+        .filter-section {
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .filter-section:last-of-type { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+        .filter-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.5);
+            font-weight: 600;
+        }
+        .filter-stats { margin-left: auto; font-weight: 400; font-size: 11px; color: var(--weak-color); }
+        .filter-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .filter-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            user-select: none;
+            transition: all .2s;
+        }
+        .filter-tag:hover { background: #F2F3FF; border-color: var(--qms-color); color: var(--qms-color); }
+        .filter-tag.active { background: var(--qms-color); border-color: var(--qms-color); color: #fff; }
+        .filter-tag.system-Q.active { background: var(--qms-color); border-color: var(--qms-color); }
+        .filter-tag.system-E.active { background: var(--ems-color); border-color: var(--ems-color); }
+        .filter-tag.system-S.active { background: var(--ohsms-color); border-color: var(--ohsms-color); }
+        .filter-tag.system-F.active { background: var(--fsms-color); border-color: var(--fsms-color); }
+        .search-box { position: relative; margin: 12px 0; }
+        .search-input {
+            width: 100%;
+            height: 34px;
+            padding: 8px 12px 8px 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .search-input:focus { border-color: var(--qms-color); }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--weak-color);
+        }
+        .material-nav {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 8px 0 14px;
+            scrollbar-gutter: stable;
+        }
+        .material-nav::-webkit-scrollbar, .content-body::-webkit-scrollbar { width: 8px; }
+        .material-nav::-webkit-scrollbar-thumb, .content-body::-webkit-scrollbar-thumb {
+            background: #d4dae5;
+            border-radius: 999px;
+        }
+        .material-group { margin-bottom: 4px; }
+        .group-title {
+            padding: 11px 16px;
+            background: #f7f8fa;
+            border-bottom: 1px solid #eef0f3;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .group-title-main { display: flex; align-items: center; gap: 8px; }
+        .group-count, .group-file-count {
+            font-size: 12px;
+            color: var(--weak-color);
+            font-weight: 500;
+        }
+        .group-items { display: block; }
+        .material-group.collapsed .group-items { display: none; }
+        .material-item {
+            padding: 11px 16px;
+            border-left: 3px solid transparent;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .material-item:hover { background: #fafafa; }
+        .material-item.active {
+            background: #F4F8FF;
+            border-left-color: var(--qms-color);
+        }
+        .material-item.hidden { display: none; }
+        .material-item.empty-files .file-count-pill { color: var(--reject-color); background: #FFF1F0; }
+        .item-header { display: block; }
+        .item-name {
+            font-size: 13px;
+            line-height: 1.45;
+            color: rgba(0,0,0,0.9);
+            word-break: break-word;
+        }
+        .item-meta, .material-summary-meta {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.45);
+        }
+        .sys-badge, .system-badge-table, .system-tag-mini {
+            min-width: 24px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 18px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .sys-badge.Q, .system-badge-table.Q, .system-tag-mini.Q { background: #E8F1FF; border-color: #B7D3FF; color: #0052D9; }
+        .sys-badge.E, .system-badge-table.E, .system-tag-mini.E { background: #E6F7F1; border-color: #B8E8D7; color: #00875A; }
+        .sys-badge.S, .system-badge-table.S, .system-tag-mini.S { background: #FFF3E5; border-color: #FFD5A8; color: #C46000; }
+        .sys-badge.F, .system-badge-table.F, .system-tag-mini.F { background: #F1EDFF; border-color: #D6CAFF; color: #6339D8; }
+        .sys-badge.dimmed, .system-badge-table.dimmed, .system-tag-mini.dimmed {
+            background: #F2F3F5;
+            border-color: #DCDDE1;
+            color: #9CA3AF;
+        }
+        .file-count-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 999px;
+            background: #F2F3F5;
+            font-size: 11px;
+            color: #586174;
+            white-space: nowrap;
+        }
+        .required-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .required-pill.must { background: #FFF1F0; color: var(--reject-color); }
+        .content-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .content-header {
+            padding: 16px 20px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .content-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-text { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; white-space: nowrap; }
+        .content-subtitle { margin-top: 8px; color: #666; font-size: 13px; line-height: 1.6; }
+        .system-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .system-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .system-tag.Q { background: #E8F1FF; border-color: #B7D3FF; color: #0052D9; }
+        .system-tag.E { background: #E6F7F1; border-color: #B8E8D7; color: #00875A; }
+        .system-tag.S { background: #FFF3E5; border-color: #FFD5A8; color: #C46000; }
+        .system-tag.F { background: #F1EDFF; border-color: #D6CAFF; color: #6339D8; }
+        .content-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafafa;
+        }
+        .summary-grid { display: none; }
+        .summary-card-large {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .summary-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .summary-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+        .summary-status {
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            color: #D97706;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .summary-stats { display: flex; gap: 14px; }
+        .stat-item { display: flex; flex-direction: column; gap: 4px; }
+        .stat-value { font-size: 24px; font-weight: 600; }
+        .stat-label { font-size: 12px; color: rgba(0,0,0,0.5); }
+        .material-table-container {
+            background: #fff;
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            min-height: calc(100% - 4px);
+            box-shadow: 0 1px 2px rgba(15, 35, 75, .03);
+        }
+        .material-table-header {
+            min-height: 56px;
+            padding: 14px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .header-meta { font-size: 12px; color: #64748B; font-weight: 500; }
+        .material-data-table { width: 100%; border-collapse: collapse; }
+        .material-data-table th {
+            background: #fafafa;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            color: rgba(0,0,0,0.6);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .material-data-table td {
+            height: 78px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        .material-data-table tr:hover { background: #fafafa; }
+        .material-data-table tr.highlighted { background: #FFFBE6; }
+        .file-name-cell { display: flex; flex-direction: column; gap: 4px; }
+        .file-name-text { color: rgba(0,0,0,0.9); font-weight: 600; font-size: 14px; }
+        .file-parent-text { color: #64748B; font-size: 12px; }
+        .systems-cell { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+        .empty-state { padding: 28px; text-align: center; color: var(--weak-color); font-size: 13px; }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.ready { background: #E3F9E9; color: var(--pass-color); }
+        .status-badge.missing { background: #FFEBED; color: var(--reject-color); }
+        .status-badge.pending { background: #FFF0D6; color: var(--pending-color); }
+        .source-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #F2F3FF;
+            color: var(--qms-color);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .t-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+        .top-header .t-button { min-width: 104px; }
+        .t-button svg { flex-shrink: 0; }
+        .btn-primary { background: var(--qms-color); border-color: var(--qms-color); color: #fff; }
+        .btn-primary:hover { background: #0047bd; }
+        .btn-success { background: var(--pass-color); border-color: var(--pass-color); color: #fff; }
+        .btn-success:hover { background: #008f60; }
+        .btn-outline { border-color: var(--border-color); color: rgba(0,0,0,0.75); }
+        .btn-outline:hover { border-color: var(--qms-color); color: var(--qms-color); background: #F2F3FF; }
+        .btn-text { border-color: transparent; color: var(--qms-color); background: transparent; padding: 0 8px; }
+        .btn-danger-text { color: var(--reject-color); }
+        .btn-small { height: 28px; padding: 0 10px; font-size: 12px; }
+        .t-button:disabled { opacity: .45; cursor: not-allowed; }
+        .t-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag-primary { background: #E8F1FF; color: var(--qms-color); }
+        .tag-gray { background: #F2F3F5; color: #606975; }
+        .tag-warning { background: #FFF0D6; color: var(--pending-color); }
+        .upload-panel {
+            display: none;
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #B5D1FF;
+            background: #F4F8FF;
+        }
+        .upload-panel.active { display: block; }
+        .upload-file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .upload-file-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            background: #fff;
+            border: 1px solid #dbe7ff;
+            font-size: 13px;
+        }
+        .upload-options { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; }
+        .upload-options label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+        .panel-section { padding: 20px; border-bottom: 8px solid #f5f5f5; }
+        .panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .sys-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .system-progress-list { display: flex; flex-direction: column; gap: 16px; }
+        .system-progress-item { border: 1px solid #eef0f3; border-radius: 8px; padding: 12px; background: #fff; }
+        .progress-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+        .system-name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .progress-bar-bg { height: 8px; border-radius: 999px; background: #EEF0F3; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 999px; transition: width .25s; }
+        .fill-Q { background: var(--qms-color); }
+        .fill-E { background: var(--ems-color); }
+        .fill-S { background: var(--ohsms-color); }
+        .fill-F { background: var(--fsms-color); }
+        .progress-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--weak-color);
+        }
+        .missing-text { color: var(--reject-color); font-weight: 600; }
+        .done-text { color: var(--pass-color); font-weight: 600; }
+        .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+        .summary-card {
+            border: 1px solid #e5eaf3;
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            background: #fff;
+        }
+        .summary-card.error { background: #FFF1F0; border-color: #FFCCC7; }
+        .summary-card.success { background: #E3F9E9; border-color: #B5F5C8; }
+        .summary-value { font-size: 22px; font-weight: 700; }
+        .summary-label { margin-top: 4px; font-size: 12px; color: rgba(0,0,0,0.55); }
+        .submit-check {
+            border: 1px solid #FDE68A;
+            background: #FFFBEB;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #8A4B00;
+        }
+        .submit-check.ready {
+            border-color: #B5F5C8;
+            background: #F0FFF4;
+            color: #087443;
+        }
+        .modal-mask {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-mask.active { display: flex; }
+        .modal {
+            width: 460px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,.18);
+        }
+        .modal-header, .modal-footer {
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-weight: 600;
+        }
+        .modal-footer { border-top: 1px solid var(--border-color); border-bottom: none; justify-content: flex-end; }
+        .modal-body { padding: 22px 20px; font-size: 14px; line-height: 1.7; }
+        .library-modal {
+            width: 1500px;
+            max-width: calc(100vw - 96px);
+            height: 78vh;
+            max-height: 820px;
+            display: flex;
+            flex-direction: column;
+        }
+        .library-modal .modal-header,
+        .library-modal .modal-footer {
+            flex-shrink: 0;
+        }
+        .library-modal .modal-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            padding: 0;
+            background: #fff;
+            display: flex;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+        .library-sidebar {
+            width: 210px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border-color);
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .library-side-title {
+            padding: 18px 20px 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .library-side-stats {
+            padding: 0 20px 16px;
+            color: var(--weak-color);
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .library-categories {
+            padding: 10px 0;
+            overflow-y: auto;
+        }
+        .library-category {
+            height: 34px;
+            padding: 0 16px 0 20px;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(0,0,0,0.72);
+            cursor: pointer;
+        }
+        .library-category:hover { background: #fafafa; }
+        .library-category.active {
+            background: #F2F3FF;
+            border-left-color: var(--qms-color);
+            color: var(--qms-color);
+            font-weight: 600;
+        }
+        .library-category-count {
+            min-width: 24px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: #F2F3F5;
+            color: #586174;
+            font-size: 11px;
+            line-height: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .library-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        .library-toolbar {
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fff;
+            flex-shrink: 0;
+        }
+        .library-breadcrumb {
+            font-size: 12px;
+            color: var(--weak-color);
+            margin-bottom: 16px;
+        }
+        .library-breadcrumb strong { color: rgba(0,0,0,0.8); }
+        .library-title-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+        .library-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .library-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .library-search {
+            position: relative;
+            width: 260px;
+        }
+        .library-search input,
+        .library-filter-row select {
+            height: 34px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #fff;
+            color: rgba(0,0,0,0.78);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+        .library-search input {
+            width: 100%;
+            padding: 0 12px 0 32px;
+        }
+        .library-filter-row select {
+            min-width: 138px;
+            padding: 0 28px 0 10px;
+        }
+        .library-search input:focus,
+        .library-filter-row select:focus {
+            border-color: var(--qms-color);
+        }
+        .library-table-wrap {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            background: #fff;
+        }
+        .library-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .library-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #fafafa;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 12px;
+            color: rgba(0,0,0,0.62);
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+        }
+        .library-table td {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 13px 12px;
+            font-size: 13px;
+            vertical-align: middle;
+            color: rgba(0,0,0,0.78);
+        }
+        .library-table tbody tr:hover { background: #fafafa; }
+        .library-table tbody tr.selected { background: #F4F8FF; }
+        .library-check-cell,
+        .library-index-cell {
+            text-align: center;
+        }
+        .library-checkbox {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--qms-color);
+            cursor: pointer;
+        }
+        .library-file-name {
+            font-weight: 600;
+            color: rgba(0,0,0,0.84);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .library-file-size {
+            margin-top: 4px;
+            color: var(--weak-color);
+            font-size: 12px;
+        }
+        .library-system-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .library-type-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .library-type-badge.form {
+            background: #FFF3E5;
+            color: #C46000;
+        }
+        .library-type-badge.attachment {
+            background: #E8F7FF;
+            color: #0068B7;
+        }
+        .library-step-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #E8F1FF;
+            color: var(--qms-color);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .library-step-tag.review {
+            background: #FFEBED;
+            color: var(--reject-color);
+        }
+        .library-empty {
+            padding: 40px;
+            text-align: center;
+            color: var(--weak-color);
+            font-size: 13px;
+        }
+        .library-footer-meta {
+            margin-right: auto;
+            color: rgba(0,0,0,0.55);
+            font-size: 13px;
+        }
+        .library-footer-meta strong {
+            color: var(--qms-color);
+        }
+        .toast {
+            position: fixed;
+            top: 78px;
+            right: 24px;
+            z-index: 1200;
+            display: none;
+            max-width: 360px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #B5D1FF;
+            background: #F4F8FF;
+            color: #0B3B88;
+            font-size: 13px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        }
+        .toast.active { display: block; }
+        .hidden { display: none !important; }
+        .inline-search {
+            position: relative;
+            width: 408px;
+            flex-shrink: 0;
+        }
+        .inline-search .search-input {
+            margin: 0;
+        }
+        .action-spacer {
+            flex: 1 1 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="page-container">
+    <header class="top-header">
+        <div class="project-title-row">
+            <div class="project-title-main">
+                <button class="t-button btn-text" onclick="showToast('返回审核项目列表页（模拟）')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    返回
+                </button>
+                <span class="project-title">项目基础信息</span>
+                <span class="project-task">任务号：TASK-2026-001</span>
+                <span class="header-meta">客户A · Q/E/S/F 四体系整合审核</span>
+                <span class="project-current" id="currentMaterialName">当前材料：全部材料</span>
+            </div>
+            <div class="header-right">
+                <button class="t-button btn-outline" onclick="simulateAllUploaded()">模拟全部资料补齐</button>
+                <button class="t-button btn-outline" onclick="showToast('已保存草稿（模拟）')">保存草稿</button>
+                <button class="t-button btn-primary" id="submitBtn" disabled onclick="openSubmitModal()">提交初次评定</button>
+            </div>
+        </div>
+        <div class="project-tip">系统已自动带出前序业务环节产生的归档文件。请补充缺失材料，全部体系达到 100% 后提交初次评定。</div>
+        <div class="system-overview" id="systemOverview"></div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar-left">
+            <div class="sidebar-header">
+                <div class="sidebar-title">材料清单</div>
+                <div class="sidebar-stats" id="globalStats">总计: 48项 | 已完成: 0 | 缺失: 0</div>
+                <div class="filter-tags">
+                    <span class="filter-tag active" data-status-filter="all" onclick="filterByStatus('all', this)">全部</span>
+                    <span class="filter-tag" data-status-filter="missing" onclick="filterByStatus('missing', this)">缺失</span>
+                    <span class="filter-tag" data-status-filter="ready" onclick="filterByStatus('ready', this)">已带入</span>
+                </div>
+            </div>
+            <div class="material-nav" id="materialNav"></div>
+        </aside>
+
+        <main class="content-main">
+            <div class="content-header">
+                <div class="content-title-row">
+                    <div class="title-text" id="contentTitle">具体文件列表</div>
+                    <div class="inline-search">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <input class="search-input" id="materialSearch" placeholder="关键词搜索" oninput="filterMaterials(this.value)">
+                    </div>
+                    <div class="action-spacer"></div>
+                    <div class="header-right">
+                        <button class="t-button btn-outline" onclick="triggerLocalUpload()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            上传文件
+                        </button>
+                        <input type="file" id="fileUpload" multiple style="display:none" onchange="handleLocalUpload(event)">
+                        <button class="t-button btn-outline" onclick="openLibraryModal()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            从资料库选择
+                        </button>
+                    </div>
+                </div>
+                <div id="uploadPanel" class="upload-panel">
+                    <div style="font-size:13px;color:rgba(0,0,0,0.65);font-weight:600;">待补充文件</div>
+                    <div id="uploadFileList" class="upload-file-list"></div>
+                    <div class="upload-options">
+                        <span style="font-weight:600;color:rgba(0,0,0,0.6);">覆盖体系：</span>
+                        <span id="uploadSystemChecks"></span>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+                        <button class="t-button btn-outline btn-small" onclick="clearUploadPreview()">取消</button>
+                        <button class="t-button btn-primary btn-small" onclick="confirmUpload()">确认补充</button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-body" id="contentBody"></div>
+        </main>
+    </div>
+</div>
+
+<div class="modal-mask" id="submitModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>提交初次评定确认</span>
+            <button class="t-button btn-text" onclick="closeModal('submitModal')">关闭</button>
+        </div>
+        <div class="modal-body">
+            当前 Q/E/S/F 四体系必备材料均已补齐。确认提交后，任务状态将流转为“初次评定”，项目管理人员不可继续编辑材料。
+        </div>
+        <div class="modal-footer">
+            <button class="t-button btn-outline" onclick="closeModal('submitModal')">取消</button>
+            <button class="t-button btn-primary" onclick="confirmSubmit()">确认提交</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="libraryModal">
+    <div class="modal library-modal">
+        <div class="modal-header">
+            <span>从资料库选择</span>
+            <button class="t-button btn-text" onclick="closeModal('libraryModal')">关闭</button>
+        </div>
+        <div class="modal-body">
+            <aside class="library-sidebar">
+                <div class="library-side-title">客户认证审核资料</div>
+                <div class="library-side-stats">共 <span id="libraryTotalCount">19</span> 份资料</div>
+                <div class="library-categories" id="libraryCategories"></div>
+            </aside>
+            <section class="library-main">
+                <div class="library-toolbar">
+                    <div class="library-breadcrumb">首页 / 资料库 / <strong>客户认证审核资料</strong></div>
+                    <div class="library-title-line">
+                        <div class="library-title"><span id="libraryCurrentTitle">全部</span> <span class="header-meta">（<span id="libraryFilteredCount">19</span>份）</span></div>
+                        <span class="header-meta">选择后将关联到当前材料</span>
+                    </div>
+                    <div class="library-filter-row">
+                        <div class="library-search">
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                            <input id="librarySearch" placeholder="搜索资料名称、上传人..." oninput="updateLibraryFilter('keyword', this.value)">
+                        </div>
+                        <select id="librarySystemFilter" onchange="updateLibraryFilter('system', this.value)">
+                            <option value="all">全部领域</option>
+                            <option value="Q">质量管理体系(Q)</option>
+                            <option value="E">环境管理体系(E)</option>
+                            <option value="S">职业健康安全(S)</option>
+                            <option value="F">食品安全体系(F)</option>
+                        </select>
+                        <select id="libraryFileTypeFilter" onchange="updateLibraryFilter('fileType', this.value)">
+                            <option value="all">全部类型</option>
+                            <option value="表单">表单</option>
+                            <option value="附件">附件</option>
+                        </select>
+                        <select id="libraryStepFilter" onchange="updateLibraryFilter('step', this.value)">
+                            <option value="all">全部环节</option>
+                            <option value="认证申请">认证申请</option>
+                            <option value="方案策划">方案策划</option>
+                            <option value="认证审核">认证审核</option>
+                            <option value="二阶段审核">二阶段审核</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="library-table-wrap">
+                    <table class="library-table">
+                        <thead>
+                            <tr>
+                                <th style="width:42px;" class="library-check-cell"><input id="librarySelectAll" class="library-checkbox" type="checkbox" onchange="toggleLibrarySelectAll(this.checked)"></th>
+                                <th style="width:64px;" class="library-index-cell">#</th>
+                                <th style="width:32%;">资料名称</th>
+                                <th style="width:15%;">认证领域</th>
+                                <th style="width:15%;">文件类型</th>
+                                <th style="width:10%;">类型</th>
+                                <th style="width:14%;">上传时间</th>
+                                <th style="width:14%;">上传环节</th>
+                            </tr>
+                        </thead>
+                        <tbody id="libraryTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div class="modal-footer">
+            <div class="library-footer-meta">已选择 <strong id="librarySelectedCount">0</strong> 项资料</div>
+            <button class="t-button btn-outline" onclick="closeModal('libraryModal')">取消</button>
+            <button class="t-button btn-primary" id="libraryConfirmBtn" onclick="selectFromLibrary()" disabled>确认选择（0）</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span>删除材料文件</span>
+            <button class="t-button btn-text" onclick="closeModal('deleteModal')">关闭</button>
+        </div>
+        <div class="modal-body" id="deleteModalBody">确认删除该材料文件？删除后将重新计算完整性。</div>
+        <div class="modal-footer">
+            <button class="t-button btn-outline" onclick="closeModal('deleteModal')">取消</button>
+            <button class="t-button btn-primary" onclick="confirmDeleteFile()">确认删除</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PROJECT_SYSTEMS = ['Q', 'E', 'S', 'F'];
+const SYSTEM_META = {
+    Q: { name: '质量管理体系', short: '质量管理', color: 'var(--qms-color)', softBg: '#E8F1FF', softBorder: '#B7D3FF' },
+    E: { name: '环境管理体系', short: '环境管理', color: 'var(--ems-color)', softBg: '#E6F7F1', softBorder: '#B8E8D7' },
+    S: { name: '职业健康安全', short: '职业健康安全', color: 'var(--ohsms-color)', softBg: '#FFF3E5', softBorder: '#FFD5A8' },
+    F: { name: '食品安全体系', short: '食品安全', color: 'var(--fsms-color)', softBg: '#F1EDFF', softBorder: '#D6CAFF' }
+};
+const LIBRARY_FILES = [
+    { id: 'LIB-001', name: 'ISO9001认证申请表.pdf', size: '1.5MB', category: '通用材料', systems: ['Q'], fileType: '认证申请表', type: '表单', uploadTime: '2026-03-01 09:23', step: '认证申请', uploader: '张晓' },
+    { id: 'LIB-002', name: '质量环境双体系认证申请表.pdf', size: '2.1MB', category: '通用材料', systems: ['Q','E'], fileType: '认证申请表', type: '表单', uploadTime: '2026-03-02 10:45', step: '认证申请', uploader: '李敏' },
+    { id: 'LIB-003', name: '营业执照副本.pdf', size: '2.2MB', category: '通用材料', systems: ['Q','E','S','F'], fileType: '法律地位证明文件复印件（如营业执照）', type: '附件', uploadTime: '2026-03-01 11:20', step: '认证申请', uploader: '王强' },
+    { id: 'LIB-004', name: '组织机构代码证.pdf', size: '1.8MB', category: '通用材料', systems: ['Q','E','S','F'], fileType: '法律地位证明文件复印件（如营业执照）', type: '附件', uploadTime: '2026-03-02 09:00', step: '认证申请', uploader: '王强' },
+    { id: 'LIB-005', name: 'QMS申请评审记录表.xlsx', size: '980KB', category: '通用材料', systems: ['Q'], fileType: '认证申请评审表', type: '表单', uploadTime: '2026-03-03 14:30', step: '认证申请', uploader: '赵宁' },
+    { id: 'LIB-006', name: '职业健康安全申请评审意见通知书.docx', size: '1.2MB', category: '通用材料', systems: ['S'], fileType: '认证申请评审表', type: '表单', uploadTime: '2026-03-04 16:00', step: '认证申请', uploader: '陈晨' },
+    { id: 'LIB-007', name: '2026年度EMS审核计划.pdf', size: '3.5MB', category: '一阶段材料', systems: ['E'], fileType: '审核计划', type: '表单', uploadTime: '2026-03-05 08:15', step: '方案策划', uploader: '刘洋' },
+    { id: 'LIB-008', name: 'OHSMS监督审核计划.xlsx', size: '1.1MB', category: '一阶段材料', systems: ['S'], fileType: '审核计划', type: '表单', uploadTime: '2026-03-06 11:30', step: '方案策划', uploader: '刘洋' },
+    { id: 'LIB-009', name: '产品执行标准清单QMS.xlsx', size: '1.2MB', category: '通用材料', systems: ['Q'], fileType: '产品质量标准清单', type: '表单', uploadTime: '2026-03-07 09:30', step: '认证审核', uploader: '周蕾' },
+    { id: 'LIB-010', name: '企业标准备案清单.pdf', size: '3.8MB', category: '通用材料', systems: ['Q','E'], fileType: '产品质量标准清单', type: '附件', uploadTime: '2026-03-08 10:00', step: '认证审核', uploader: '周蕾' },
+    { id: 'LIB-011', name: '行业标准清单FSSC.docx', size: '2.4MB', category: '通用材料', systems: ['F'], fileType: '产品质量标准清单', type: '表单', uploadTime: '2026-03-09 14:20', step: '认证审核', uploader: '孙悦' },
+    { id: 'LIB-012', name: '能源管理体系标准清单.xlsx', size: '980KB', category: '通用材料', systems: ['E'], fileType: '组织适用的法律法规、标准清单', type: '表单', uploadTime: '2026-03-10 11:00', step: '认证审核', uploader: '赵宁' },
+    { id: 'LIB-013', name: '重要环境因素清单.pdf', size: '1.7MB', category: '通用材料', systems: ['E'], fileType: '重要环境因素清单', type: '附件', uploadTime: '2026-03-11 15:30', step: '认证审核', uploader: '李敏' },
+    { id: 'LIB-014', name: '主要危险源和OHS风险清单.xlsx', size: '1.6MB', category: '通用材料', systems: ['S'], fileType: '主要危险源和OHS风险', type: '表单', uploadTime: '2026-03-12 10:40', step: '认证审核', uploader: '陈晨' },
+    { id: 'LIB-015', name: '食品安全检测报告_2026.pdf', size: '4.3MB', category: '通用材料', systems: ['F'], fileType: '食品安全检测报告', type: '附件', uploadTime: '2026-03-13 13:50', step: '认证审核', uploader: '孙悦' },
+    { id: 'LIB-016', name: '第一阶段审核报告.pdf', size: '2.9MB', category: '一阶段材料', systems: ['Q','E','S','F'], fileType: '第一阶段审核报告', type: '附件', uploadTime: '2026-03-14 17:10', step: '认证审核', uploader: '何俊' },
+    { id: 'LIB-017', name: '二阶段首末次会议签到表.pdf', size: '1.3MB', category: '二阶段审核材料', systems: ['Q','E','S','F'], fileType: '首末次会议签到表', type: '附件', uploadTime: '2026-03-16 09:10', step: '二阶段审核', uploader: '何俊' },
+    { id: 'LIB-018', name: '二阶段审核报告.pdf', size: '5.2MB', category: '二阶段审核材料', systems: ['Q','E','S','F'], fileType: '审核报告', type: '附件', uploadTime: '2026-03-17 18:25', step: '二阶段审核', uploader: '何俊' },
+    { id: 'LIB-019', name: '不符合项纠正措施见证材料.zip', size: '8.6MB', category: '二阶段审核材料', systems: ['Q','S'], fileType: '不符合项报告及纠正措施见证材料', type: '附件', uploadTime: '2026-03-18 16:45', step: '二阶段审核', uploader: '周蕾' }
+];
+const FALLBACK_CATALOG = [{"id":"MSF11-20-001","category":"通用材料","materialName":"认证发证推荐表","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":1},{"id":"MSF11-20-002","category":"通用材料","materialName":"证书内容确认件（标黄代表需要pdf附件）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":2},{"id":"MSF11-20-003","category":"通用材料","materialName":"认证申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":3},{"id":"MSF11-20-004","category":"通用材料","materialName":"全国认证认可信息公共服务平台(认e云)查询截图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":4},{"id":"MSF11-20-005","category":"通用材料","materialName":"获证方情况调查表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":5},{"id":"MSF11-20-006","category":"通用材料","materialName":"证书变更申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":6},{"id":"MSF11-20-007","category":"通用材料","materialName":"认证周期绩效评价表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":7},{"id":"MSF11-20-008","category":"通用材料","materialName":"认证申请评审表（或认证证书转换评审记录）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":8},{"id":"MSF11-20-009","category":"通用材料","materialName":"法律地位证明文件复印件（如营业执照）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":9},{"id":"MSF11-20-010","category":"通用材料","materialName":"相关资质证明原件复印件、守法证明（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":10},{"id":"MSF11-20-011","category":"通用材料","materialName":"生产工艺/服务流程图(适用时)","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":11},{"id":"MSF11-20-012","category":"通用材料","materialName":"管理体系过程清单（Q/E/S）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":12},{"id":"MSF11-20-013","category":"通用材料","materialName":"组织机构图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":13},{"id":"MSF11-20-014","category":"通用材料","materialName":"认证场所清单（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":14},{"id":"MSF11-20-015","category":"通用材料","materialName":"审核项目推进表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":15},{"id":"MSF11-20-016","category":"通用材料","materialName":"地理位置示意图和厂区平面布置图","tag":"Q除外","applicableSystems":["E","S","F"],"sortOrder":16},{"id":"MSF11-20-017","category":"通用材料","materialName":"组织适用的产品或服务质量标准清单","tag":"Q/F/H","applicableSystems":["Q","F"],"sortOrder":17},{"id":"MSF11-20-018","category":"通用材料","materialName":"组织适用的法律法规、标准清单","tag":"E/S","applicableSystems":["E","S"],"sortOrder":18},{"id":"MSF11-20-019","category":"通用材料","materialName":"重要环境因素清单","tag":"E","applicableSystems":["E"],"sortOrder":19},{"id":"MSF11-20-020","category":"通用材料","materialName":"主要危险源和OHS风险","tag":"S","applicableSystems":["S"],"sortOrder":20},{"id":"MSF11-20-021","category":"通用材料","materialName":"使用的主要危险材料(适用时）","tag":"S","applicableSystems":["S"],"sortOrder":21},{"id":"MSF11-20-022","category":"通用材料","materialName":"质量/环境/职业健康/食品安全目标","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":22},{"id":"MSF11-20-023","category":"通用材料","materialName":"需要应对的风险和机遇注","tag":"E/S","applicableSystems":["E","S"],"sortOrder":23},{"id":"MSF11-20-024","category":"通用材料","materialName":"污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":24},{"id":"MSF11-20-025","category":"通用材料","materialName":"法规符合性证明文件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":25},{"id":"MSF11-20-026","category":"通用材料","materialName":"适用性声明","tag":"IS","applicableSystems":["Q","E","S","F"],"sortOrder":26},{"id":"MSF11-20-027","category":"通用材料","materialName":"详细产品（包括原辅料及终产品）及工艺描述","tag":"F/H","applicableSystems":["F"],"sortOrder":27},{"id":"MSF11-20-028","category":"通用材料","materialName":"生产车间平面布置图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":28},{"id":"MSF11-20-029","category":"通用材料","materialName":"危害分析及OPRP、CCP等针对显著危害的控制措施","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":29},{"id":"MSF11-20-030","category":"通用材料","materialName":"FSMS（HACCP）认证申请组织添加剂使用清单","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":30},{"id":"MSF11-20-031","category":"通用材料","materialName":"食品安全检测报告","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":31},{"id":"MSF11-20-032","category":"通用材料","materialName":"食品安全认证申请组织自我声明","tag":"F/H","applicableSystems":["F"],"sortOrder":32},{"id":"MSF11-20-033","category":"一阶段材料","materialName":"一阶段不实施现场审核的申请（适用时）","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":33},{"id":"MSF11-20-034","category":"一阶段材料","materialName":"审核任务书","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":34},{"id":"MSF11-20-035","category":"一阶段材料","materialName":"首末次会议签到表（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":35},{"id":"MSF11-20-036","category":"一阶段材料","materialName":"审核计划（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":36},{"id":"MSF11-20-037","category":"一阶段材料","materialName":"第一阶段审核问题清单（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":37},{"id":"MSF11-20-038","category":"一阶段材料","materialName":"第一阶段审核报告","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":38},{"id":"MSF11-20-039","category":"一阶段材料","materialName":"文件评审报告(适用时)","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":39},{"id":"MSF11-20-040","category":"二阶段及其他审核材料","materialName":"审核任务书","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":40},{"id":"MSF11-20-041","category":"二阶段及其他审核材料","materialName":"审核准备会记录(适用时)","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":41},{"id":"MSF11-20-042","category":"二阶段及其他审核材料","materialName":"首末次会议签到表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":42},{"id":"MSF11-20-043","category":"二阶段及其他审核材料","materialName":"审核计划","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":43},{"id":"MSF11-20-044","category":"二阶段及其他审核材料","materialName":"不符合项报告及纠正措施见证材料（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":44},{"id":"MSF11-20-045","category":"二阶段及其他审核材料","materialName":"核查记录表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":45},{"id":"MSF11-20-046","category":"二阶段及其他审核材料","materialName":"审核报告","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":46},{"id":"MSF11-20-047","category":"二阶段及其他审核材料","materialName":"异地审核情况报备表（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":47},{"id":"MSF11-20-048","category":"二阶段及其他审核材料","materialName":"其他拟上报的资料（适用时，请注明上报材料类型）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":48}];
+
+let catalog = [];
+let materials = [];
+let currentMaterialId = 'all';
+let selectedSystems = new Set();
+let currentStatusFilter = 'all';
+let searchKeyword = '';
+let pendingFiles = [];
+let pendingDelete = null;
+let selectedLibraryFiles = new Set();
+let libraryFilters = { category: 'all', keyword: '', system: 'all', fileType: 'all', step: 'all' };
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function normalizeSystems(systems) {
+    const filtered = (systems || []).filter(system => PROJECT_SYSTEMS.includes(system));
+    return filtered.length ? filtered : PROJECT_SYSTEMS;
+}
+function getRequirementRaw(item, auditType = 'initialCertification') {
+    const value = item.requirements && item.requirements[auditType];
+    if (typeof value === 'string') return value;
+    if (value && typeof value === 'object') return value.raw || '';
+    return '';
+}
+function isRequiredForCurrentScope(material) {
+    const scopedSystems = selectedSystems.size ? Array.from(selectedSystems) : PROJECT_SYSTEMS;
+    const inCurrentSystemScope = material.applicableSystems.some(system => scopedSystems.includes(system));
+    if (!inCurrentSystemScope) return false;
+    const raw = getRequirementRaw(material, 'initialCertification');
+    return raw.includes('★') || raw.includes('◆') || raw.includes('分阶段时');
+}
+async function loadCatalog() {
+    try {
+        const response = await fetch('./materials-catalog.json');
+        if (!response.ok) throw new Error('catalog request failed');
+        const data = await response.json();
+        catalog = (data.materials || []).map(item => ({
+            id: item.id,
+            category: item.category,
+            materialName: item.materialName,
+            tag: item.rawApplicableSystems || item.tag || item.category,
+            applicableSystems: normalizeSystems(item.applicableSystems),
+            sortOrder: item.sortOrder || Number(String(item.id).slice(-3)),
+            requirements: item.requirements || {}
+        }));
+    } catch (error) {
+        catalog = FALLBACK_CATALOG.map(item => ({ ...item, applicableSystems: normalizeSystems(item.applicableSystems), requirements: {} }));
+    }
+}
+function createMockFiles(item) {
+    const readyIds = new Set(['MSF11-20-003','MSF11-20-008','MSF11-20-009','MSF11-20-012','MSF11-20-013','MSF11-20-015','MSF11-20-024','MSF11-20-031','MSF11-20-034','MSF11-20-040','MSF11-20-043','MSF11-20-046']);
+    const multiFileIds = new Set(['MSF11-20-009','MSF11-20-024']);
+    if (!readyIds.has(item.id)) return [];
+    const sourceMap = {
+        'MSF11-20-003': '认证申请同步',
+        'MSF11-20-008': '业务评审环节带入',
+        'MSF11-20-009': '客户资料库自动带入',
+        'MSF11-20-012': '认证申请同步',
+        'MSF11-20-013': '审核项目资料带入',
+        'MSF11-20-015': '审核过程管理带入',
+        'MSF11-20-024': '审核任务书附件',
+        'MSF11-20-031': '客户资料库自动带入',
+        'MSF11-20-034': '审核任务管理带入',
+        'MSF11-20-040': '审核任务管理带入',
+        'MSF11-20-043': '审核计划确认带入',
+        'MSF11-20-046': '审核报告录入带入'
+    };
+    const safeName = item.materialName.replace(/[（(].*?[）)]/g, '').replace(/[\/]/g, '-');
+    const baseFile = {
+        id: `${item.id}-file-1`,
+        name: `${safeName}.pdf`,
+        type: item.id === 'MSF11-20-003' || item.id === 'MSF11-20-008' ? '在线表单' : '附件',
+        source: sourceMap[item.id] || '前序业务环节带入',
+        size: item.id === 'MSF11-20-003' ? '在线表单' : '1.2 MB',
+        uploadTime: '2026-03-15 09:30',
+        systems: item.applicableSystems
+    };
+    if (!multiFileIds.has(item.id)) return [baseFile];
+    return [
+        baseFile,
+        { ...baseFile, id: `${item.id}-file-2`, name: `${safeName}_补充件.pdf`, source: '资料库关联', size: '870 KB', uploadTime: '2026-03-15 14:20', systems: item.applicableSystems.filter(system => system !== 'Q').length ? item.applicableSystems.filter(system => system !== 'Q') : item.applicableSystems }
+    ];
+}
+function initMaterials() {
+    materials = catalog
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(item => ({
+            ...item,
+            files: createMockFiles(item)
+        }));
+}
+function getMaterialStatus(material) {
+    return material.files.length > 0 ? 'ready' : 'missing';
+}
+function renderSystemBadges(systems, className = 'sys-badge') {
+    return systems.map(system => {
+        const dimmed = selectedSystems.size > 0 && !selectedSystems.has(system) ? ' dimmed' : '';
+        return `<span class="${className} ${system}${dimmed}">${system}</span>`;
+    }).join('');
+}
+function renderPageTags(systems = PROJECT_SYSTEMS) {
+    const pageTags = document.getElementById('pageTags');
+    if (pageTags) {
+        pageTags.innerHTML = systems.map(system => `<span class="system-tag ${system}">${SYSTEM_META[system].name}</span>`).join('');
+    }
+}
+function getFilteredMaterials() {
+    return materials.filter(material => {
+        const systems = material.applicableSystems;
+        const systemMatch = selectedSystems.size === 0 || systems.some(system => selectedSystems.has(system));
+        const searchMatch = !searchKeyword || material.materialName.includes(searchKeyword);
+        const status = getMaterialStatus(material);
+        const statusMatch = currentStatusFilter === 'all' || status === currentStatusFilter;
+        return systemMatch && searchMatch && statusMatch;
+    });
+}
+function renderMaterialNav() {
+    const nav = document.getElementById('materialNav');
+    const filtered = getFilteredMaterials();
+    const categoryOrder = ['通用材料', '一阶段材料', '二阶段及其他审核材料'];
+    const allFileCount = materials.reduce((sum, item) => sum + item.files.length, 0);
+    const requiredCount = filtered.filter(isRequiredForCurrentScope).length;
+    let html = `
+        <div class="material-group">
+            <div class="material-item ${currentMaterialId === 'all' ? 'active' : ''}" onclick="showAllMaterials()">
+                <div class="item-header">
+                    <div class="item-name" style="font-weight:700;">全部材料跨体系视图</div>
+                </div>
+                <div class="material-summary-meta">
+                    <span>${materials.length}项材料 · 当前必交${requiredCount}项</span>
+                    <span class="file-count-pill">${allFileCount}个文件</span>
+                </div>
+            </div>
+        </div>`;
+    categoryOrder.forEach(category => {
+        const items = filtered.filter(item => item.category === category);
+        if (!items.length) return;
+        const fileCount = items.reduce((sum, item) => sum + item.files.length, 0);
+        html += `
+            <div class="material-group" data-category="${escapeHtml(category)}">
+                <div class="group-title" onclick="toggleGroup(this)">
+                    <span class="group-title-main">
+                        <span>${category === '二阶段及其他审核材料' ? '二阶段材料' : escapeHtml(category)}</span>
+                        <span class="group-count">${items.length}项</span>
+                    </span>
+                    <span class="group-file-count">${fileCount}个文件</span>
+                </div>
+                <div class="group-items">
+                    ${items.map(item => {
+                        const status = getMaterialStatus(item);
+                        const required = isRequiredForCurrentScope(item);
+                        return `
+                            <div class="material-item ${currentMaterialId === item.id ? 'active' : ''} ${status === 'missing' ? 'empty-files' : ''}" onclick="switchMaterial('${item.id}')">
+                                <div class="item-header">
+                                    <div class="item-name">${escapeHtml(item.materialName)}</div>
+                                </div>
+                                <div class="item-meta">
+                                    <span>${escapeHtml(item.tag || item.category)}</span>
+                                    <span style="display:flex;align-items:center;gap:6px;">
+                                        ${required ? '<span class="required-pill must">必交</span>' : ''}
+                                        <span class="file-count-pill">${status === 'missing' ? '未上传' : item.files.length + '个文件'}</span>
+                                    </span>
+                                </div>
+                            </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+    });
+    nav.innerHTML = html;
+    const filteredCount = document.getElementById('filteredCount');
+    if (filteredCount) filteredCount.textContent = filtered.length;
+}
+function renderSummaryCards(filteredMaterials = materials) {
+    return `<div class="summary-grid">${PROJECT_SYSTEMS.map(system => {
+        const scoped = materials.filter(item => item.applicableSystems.includes(system));
+        const ready = scoped.filter(item => item.files.length > 0).length;
+        const missing = scoped.length - ready;
+        const percent = Math.round(ready / Math.max(scoped.length, 1) * 100);
+        return `
+            <div class="summary-card-large" onclick="toggleSystemFilter('${system}')">
+                <div class="summary-card-head">
+                    <div class="summary-title"><span class="sys-dot" style="background:${SYSTEM_META[system].color};"></span>${SYSTEM_META[system].name}(${SYSTEM_META[system].short})</div>
+                    <span class="summary-status">${percent === 100 ? '可提交' : '待补充'}</span>
+                </div>
+                <div class="summary-stats">
+                    <div class="stat-item"><span class="stat-value" style="color:${SYSTEM_META[system].color};">${percent}%</span><span class="stat-label">完整度</span></div>
+                    <div class="stat-item"><span class="stat-value" style="color:var(--pass-color);">${ready}</span><span class="stat-label">已完成</span></div>
+                    <div class="stat-item"><span class="stat-value" style="color:var(--reject-color);">${missing}</span><span class="stat-label">缺失项</span></div>
+                </div>
+            </div>`;
+    }).join('')}</div>`;
+}
+function renderAllMaterialsView() {
+    currentMaterialId = 'all';
+    document.getElementById('currentMaterialName').textContent = '当前材料：全部材料';
+    document.getElementById('contentTitle').textContent = '具体文件列表';
+    renderPageTags(PROJECT_SYSTEMS);
+    const filtered = getFilteredMaterials();
+    if (currentStatusFilter === 'all' || currentStatusFilter === 'ready' || currentStatusFilter === 'missing') {
+        renderCurrentFileListView(filtered);
+        return;
+    }
+}
+function renderCurrentFileListView(filteredMaterials) {
+    const fileRows = filteredMaterials.flatMap(material => {
+        return material.files.map(file => `
+            <tr>
+                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
+                <td><div class="systems-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
+                <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
+            </tr>`);
+    }).join('');
+    const fileCount = filteredMaterials.reduce((sum, material) => sum + material.files.length, 0);
+    const emptyText = currentStatusFilter === 'missing'
+        ? '当前筛选范围暂无已带入文件。请在左侧选择缺失材料后，通过本地上传或资料库选择进行补充。'
+        : '当前筛选范围暂无已带入文件。';
+    document.getElementById('contentBody').innerHTML = `
+        ${renderSummaryCards(filteredMaterials)}
+        <div class="material-table-container">
+            <div class="material-table-header">
+                <span>材料明细表</span>
+                <span class="header-meta">当前显示 ${fileCount} 个具体文件，来自 ${filteredMaterials.length} 项材料</span>
+            </div>
+            <table class="material-data-table">
+                <thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead>
+                <tbody>${fileRows || `<tr><td colspan="3"><div class="empty-state">${emptyText}</div></td></tr>`}</tbody>
+            </table>
+        </div>`;
+    renderMaterialNav();
+    updatePanels();
+}
+function switchMaterial(materialId) {
+    currentMaterialId = materialId;
+    const material = materials.find(item => item.id === materialId);
+    if (!material) return;
+    document.getElementById('currentMaterialName').textContent = `当前材料：${material.materialName}`;
+    document.getElementById('contentTitle').textContent = '具体文件列表';
+    renderPageTags(material.applicableSystems);
+    renderUploadSystemChecks(material);
+    const fileRows = material.files.map(file => `
+        <tr>
+            <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
+            <td><div class="systems-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
+            <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
+        </tr>`).join('');
+    document.getElementById('contentBody').innerHTML = `
+        <div class="material-table-container">
+            <div class="material-table-header">
+                <span>材料明细表</span>
+                <span class="header-meta">${escapeHtml(material.materialName)} · ${material.files.length ? material.files.length + ' 个具体文件' : '该材料当前缺失'}</span>
+            </div>
+            <table class="material-data-table">
+                <thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead>
+                <tbody>${fileRows || `<tr><td colspan="3"><div class="empty-state">该材料暂无上传文件。请点击右上角“上传文件”或“从资料库选择”进行补充。</div></td></tr>`}</tbody>
+            </table>
+        </div>`;
+    renderMaterialNav();
+    updatePanels();
+}
+function toggleGroup(title) {
+    title.closest('.material-group').classList.toggle('collapsed');
+}
+function showAllMaterials() { renderAllMaterialsView(); }
+function toggleSystemFilter(system) {
+    if (selectedSystems.has(system)) selectedSystems.delete(system);
+    else selectedSystems.add(system);
+    updateFilterStats();
+    renderAllMaterialsView();
+}
+function updateFilterStats() {
+    const systemFilterStats = document.getElementById('systemFilterStats');
+    if (systemFilterStats) systemFilterStats.textContent = selectedSystems.size ? `已选：${Array.from(selectedSystems).join('+')}` : '已选：全部';
+}
+function filterByStatus(type, element) {
+    currentStatusFilter = type;
+    document.querySelectorAll('[data-status-filter]').forEach(tag => tag.classList.remove('active'));
+    element.classList.add('active');
+    renderAllMaterialsView();
+}
+function filterMaterials(value) {
+    searchKeyword = value.trim();
+    renderAllMaterialsView();
+}
+function updatePanels() {
+    const total = materials.length;
+    const ready = materials.filter(item => item.files.length > 0).length;
+    const missing = total - ready;
+    document.getElementById('globalStats').textContent = `总计: ${total}项 | 已完成: ${ready} | 缺失: ${missing}`;
+    const totalCount = document.getElementById('totalCount');
+    if (totalCount) totalCount.textContent = total;
+    document.getElementById('submitBtn').disabled = missing !== 0;
+    document.getElementById('systemOverview').innerHTML = PROJECT_SYSTEMS.map(system => {
+        const scoped = materials.filter(item => item.applicableSystems.includes(system));
+        const done = scoped.filter(item => item.files.length > 0).length;
+        const lack = scoped.length - done;
+        const percent = Math.round(done / Math.max(scoped.length, 1) * 100);
+        const active = selectedSystems.has(system) ? ' active' : '';
+        return `
+            <div class="system-overview-card${active}" style="--system-color:${SYSTEM_META[system].color};--system-soft-bg:${SYSTEM_META[system].softBg};--system-soft-border:${SYSTEM_META[system].softBorder};" onclick="toggleSystemFilter('${system}')">
+                <div class="system-card-head">
+                    <div style="display:flex;align-items:center;min-width:0;">
+                        <div class="system-card-letter" style="color:${SYSTEM_META[system].color};">${system}</div>
+                        <div class="system-card-name">${SYSTEM_META[system].short}</div>
+                    </div>
+                    <div class="system-card-percent">${percent}%</div>
+                </div>
+                <div class="system-card-meta">
+                    <span class="${lack === 0 ? 'system-card-done' : ''}">已完成 ${done}/${scoped.length}</span>
+                    <span class="${lack === 0 ? 'system-card-done' : 'system-card-missing'}">缺失 ${lack} 项</span>
+                </div>
+                <div class="system-card-progress"><span class="fill-${system}" style="width:${percent}%"></span></div>
+            </div>`;
+    }).join('');
+    renderUploadSystemChecks(materials.find(item => item.id === currentMaterialId));
+}
+function renderUploadSystemChecks(material) {
+    const wrap = document.getElementById('uploadSystemChecks');
+    if (!wrap) return;
+    const systems = material && material.id !== 'all' ? material.applicableSystems : (selectedSystems.size ? Array.from(selectedSystems) : PROJECT_SYSTEMS);
+    wrap.innerHTML = systems.map(system => `<label><input type="checkbox" value="${system}" class="upload-sys-check" checked> ${system}</label>`).join('');
+}
+function triggerLocalUpload() {
+    if (currentMaterialId === 'all') {
+        const firstMissing = materials.find(item => item.files.length === 0);
+        if (firstMissing) switchMaterial(firstMissing.id);
+    }
+    document.getElementById('fileUpload').click();
+}
+function handleLocalUpload(event) {
+    pendingFiles = Array.from(event.target.files || []);
+    if (!pendingFiles.length) return;
+    document.getElementById('uploadFileList').innerHTML = pendingFiles.map(file => `<div class="upload-file-item"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(file.name)}</span><span>${(file.size / 1024 / 1024).toFixed(2)} MB</span></div>`).join('');
+    document.getElementById('uploadPanel').classList.add('active');
+}
+function clearUploadPreview() {
+    pendingFiles = [];
+    document.getElementById('fileUpload').value = '';
+    document.getElementById('uploadPanel').classList.remove('active');
+}
+function createAutoSupplementFile(material) {
+    const safeName = material.materialName.replace(/[（(].*?[）)]/g, '').replace(/[\/]/g, '-');
+    return {
+        id: `${material.id}-auto-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: `${safeName || material.id}_补充上传.pdf`,
+        type: '附件',
+        source: '项目管理人员模拟补充',
+        size: '1.0 MB',
+        uploadTime: '刚刚',
+        systems: material.applicableSystems
+    };
+}
+function simulateAllUploaded() {
+    let added = 0;
+    materials.forEach(material => {
+        if (material.files.length === 0) {
+            material.files.push(createAutoSupplementFile(material));
+            added++;
+        }
+    });
+    if (currentMaterialId === 'all') renderAllMaterialsView();
+    else switchMaterial(currentMaterialId);
+    showToast(added > 0 ? `已模拟补齐 ${added} 项缺失材料，可以提交初次评定。` : '全部材料已补齐，无需重复补充。');
+}
+function confirmUpload() {
+    const material = materials.find(item => item.id === currentMaterialId);
+    if (!material) { showToast('请先选择一个具体材料'); return; }
+    const selected = Array.from(document.querySelectorAll('.upload-sys-check:checked')).map(input => input.value);
+    if (!selected.length) { showToast('请至少选择一个覆盖体系'); return; }
+    if (!pendingFiles.length) { showToast('请先选择文件'); return; }
+    pendingFiles.forEach((file, index) => {
+        material.files.push({
+            id: `${material.id}-manual-${Date.now()}-${index}`,
+            name: file.name,
+            type: '附件',
+            source: '项目管理人员本地上传',
+            size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            uploadTime: '刚刚',
+            systems: selected
+        });
+    });
+    clearUploadPreview();
+    switchMaterial(material.id);
+    showToast('材料已补充，完整性已重新计算');
+}
+function getLibraryCategories() {
+    const categories = [
+        { key: 'all', label: '全部' },
+        { key: '通用材料', label: '通用材料' },
+        { key: '一阶段材料', label: '一阶段审核材料' },
+        { key: '二阶段审核材料', label: '二阶段审核材料' }
+    ];
+    return categories.map(category => ({
+        ...category,
+        count: category.key === 'all' ? LIBRARY_FILES.length : LIBRARY_FILES.filter(file => file.category === category.key).length
+    }));
+}
+function getFilteredLibraryFiles() {
+    const keyword = libraryFilters.keyword.trim().toLowerCase();
+    return LIBRARY_FILES.filter(file => {
+        const categoryMatch = libraryFilters.category === 'all' || file.category === libraryFilters.category;
+        const keywordMatch = !keyword || `${file.name} ${file.fileType} ${file.uploader}`.toLowerCase().includes(keyword);
+        const systemMatch = libraryFilters.system === 'all' || file.systems.includes(libraryFilters.system);
+        const typeMatch = libraryFilters.fileType === 'all' || file.type === libraryFilters.fileType;
+        const stepMatch = libraryFilters.step === 'all' || file.step === libraryFilters.step;
+        return categoryMatch && keywordMatch && systemMatch && typeMatch && stepMatch;
+    });
+}
+function renderLibraryCategories() {
+    document.getElementById('libraryCategories').innerHTML = getLibraryCategories().map(category => `
+        <div class="library-category ${libraryFilters.category === category.key ? 'active' : ''}" onclick="updateLibraryFilter('category','${category.key}')">
+            <span>${escapeHtml(category.label)}</span>
+            <span class="library-category-count">${category.count}</span>
+        </div>
+    `).join('');
+}
+function renderLibrarySelectionState(filteredFiles) {
+    const selectedCount = selectedLibraryFiles.size;
+    const confirmBtn = document.getElementById('libraryConfirmBtn');
+    document.getElementById('librarySelectedCount').textContent = selectedCount;
+    confirmBtn.textContent = `确认选择（${selectedCount}）`;
+    confirmBtn.disabled = selectedCount === 0;
+    const selectAll = document.getElementById('librarySelectAll');
+    const visibleIds = filteredFiles.map(file => file.id);
+    const visibleSelectedCount = visibleIds.filter(id => selectedLibraryFiles.has(id)).length;
+    selectAll.checked = visibleIds.length > 0 && visibleSelectedCount === visibleIds.length;
+    selectAll.indeterminate = visibleSelectedCount > 0 && visibleSelectedCount < visibleIds.length;
+}
+function renderLibraryTable() {
+    const filteredFiles = getFilteredLibraryFiles();
+    const activeCategory = getLibraryCategories().find(category => category.key === libraryFilters.category);
+    document.getElementById('libraryCurrentTitle').textContent = activeCategory ? activeCategory.label : '全部';
+    document.getElementById('libraryTotalCount').textContent = LIBRARY_FILES.length;
+    document.getElementById('libraryFilteredCount').textContent = filteredFiles.length;
+    const tableBody = document.getElementById('libraryTableBody');
+    tableBody.innerHTML = filteredFiles.length ? filteredFiles.map((file, index) => `
+        <tr class="${selectedLibraryFiles.has(file.id) ? 'selected' : ''}" onclick="toggleLibraryFile('${file.id}')">
+            <td class="library-check-cell"><input class="library-checkbox" type="checkbox" ${selectedLibraryFiles.has(file.id) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleLibraryFile('${file.id}')"></td>
+            <td class="library-index-cell">${index + 1}</td>
+            <td><div class="library-file-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div><div class="library-file-size">${escapeHtml(file.size)} · 上传人：${escapeHtml(file.uploader)}</div></td>
+            <td><div class="library-system-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
+            <td>${escapeHtml(file.fileType)}</td>
+            <td><span class="library-type-badge ${file.type === '表单' ? 'form' : 'attachment'}">${escapeHtml(file.type)}</span></td>
+            <td>${escapeHtml(file.uploadTime)}</td>
+            <td><span class="library-step-tag ${file.step === '认证审核' || file.step === '二阶段审核' ? 'review' : ''}">${escapeHtml(file.step)}</span></td>
+        </tr>
+    `).join('') : `<tr><td colspan="8"><div class="library-empty">当前筛选条件下暂无资料。</div></td></tr>`;
+    renderLibraryCategories();
+    renderLibrarySelectionState(filteredFiles);
+}
+function updateLibraryFilter(key, value) {
+    libraryFilters[key] = value;
+    renderLibraryTable();
+}
+function toggleLibraryFile(fileId) {
+    if (selectedLibraryFiles.has(fileId)) selectedLibraryFiles.delete(fileId);
+    else selectedLibraryFiles.add(fileId);
+    renderLibraryTable();
+}
+function toggleLibrarySelectAll(checked) {
+    getFilteredLibraryFiles().forEach(file => {
+        if (checked) selectedLibraryFiles.add(file.id);
+        else selectedLibraryFiles.delete(file.id);
+    });
+    renderLibraryTable();
+}
+function openLibraryModal() {
+    if (currentMaterialId === 'all') {
+        const firstMissing = materials.find(item => item.files.length === 0);
+        if (firstMissing) switchMaterial(firstMissing.id);
+    }
+    selectedLibraryFiles = new Set();
+    libraryFilters = { category: 'all', keyword: '', system: 'all', fileType: 'all', step: 'all' };
+    document.getElementById('librarySearch').value = '';
+    document.getElementById('librarySystemFilter').value = 'all';
+    document.getElementById('libraryFileTypeFilter').value = 'all';
+    document.getElementById('libraryStepFilter').value = 'all';
+    renderLibraryTable();
+    document.getElementById('libraryModal').classList.add('active');
+}
+function selectFromLibrary() {
+    const material = materials.find(item => item.id === currentMaterialId);
+    if (!material) return;
+    const selectedFiles = LIBRARY_FILES.filter(file => selectedLibraryFiles.has(file.id));
+    if (!selectedFiles.length) {
+        showToast('请先选择资料库文件');
+        return;
+    }
+    selectedFiles.forEach((file, index) => {
+        material.files.push({
+            id: `${material.id}-library-${Date.now()}-${index}`,
+            name: file.name,
+            type: file.type,
+            source: '资料库选择',
+            size: file.size,
+            uploadTime: '刚刚',
+            systems: file.systems.filter(system => material.applicableSystems.includes(system)).length
+                ? file.systems.filter(system => material.applicableSystems.includes(system))
+                : material.applicableSystems
+        });
+    });
+    closeModal('libraryModal');
+    switchMaterial(material.id);
+    showToast(`已从资料库关联 ${selectedFiles.length} 份资料`);
+}
+function deleteFile(materialId, fileId) {
+    const material = materials.find(item => item.id === materialId);
+    const file = material && material.files.find(item => item.id === fileId);
+    pendingDelete = { materialId, fileId };
+    document.getElementById('deleteModalBody').textContent = `确认删除“${file ? file.name : '该文件'}”？删除后将重新计算完整性。`;
+    document.getElementById('deleteModal').classList.add('active');
+}
+function confirmDeleteFile() {
+    if (!pendingDelete) return;
+    const material = materials.find(item => item.id === pendingDelete.materialId);
+    if (material) {
+        material.files = material.files.filter(file => file.id !== pendingDelete.fileId);
+        closeModal('deleteModal');
+        switchMaterial(pendingDelete.materialId);
+        showToast('文件已删除，完整性已重新计算。');
+    }
+    pendingDelete = null;
+}
+function previewFile(name) { showToast(`预览文件：${name}`); }
+function openSubmitModal() { document.getElementById('submitModal').classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function confirmSubmit() {
+    closeModal('submitModal');
+    showToast('提交成功，任务已进入初次评定阶段');
+    document.getElementById('submitBtn').textContent = '已提交初次评定';
+    document.getElementById('submitBtn').disabled = true;
+}
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('active');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('active'), 2600);
+}
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadCatalog();
+    initMaterials();
+    renderPageTags(PROJECT_SYSTEMS);
+    renderAllMaterialsView();
+});
+</script>
+</body>
+</html>

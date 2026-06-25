@@ -1,0 +1,2629 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogName": "审核材料归档/上报清单",
+  "documentCode": "MSF11-20",
+  "version": "2015版",
+  "revisionDate": "2025-12-31",
+  "effectiveDate": "2026-01-01",
+  "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+  "auditTypes": [
+    {
+      "key": "initialCertification",
+      "label": "初次认证"
+    },
+    {
+      "key": "surveillance",
+      "label": "监督"
+    },
+    {
+      "key": "recertification",
+      "label": "再认证"
+    },
+    {
+      "key": "certificateChange",
+      "label": "证书变更"
+    },
+    {
+      "key": "certificationTransfer",
+      "label": "认证转换"
+    },
+    {
+      "key": "temporaryAudit",
+      "label": "临时审核"
+    }
+  ],
+  "requirementLegend": {
+    "★": "在适用时必须上报",
+    "●": "由各地公司归档保留",
+    "◆": "适用时或进行现场审核时必须上报"
+  },
+  "notes": [
+    "注：资料归档原则是在认证活动中形成的全部正式记录都需要归档保存； 标注●的表示由各地公司归档保留，标注★的表示在适用时必须上报，标注◆的表示适用时或进行现场审核时必须上报； 证书变更结合监督审核或再认证审核进行的，监督或再认证审核所要求的材料也应归档/上报； EMS和OHSMS法规性符合证明文件的要求详见认证实践指南ES/ZN-1和ES/ZN-2；如果获证后无新、改、扩项目，再认证时只需提供EMS认证所需的排污许可材料。 因组织生产/服务的特殊性质（如季节性、临时现场等），审核组在一阶段就对其部分现场的体系运行实施了审核的，需有该现场的审核记录，并与二阶段审核记录一并上报。 对于OHSMS：“需要应对的风险和机遇”包括“需要应对的OH&S风险和其他风险”和“需要应对的OH&S机遇和其他机遇”，请依组织的实际情况上报（格式不限）。 “危险材料”，如：危险化学品、诱变物质、放射性物质等。"
+  ],
+  "materials": [
+    {
+      "id": "MSF11-20-001",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "认证发证推荐表",
+      "rawApplicableSystems": "通用",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "系统上填报",
+      "requirements": {
+        "initialCertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 1
+    },
+    {
+      "id": "MSF11-20-002",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "证书内容确认件（标黄代表需要pdf附件）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 2
+    },
+    {
+      "id": "MSF11-20-003",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "认证申请表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 3
+    },
+    {
+      "id": "MSF11-20-004",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "全国认证认可信息公共服务平台(认e云)查询截图",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 4
+    },
+    {
+      "id": "MSF11-20-005",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "获证方情况调查表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 5
+    },
+    {
+      "id": "MSF11-20-006",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "证书变更申请表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 6
+    },
+    {
+      "id": "MSF11-20-007",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "认证周期绩效评价表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 7
+    },
+    {
+      "id": "MSF11-20-008",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "认证申请评审表（或认证证书转换评审记录）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 8
+    },
+    {
+      "id": "MSF11-20-009",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "法律地位证明文件复印件（如营业执照）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 9
+    },
+    {
+      "id": "MSF11-20-010",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "相关资质证明原件复印件、守法证明（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 10
+    },
+    {
+      "id": "MSF11-20-011",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "生产工艺/服务流程图(适用时)",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 11
+    },
+    {
+      "id": "MSF11-20-012",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "管理体系过程清单（Q/E/S）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 12
+    },
+    {
+      "id": "MSF11-20-013",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "组织机构图",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 13
+    },
+    {
+      "id": "MSF11-20-014",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "认证场所清单（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 14
+    },
+    {
+      "id": "MSF11-20-015",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "审核项目推进表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 15
+    },
+    {
+      "id": "MSF11-20-016",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "地理位置示意图和厂区平面布置图",
+      "rawApplicableSystems": "Q除外",
+      "applicableSystems": [
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 16
+    },
+    {
+      "id": "MSF11-20-017",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "组织适用的产品或服务质量标准清单",
+      "rawApplicableSystems": "Q/F/H",
+      "applicableSystems": [
+        "Q",
+        "F",
+        "H"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 17
+    },
+    {
+      "id": "MSF11-20-018",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "组织适用的法律法规、标准清单",
+      "rawApplicableSystems": "E/S",
+      "applicableSystems": [
+        "E",
+        "S"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 18
+    },
+    {
+      "id": "MSF11-20-019",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "重要环境因素清单",
+      "rawApplicableSystems": "E",
+      "applicableSystems": [
+        "E"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 19
+    },
+    {
+      "id": "MSF11-20-020",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "主要危险源和OHS风险",
+      "rawApplicableSystems": "S",
+      "applicableSystems": [
+        "S"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●(",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 20
+    },
+    {
+      "id": "MSF11-20-021",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "使用的主要危险材料(适用时）",
+      "rawApplicableSystems": "S",
+      "applicableSystems": [
+        "S"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●(",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 21
+    },
+    {
+      "id": "MSF11-20-022",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "质量/环境/职业健康/食品安全目标",
+      "rawApplicableSystems": "通用",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 22
+    },
+    {
+      "id": "MSF11-20-023",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "需要应对的风险和机遇注",
+      "rawApplicableSystems": "E/S",
+      "applicableSystems": [
+        "E",
+        "S"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 23
+    },
+    {
+      "id": "MSF11-20-024",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 24
+    },
+    {
+      "id": "MSF11-20-025",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "法规符合性证明文件（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 25
+    },
+    {
+      "id": "MSF11-20-026",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "适用性声明",
+      "rawApplicableSystems": "IS",
+      "applicableSystems": [
+        "IS"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 26
+    },
+    {
+      "id": "MSF11-20-027",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "详细产品（包括原辅料及终产品）及工艺描述",
+      "rawApplicableSystems": "F/H",
+      "applicableSystems": [
+        "F",
+        "H"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 27
+    },
+    {
+      "id": "MSF11-20-028",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "生产车间平面布置图",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 28
+    },
+    {
+      "id": "MSF11-20-029",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "危害分析及OPRP、CCP等针对显著危害的控制措施",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 29
+    },
+    {
+      "id": "MSF11-20-030",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "FSMS（HACCP）认证申请组织添加剂使用清单",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 30
+    },
+    {
+      "id": "MSF11-20-031",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "食品安全检测报告",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 31
+    },
+    {
+      "id": "MSF11-20-032",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "通用材料",
+      "materialName": "食品安全认证申请组织自我声明",
+      "rawApplicableSystems": "F/H",
+      "applicableSystems": [
+        "F",
+        "H"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 32
+    },
+    {
+      "id": "MSF11-20-033",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "一阶段不实施现场审核的申请（适用时）",
+      "rawApplicableSystems": "通用",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 33
+    },
+    {
+      "id": "MSF11-20-034",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "审核任务书",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "分阶段时★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 34
+    },
+    {
+      "id": "MSF11-20-035",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "首末次会议签到表（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "分阶段时◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 35
+    },
+    {
+      "id": "MSF11-20-036",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "审核计划（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 36
+    },
+    {
+      "id": "MSF11-20-037",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "第一阶段审核问题清单（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "分阶段时★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 37
+    },
+    {
+      "id": "MSF11-20-038",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "第一阶段审核报告",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "分阶段时★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 38
+    },
+    {
+      "id": "MSF11-20-039",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "一阶段材料",
+      "materialName": "文件评审报告(适用时)",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 39
+    },
+    {
+      "id": "MSF11-20-040",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "审核任务书",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 40
+    },
+    {
+      "id": "MSF11-20-041",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "审核准备会记录(适用时)",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 41
+    },
+    {
+      "id": "MSF11-20-042",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "首末次会议签到表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 42
+    },
+    {
+      "id": "MSF11-20-043",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "审核计划",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 43
+    },
+    {
+      "id": "MSF11-20-044",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "不符合项报告及纠正措施见证材料（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 44
+    },
+    {
+      "id": "MSF11-20-045",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "核查记录表",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 45
+    },
+    {
+      "id": "MSF11-20-046",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "审核报告",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "◆",
+          "required": true,
+          "rule": "must_submit_when_applicable_or_onsite_audit",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 46
+    },
+    {
+      "id": "MSF11-20-047",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "异地审核情况报备表（适用时）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "",
+          "required": false,
+          "rule": "not_required",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 47
+    },
+    {
+      "id": "MSF11-20-048",
+      "sourceDocument": "MSF11-20 审核材料归档/上报清单（2025.12.31修订）",
+      "sourceFile": "/Users/zhazhakai777/Downloads/MSF11-20+审核材料归档上报清单（2025.12.31修订） 2.doc",
+      "category": "二阶段及其他审核材料",
+      "materialName": "其他拟上报的资料（适用时，请注明上报材料类型）",
+      "rawApplicableSystems": "",
+      "applicableSystems": [
+        "Q",
+        "E",
+        "S",
+        "F"
+      ],
+      "description": "",
+      "requirements": {
+        "initialCertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "初次认证"
+        },
+        "surveillance": {
+          "raw": "●",
+          "required": true,
+          "rule": "local_archive",
+          "label": "监督"
+        },
+        "recertification": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "再认证"
+        },
+        "certificateChange": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "证书变更"
+        },
+        "certificationTransfer": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "认证转换"
+        },
+        "temporaryAudit": {
+          "raw": "★",
+          "required": true,
+          "rule": "must_submit_when_applicable",
+          "label": "临时审核"
+        }
+      },
+      "sortOrder": 48
+    }
+  ],
+  "categorySummary": [
+    {
+      "category": "通用材料",
+      "count": 32
+    },
+    {
+      "category": "一阶段材料",
+      "count": 7
+    },
+    {
+      "category": "二阶段及其他审核材料",
+      "count": 9
+    }
+  ]
+}

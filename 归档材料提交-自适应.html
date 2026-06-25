@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>归档材料提交 - 自适应工作台</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body {
+            min-width: 1180px;
+            overflow: hidden;
+            background: #f5f5f5;
+            color: rgba(0, 0, 0, .9);
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 13px;
+        }
+        :root {
+            --q: #0052D9;
+            --e: #00A870;
+            --s: #FF7D00;
+            --f: #7B4DFE;
+            --success: #00A870;
+            --danger: #E34D59;
+            --warning: #ED7B2F;
+            --border: #e7e7e7;
+            --muted: rgba(0, 0, 0, .6);
+            --weak: rgba(0, 0, 0, .4);
+            --panel: #fff;
+            --soft: #fafafa;
+        }
+        .page {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        .top-header {
+            height: 64px;
+            flex: 0 0 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 0 20px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            min-width: 0;
+        }
+        .header-left, .header-right, .task-meta, .system-strip { display: flex; align-items: center; min-width: 0; }
+        .header-left { gap: 14px; flex: 1 1 auto; }
+        .header-right { gap: 10px; flex: 0 0 auto; }
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            color: rgba(0, 0, 0, .75);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 30px;
+        }
+        .title-block { min-width: 150px; }
+        .page-title { font-size: 18px; font-weight: 700; line-height: 22px; }
+        .page-subtitle { margin-top: 2px; font-size: 12px; color: var(--weak); white-space: nowrap; }
+        .task-meta {
+            gap: 10px;
+            padding-left: 14px;
+            border-left: 1px solid var(--border);
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .task-meta span { overflow: hidden; text-overflow: ellipsis; }
+        .system-strip { gap: 5px; flex-wrap: wrap; max-width: 230px; }
+        .main-layout {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: clamp(280px, 21vw, 340px) minmax(0, 1fr) clamp(340px, 25vw, 400px);
+            overflow: hidden;
+        }
+        .sidebar-left, .sidebar-right {
+            min-height: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-left { border-right: 1px solid var(--border); }
+        .sidebar-right { border-left: 1px solid var(--border); }
+        .sidebar-header {
+            flex: 0 0 auto;
+            padding: 14px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .sidebar-title { font-size: 15px; font-weight: 700; }
+        .sidebar-stats { font-size: 12px; color: var(--muted); line-height: 20px; }
+        .filter-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .filter-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: rgba(0, 0, 0, .55);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .filter-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .filter-tag {
+            min-height: 26px;
+            padding: 4px 9px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            color: rgba(0, 0, 0, .72);
+            cursor: pointer;
+            font: inherit;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .filter-tag:hover { border-color: var(--q); color: var(--q); background: #F2F6FF; }
+        .filter-tag.active { background: var(--q); border-color: var(--q); color: #fff; }
+        .filter-tag.system-Q.active { background: var(--q); border-color: var(--q); }
+        .filter-tag.system-E.active { background: var(--e); border-color: var(--e); }
+        .filter-tag.system-S.active { background: var(--s); border-color: var(--s); }
+        .filter-tag.system-F.active { background: var(--f); border-color: var(--f); }
+        .search-box { position: relative; margin-top: 10px; }
+        .search-input {
+            width: 100%;
+            height: 34px;
+            padding: 7px 10px 7px 30px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+            font: inherit;
+            background: #fff;
+        }
+        .search-input:focus { border-color: var(--q); }
+        .search-icon { position: absolute; left: 10px; top: 8px; color: var(--weak); }
+        .material-nav, .content-scroll, .console-scroll {
+            min-height: 0;
+            overflow: auto;
+            scrollbar-gutter: stable;
+        }
+        .material-nav { flex: 1 1 auto; padding-bottom: 14px; }
+        .material-nav::-webkit-scrollbar, .content-scroll::-webkit-scrollbar, .console-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .material-nav::-webkit-scrollbar-thumb, .content-scroll::-webkit-scrollbar-thumb, .console-scroll::-webkit-scrollbar-thumb { background: #d4dae5; border-radius: 999px; }
+        .all-entry, .material-item {
+            padding: 12px 16px;
+            border-left: 3px solid transparent;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            background: #fff;
+        }
+        .all-entry:hover, .material-item:hover { background: #fafafa; }
+        .all-entry.active, .material-item.active { background: #F2F6FF; border-left-color: var(--q); }
+        .item-name {
+            color: rgba(0, 0, 0, .9);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+        .item-systems { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+        .item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 7px;
+            color: var(--weak);
+            font-size: 12px;
+        }
+        .item-footer-left, .item-footer-right { display: flex; align-items: center; gap: 5px; min-width: 0; }
+        .item-footer-left { overflow: hidden; }
+        .item-footer-left span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .group-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f7f8fa;
+            border-bottom: 1px solid #eef0f3;
+            color: rgba(0, 0, 0, .78);
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .group-title small { color: var(--weak); font-weight: 500; }
+        .group-body { display: block; }
+        .material-group.collapsed .group-body { display: none; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 20px;
+            padding: 0 7px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 18px;
+            white-space: nowrap;
+        }
+        .badge.Q { background: #E8F1FF; border-color: #B7D3FF; color: #0052D9; }
+        .badge.E { background: #E6F7F1; border-color: #B8E8D7; color: #00875A; }
+        .badge.S { background: #FFF3E5; border-color: #FFD5A8; color: #C46000; }
+        .badge.F { background: #F1EDFF; border-color: #D6CAFF; color: #6339D8; }
+        .badge.gray, .badge.muted { background: #F2F3F5; border-color: #DCDDE1; color: #9CA3AF; }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            white-space: nowrap;
+            background: #F2F3F5;
+            color: rgba(0, 0, 0, .55);
+        }
+        .pill.required { background: #FFF3E5; color: #C46000; }
+        .pill.done { background: #E6F7F1; color: #00875A; }
+        .pill.missing { background: #FFF1F0; color: var(--danger); }
+        .pill.info { background: #E8F1FF; color: var(--q); }
+        .content {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        .content-top {
+            flex: 0 0 auto;
+            padding: 16px 18px 0;
+        }
+        .notice {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .notice-title { margin-bottom: 4px; font-size: 15px; font-weight: 700; }
+        .notice-text { color: var(--muted); line-height: 1.55; }
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .summary-card {
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+        }
+        .summary-label { color: var(--weak); font-size: 12px; }
+        .summary-value { margin-top: 6px; font-size: 22px; font-weight: 800; line-height: 26px; }
+        .summary-foot { margin-top: 4px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .content-scroll { flex: 1 1 auto; padding: 16px 18px 22px; }
+        .panel {
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .panel + .panel { margin-top: 14px; }
+        .panel-header {
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+        }
+        .panel-title { font-size: 15px; font-weight: 700; }
+        .panel-subtitle { margin-top: 3px; color: #5f7088; font-size: 12px; }
+        .panel-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+        .button {
+            height: 34px;
+            padding: 0 13px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            color: rgba(0, 0, 0, .78);
+            cursor: pointer;
+            font: inherit;
+            white-space: nowrap;
+        }
+        .button:hover { border-color: var(--q); color: var(--q); }
+        .button.primary { border-color: var(--q); background: var(--q); color: #fff; }
+        .button.success { border-color: var(--success); background: var(--success); color: #fff; }
+        .button.danger { border-color: var(--danger); background: var(--danger); color: #fff; }
+        .button:disabled { cursor: not-allowed; opacity: .48; }
+        .button.small { height: 30px; padding: 0 10px; font-size: 12px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th {
+            height: 40px;
+            padding: 0 14px;
+            background: #fafafa;
+            border-bottom: 1px solid #edf1f5;
+            color: rgba(0, 0, 0, .68);
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+        }
+        td {
+            min-height: 78px;
+            padding: 14px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        tr:hover td { background: #fafafa; }
+        .file-name { color: rgba(0, 0, 0, .9); font-size: 14px; font-weight: 700; line-height: 1.45; word-break: break-word; }
+        .file-meta { margin-top: 5px; color: #5f7088; font-size: 12px; line-height: 1.45; }
+        .systems-cell { display: flex; flex-wrap: wrap; gap: 5px; }
+        .actions-cell { display: flex; gap: 8px; justify-content: flex-end; }
+        .empty-state {
+            padding: 34px 18px;
+            text-align: center;
+            color: var(--muted);
+        }
+        .empty-title { color: rgba(0, 0, 0, .82); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .empty-text { margin: 0 auto 14px; max-width: 520px; line-height: 1.6; }
+        .material-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            padding: 14px;
+        }
+        .detail-box {
+            min-width: 0;
+            padding: 10px;
+            border: 1px solid #edf1f5;
+            border-radius: 6px;
+            background: #fff;
+        }
+        .detail-label { color: var(--weak); font-size: 12px; }
+        .detail-value { margin-top: 5px; color: rgba(0, 0, 0, .86); font-weight: 700; line-height: 1.45; }
+        .matrix-list { padding: 0 14px 14px; display: grid; gap: 8px; }
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 28px 1fr auto;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid #edf1f5;
+            border-radius: 6px;
+            background: #fff;
+        }
+        .console-scroll { flex: 1 1 auto; padding: 14px; }
+        .console-card {
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+        }
+        .console-card + .console-card { margin-top: 12px; }
+        .console-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        .status-line {
+            padding: 10px;
+            border-radius: 6px;
+            background: #FFFBE6;
+            border: 1px solid #FFE7BA;
+            color: #8a5600;
+            line-height: 1.55;
+        }
+        .status-line.ready { background: #E6F7F1; border-color: #B8E8D7; color: #00714d; }
+        .progress-row { margin-top: 10px; }
+        .progress-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .progress-label { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+        .progress-value { color: var(--muted); font-size: 12px; }
+        .progress-track {
+            height: 7px;
+            border-radius: 999px;
+            background: #edf1f5;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; border-radius: 999px; background: var(--q); }
+        .progress-fill.E { background: var(--e); }
+        .progress-fill.S { background: var(--s); }
+        .progress-fill.F { background: var(--f); }
+        .blocker-list { display: grid; gap: 8px; max-height: 260px; overflow: auto; padding-right: 4px; }
+        .blocker {
+            padding: 9px 10px;
+            border: 1px solid #ffe1df;
+            border-radius: 6px;
+            background: #fffafa;
+        }
+        .blocker-title { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+        .blocker-meta { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .condition-list { display: grid; gap: 8px; }
+        .condition {
+            display: grid;
+            grid-template-columns: 22px 1fr;
+            gap: 8px;
+            align-items: start;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .condition-mark {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .condition.ok .condition-mark { background: #E6F7F1; color: var(--success); }
+        .condition.bad .condition-mark { background: #FFF1F0; color: var(--danger); }
+        .submit-area {
+            flex: 0 0 auto;
+            padding: 12px 14px 14px;
+            border-top: 1px solid var(--border);
+            background: #fafafa;
+        }
+        .submit-area .button { width: 100%; height: 36px; }
+        .submit-reason { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, .45);
+            padding: 20px;
+        }
+        .modal-mask.active { display: flex; }
+        .modal {
+            width: min(760px, calc(100vw - 40px));
+            max-height: min(760px, calc(100vh - 40px));
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, .18);
+        }
+        .modal-header, .modal-footer {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-footer { justify-content: flex-end; border-top: 1px solid var(--border); border-bottom: none; }
+        .modal-title { font-size: 16px; font-weight: 800; }
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .modal-body { flex: 1 1 auto; overflow: auto; padding: 18px; }
+        .form-grid { display: grid; gap: 14px; }
+        .form-row label { display: block; margin-bottom: 7px; color: rgba(0, 0, 0, .66); font-weight: 700; }
+        .field {
+            width: 100%;
+            height: 34px;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font: inherit;
+        }
+        .library-list { display: grid; gap: 8px; }
+        .library-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #edf1f5;
+            border-radius: 6px;
+        }
+        .toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 1100;
+            display: none;
+            min-width: 260px;
+            max-width: 420px;
+            padding: 12px 14px;
+            border: 1px solid #B8E8D7;
+            border-radius: 8px;
+            background: #E6F7F1;
+            color: #00714d;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+            line-height: 1.5;
+        }
+        .toast.active { display: block; }
+        @media (max-width: 1360px) {
+            body { min-width: 1024px; }
+            .main-layout { grid-template-columns: 290px minmax(0, 1fr) 350px; }
+            .task-meta { display: none; }
+            .summary-row { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+            .material-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 1120px) {
+            body { overflow: auto; min-width: 0; }
+            .page { min-height: 100vh; height: auto; overflow: visible; }
+            .top-header { position: sticky; top: 0; z-index: 20; }
+            .main-layout { grid-template-columns: 1fr; overflow: visible; }
+            .sidebar-left, .sidebar-right, .content { min-height: auto; overflow: visible; border: none; }
+            .material-nav, .content-scroll, .console-scroll { overflow: visible; }
+            .sidebar-left { border-bottom: 1px solid var(--border); }
+            .sidebar-right { border-top: 1px solid var(--border); }
+            .header-right .button:not(.primary) { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="top-header">
+        <div class="header-left">
+            <button class="back-btn" type="button" title="返回">‹</button>
+            <div class="title-block">
+                <div class="page-title">归档材料提交</div>
+                <div class="page-subtitle">项目管理人员补齐材料后提交初次评定</div>
+            </div>
+            <div class="task-meta">
+                <span>任务号：TASK-2026-001</span>
+                <span>客户：客户A</span>
+                <span>初次认证</span>
+            </div>
+            <div class="system-strip" id="headerSystems"></div>
+        </div>
+        <div class="header-right">
+            <button class="button" type="button" onclick="openLibraryModal()">从资料库选择</button>
+            <button class="button" type="button" onclick="openUploadModal()">本地上传</button>
+            <button class="button primary" type="button" id="headerSubmitBtn" onclick="openSubmitModal()">提交初次评定</button>
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <aside class="sidebar-left">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <div class="sidebar-title">归档材料清单</div>
+                    <span class="pill info">MSF11-20</span>
+                </div>
+                <div class="sidebar-stats" id="sidebarStats"></div>
+
+                <div class="filter-section">
+                    <div class="filter-label"><span>认证领域</span><span id="systemFilterHint"></span></div>
+                    <div class="filter-tags" id="systemFilters"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-label"><span>认证类型</span><span>当前：初次认证</span></div>
+                    <div class="filter-tags">
+                        <button class="filter-tag active" type="button">初次认证</button>
+                        <button class="filter-tag" type="button" disabled>监督</button>
+                        <button class="filter-tag" type="button" disabled>再认证</button>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-label"><span>快速筛选</span><span id="quickFilterHint"></span></div>
+                    <div class="filter-tags" id="quickFilters">
+                        <button class="filter-tag active" type="button" data-filter="all">全部</button>
+                        <button class="filter-tag" type="button" data-filter="missing">仅看缺失</button>
+                        <button class="filter-tag" type="button" data-filter="hasFiles">已带入</button>
+                    </div>
+                    <div class="search-box">
+                        <span class="search-icon">⌕</span>
+                        <input class="search-input" id="searchInput" type="text" placeholder="搜索材料名称或编号">
+                    </div>
+                </div>
+            </div>
+            <nav class="material-nav" id="materialNav"></nav>
+        </aside>
+
+        <section class="content">
+            <div class="content-top">
+                <div class="notice">
+                    <div>
+                        <div class="notice-title" id="contentTitle">全部材料跨体系视图</div>
+                        <div class="notice-text" id="contentSubtitle">按项目体系检查 MSF11-20 材料覆盖情况，缺失项会阻断提交初次评定。</div>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="button" type="button" onclick="setQuickFilter('missing')">仅看缺失</button>
+                        <button class="button" type="button" onclick="openUploadModal()">补充材料</button>
+                    </div>
+                </div>
+                <div class="summary-row" id="summaryCards"></div>
+            </div>
+            <div class="content-scroll" id="contentScroll"></div>
+        </section>
+
+        <aside class="sidebar-right">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <div class="sidebar-title">完整性控制台</div>
+                    <span class="pill" id="taskStatusPill">草稿</span>
+                </div>
+                <div class="sidebar-stats">系统按“材料项 × 体系”计算提交条件。</div>
+            </div>
+            <div class="console-scroll" id="consoleScroll"></div>
+            <div class="submit-area">
+                <button class="button primary" type="button" id="consoleSubmitBtn" onclick="openSubmitModal()">提交初次评定</button>
+                <div class="submit-reason" id="submitReason"></div>
+            </div>
+        </aside>
+    </main>
+</div>
+
+<div class="modal-mask" id="modalMask">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle"></div>
+            <button class="modal-close" type="button" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const projectSystems = ["Q", "E", "S", "F"];
+const systemNames = { Q: "质量管理体系", E: "环境管理体系", S: "职业健康安全", F: "食品安全体系" };
+const groupOrder = ["通用材料", "一阶段材料", "二阶段及其他审核材料"];
+const fallbackMaterials = [{"id":"MSF11-20-001","category":"通用材料","materialName":"认证发证推荐表","rawApplicableSystems":"通用","applicableSystems":["Q","E","S","F"],"description":"系统上填报","required":false,"raw":"","sortOrder":1},{"id":"MSF11-20-002","category":"通用材料","materialName":"证书内容确认件（标黄代表需要pdf附件）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":2},{"id":"MSF11-20-003","category":"通用材料","materialName":"认证申请表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":3},{"id":"MSF11-20-004","category":"通用材料","materialName":"全国认证认可信息公共服务平台(认e云)查询截图","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":4},{"id":"MSF11-20-005","category":"通用材料","materialName":"获证方情况调查表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":false,"raw":"","sortOrder":5},{"id":"MSF11-20-006","category":"通用材料","materialName":"证书变更申请表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":false,"raw":"","sortOrder":6},{"id":"MSF11-20-007","category":"通用材料","materialName":"认证周期绩效评价表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":false,"raw":"","sortOrder":7},{"id":"MSF11-20-008","category":"通用材料","materialName":"认证申请评审表（或认证证书转换评审记录）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":8},{"id":"MSF11-20-009","category":"通用材料","materialName":"法律地位证明文件复印件（如营业执照）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":9},{"id":"MSF11-20-010","category":"通用材料","materialName":"相关资质证明原件复印件、守法证明（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":10},{"id":"MSF11-20-011","category":"通用材料","materialName":"生产工艺/服务流程图(适用时)","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":11},{"id":"MSF11-20-012","category":"通用材料","materialName":"管理体系过程清单（Q/E/S）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":12},{"id":"MSF11-20-013","category":"通用材料","materialName":"组织机构图","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":13},{"id":"MSF11-20-014","category":"通用材料","materialName":"认证场所清单（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":14},{"id":"MSF11-20-015","category":"通用材料","materialName":"审核项目推进表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":15},{"id":"MSF11-20-016","category":"通用材料","materialName":"地理位置示意图和厂区平面布置图","rawApplicableSystems":"Q除外","applicableSystems":["E","S","F"],"description":"","required":true,"raw":"★","sortOrder":16},{"id":"MSF11-20-017","category":"通用材料","materialName":"组织适用的产品或服务质量标准清单","rawApplicableSystems":"Q/F/H","applicableSystems":["Q","F","H"],"description":"","required":true,"raw":"★","sortOrder":17},{"id":"MSF11-20-018","category":"通用材料","materialName":"组织适用的法律法规、标准清单","rawApplicableSystems":"E/S","applicableSystems":["E","S"],"description":"","required":true,"raw":"★","sortOrder":18},{"id":"MSF11-20-019","category":"通用材料","materialName":"重要环境因素清单","rawApplicableSystems":"E","applicableSystems":["E"],"description":"","required":true,"raw":"★","sortOrder":19},{"id":"MSF11-20-020","category":"通用材料","materialName":"主要危险源和OHS风险","rawApplicableSystems":"S","applicableSystems":["S"],"description":"","required":true,"raw":"★","sortOrder":20},{"id":"MSF11-20-021","category":"通用材料","materialName":"使用的主要危险材料(适用时）","rawApplicableSystems":"S","applicableSystems":["S"],"description":"","required":true,"raw":"★","sortOrder":21},{"id":"MSF11-20-022","category":"通用材料","materialName":"质量/环境/职业健康/食品安全目标","rawApplicableSystems":"通用","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":22},{"id":"MSF11-20-023","category":"通用材料","materialName":"需要应对的风险和机遇注","rawApplicableSystems":"E/S","applicableSystems":["E","S"],"description":"","required":true,"raw":"★","sortOrder":23},{"id":"MSF11-20-024","category":"通用材料","materialName":"污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":24},{"id":"MSF11-20-025","category":"通用材料","materialName":"法规符合性证明文件（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":25},{"id":"MSF11-20-026","category":"通用材料","materialName":"适用性声明","rawApplicableSystems":"IS","applicableSystems":["IS"],"description":"","required":true,"raw":"★","sortOrder":26},{"id":"MSF11-20-027","category":"通用材料","materialName":"详细产品（包括原辅料及终产品）及工艺描述","rawApplicableSystems":"F/H","applicableSystems":["F","H"],"description":"","required":true,"raw":"★","sortOrder":27},{"id":"MSF11-20-028","category":"通用材料","materialName":"生产车间平面布置图","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":28},{"id":"MSF11-20-029","category":"通用材料","materialName":"危害分析及OPRP、CCP等针对显著危害的控制措施","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":29},{"id":"MSF11-20-030","category":"通用材料","materialName":"FSMS（HACCP）认证申请组织添加剂使用清单","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":30},{"id":"MSF11-20-031","category":"通用材料","materialName":"食品安全检测报告","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":31},{"id":"MSF11-20-032","category":"通用材料","materialName":"食品安全认证申请组织自我声明","rawApplicableSystems":"F/H","applicableSystems":["F","H"],"description":"","required":true,"raw":"★","sortOrder":32},{"id":"MSF11-20-033","category":"一阶段材料","materialName":"一阶段不实施现场审核的申请（适用时）","rawApplicableSystems":"通用","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":33},{"id":"MSF11-20-034","category":"一阶段材料","materialName":"审核任务书","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":34},{"id":"MSF11-20-035","category":"一阶段材料","materialName":"首末次会议签到表（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"◆","sortOrder":35},{"id":"MSF11-20-036","category":"一阶段材料","materialName":"审核计划（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"◆","sortOrder":36},{"id":"MSF11-20-037","category":"一阶段材料","materialName":"第一阶段审核问题清单（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":37},{"id":"MSF11-20-038","category":"一阶段材料","materialName":"第一阶段审核报告","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":38},{"id":"MSF11-20-039","category":"一阶段材料","materialName":"文件评审报告(适用时)","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":false,"raw":"","sortOrder":39},{"id":"MSF11-20-040","category":"二阶段及其他审核材料","materialName":"审核任务书","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":40},{"id":"MSF11-20-041","category":"二阶段及其他审核材料","materialName":"审核准备会记录(适用时)","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":41},{"id":"MSF11-20-042","category":"二阶段及其他审核材料","materialName":"首末次会议签到表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":42},{"id":"MSF11-20-043","category":"二阶段及其他审核材料","materialName":"审核计划","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":43},{"id":"MSF11-20-044","category":"二阶段及其他审核材料","materialName":"不符合项报告及纠正措施见证材料（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":44},{"id":"MSF11-20-045","category":"二阶段及其他审核材料","materialName":"核查记录表","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":45},{"id":"MSF11-20-046","category":"二阶段及其他审核材料","materialName":"审核报告","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":46},{"id":"MSF11-20-047","category":"二阶段及其他审核材料","materialName":"异地审核情况报备表（适用时）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":47},{"id":"MSF11-20-048","category":"二阶段及其他审核材料","materialName":"其他拟上报的资料（适用时，请注明上报材料类型）","rawApplicableSystems":"","applicableSystems":["Q","E","S","F"],"description":"","required":true,"raw":"★","sortOrder":48}];
+
+let materials = fallbackMaterials;
+let selectedSystems = new Set(projectSystems);
+let quickFilter = "all";
+let selectedMaterialId = "all";
+let searchKeyword = "";
+let modalContext = {};
+let files = [
+    file("MSF11-20-001", "认证发证推荐表_在线填报记录.pdf", ["Q","E","S","F"], "系统在线表单", "2026-06-10 09:12"),
+    file("MSF11-20-003", "认证申请表_客户A.pdf", ["Q","E","S","F"], "认证申请环节", "2026-06-10 10:26"),
+    file("MSF11-20-004", "认e云查询截图_客户A.png", ["Q","E","S","F"], "项目建档", "2026-06-10 11:04"),
+    file("MSF11-20-008", "认证申请评审表_QESF.pdf", ["Q","E","S","F"], "合同评审", "2026-06-11 09:45"),
+    file("MSF11-20-009", "营业执照复印件_客户A.pdf", ["Q","E","S","F"], "客户资料", "2026-06-11 10:16"),
+    file("MSF11-20-010", "相关资质证明_生产许可.pdf", ["F"], "资料库带入", "2026-06-11 14:12"),
+    file("MSF11-20-012", "管理体系过程清单_QES.docx", ["Q","E","S"], "一阶段审核", "2026-06-12 09:18"),
+    file("MSF11-20-013", "组织机构图_2026.pdf", ["Q","E","S","F"], "客户资料", "2026-06-12 09:40"),
+    file("MSF11-20-015", "审核项目推进表.xlsx", ["Q","E","S","F"], "审核项目管理", "2026-06-12 13:22"),
+    file("MSF11-20-016", "厂区平面布置图_ESF.pdf", ["E","S","F"], "现场审核", "2026-06-13 10:31"),
+    file("MSF11-20-018", "环境与职业健康法律法规清单.xlsx", ["E","S"], "客户补充", "2026-06-13 13:16"),
+    file("MSF11-20-019", "重要环境因素清单.pdf", ["E"], "客户补充", "2026-06-13 14:02"),
+    file("MSF11-20-020", "主要危险源和OHS风险清单.pdf", ["S"], "客户补充", "2026-06-13 14:18"),
+    file("MSF11-20-022", "质量环境职业健康食品安全目标.pdf", ["Q","E","S","F"], "客户补充", "2026-06-13 16:35"),
+    file("MSF11-20-028", "生产车间平面布置图.pdf", ["Q","E","S","F"], "客户补充", "2026-06-14 09:44"),
+    file("MSF11-20-031", "食品安全检测报告_2026.pdf", ["F"], "客户补充", "2026-06-14 10:21"),
+    file("MSF11-20-034", "一阶段审核任务书.pdf", ["Q","E","S","F"], "审核任务书", "2026-06-14 11:04"),
+    file("MSF11-20-036", "一阶段审核计划.pdf", ["Q","E","S","F"], "审核计划编制", "2026-06-14 13:30"),
+    file("MSF11-20-038", "第一阶段审核报告.pdf", ["Q","E","S","F"], "一阶段审核", "2026-06-14 18:12"),
+    file("MSF11-20-040", "二阶段审核任务书.pdf", ["Q","E","S","F"], "审核任务书", "2026-06-15 08:55"),
+    file("MSF11-20-042", "二阶段首末次会议签到表.pdf", ["Q","E","S","F"], "二阶段审核", "2026-06-15 17:42"),
+    file("MSF11-20-043", "二阶段审核计划.pdf", ["Q","E","S","F"], "审核计划编制", "2026-06-15 09:35"),
+    file("MSF11-20-046", "二阶段审核报告.pdf", ["Q","E","S","F"], "二阶段审核", "2026-06-15 18:25")
+];
+
+function file(materialId, name, systems, source, uploadTime) {
+    return { id: "F-" + materialId + "-" + name.length + "-" + systems.join(""), materialId, name, systems, source, uploadTime };
+}
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+}
+function badge(sys, muted = false) {
+    return `<span class="badge ${muted ? "muted" : escapeHtml(sys)}">${escapeHtml(sys)}</span>`;
+}
+function itemSystems(item) {
+    return item.applicableSystems.filter(sys => projectSystems.includes(sys));
+}
+function isRequired(item) {
+    return Boolean(item.required) && itemSystems(item).length > 0;
+}
+function materialFiles(id) {
+    return files.filter(file => file.materialId === id);
+}
+function coveredSystems(id) {
+    const set = new Set();
+    materialFiles(id).forEach(file => file.systems.forEach(sys => {
+        if (projectSystems.includes(sys)) set.add(sys);
+    }));
+    return set;
+}
+function missingSystems(item) {
+    if (!isRequired(item)) return [];
+    const covered = coveredSystems(item.id);
+    return itemSystems(item).filter(sys => !covered.has(sys));
+}
+function materialDone(item) {
+    return !isRequired(item) || missingSystems(item).length === 0;
+}
+function visibleMaterials() {
+    const keyword = searchKeyword.trim().toLowerCase();
+    return materials
+        .filter(item => itemSystems(item).some(sys => selectedSystems.has(sys)) || item.applicableSystems.length === 0 || itemSystems(item).length === 0)
+        .filter(item => !keyword || item.materialName.toLowerCase().includes(keyword) || item.id.toLowerCase().includes(keyword))
+        .filter(item => {
+            if (quickFilter === "missing") return missingSystems(item).some(sys => selectedSystems.has(sys));
+            if (quickFilter === "hasFiles") return materialFiles(item.id).length > 0;
+            return true;
+        })
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+function visibleFiles() {
+    const ids = new Set(visibleMaterials().map(item => item.id));
+    let list = files.filter(file => ids.has(file.materialId) && file.systems.some(sys => selectedSystems.has(sys)));
+    if (selectedMaterialId !== "all") list = list.filter(file => file.materialId === selectedMaterialId);
+    return list;
+}
+function stats() {
+    const relevant = materials.filter(item => itemSystems(item).some(sys => projectSystems.includes(sys)));
+    const required = relevant.filter(isRequired);
+    const missing = required.filter(item => missingSystems(item).length > 0);
+    const complete = required.length - missing.length;
+    const systemStats = projectSystems.map(sys => {
+        const sysRequired = required.filter(item => itemSystems(item).includes(sys));
+        const sysMissing = sysRequired.filter(item => missingSystems(item).includes(sys));
+        const done = sysRequired.length - sysMissing.length;
+        const pct = sysRequired.length ? Math.round(done / sysRequired.length * 100) : 100;
+        return { sys, required: sysRequired.length, missing: sysMissing.length, done, pct, missingItems: sysMissing };
+    });
+    return { relevant, required, missing, complete, files: files.length, systemStats, ready: missing.length === 0 };
+}
+function render() {
+    renderHeader();
+    renderSidebar();
+    renderContent();
+    renderConsole();
+}
+function renderHeader() {
+    document.getElementById("headerSystems").innerHTML = projectSystems.map(sys => badge(sys) + `<span style="font-size:12px;color:rgba(0,0,0,.55);margin-right:3px;">${escapeHtml(systemNames[sys] || "")}</span>`).join("");
+    const s = stats();
+    const submitButtons = [document.getElementById("headerSubmitBtn"), document.getElementById("consoleSubmitBtn")];
+    submitButtons.forEach(btn => {
+        btn.disabled = !s.ready;
+        btn.textContent = "提交初次评定";
+        btn.title = s.ready ? "提交进入初次评定" : `暂不能提交：仍缺 ${s.missing.length} 项必备材料`;
+    });
+}
+function renderSidebar() {
+    const s = stats();
+    document.getElementById("sidebarStats").textContent = `总计 ${materials.length} 项 · 初次认证必交 ${s.required.length} 项 · 缺失 ${s.missing.length} 项 · 已带入 ${files.length} 个文件`;
+    document.getElementById("systemFilterHint").textContent = `已选 ${selectedSystems.size}/${projectSystems.length}`;
+    document.getElementById("quickFilterHint").textContent = `${visibleMaterials().length} 项`;
+    document.getElementById("systemFilters").innerHTML = projectSystems.map(sys => `<button class="filter-tag system-${sys} ${selectedSystems.has(sys) ? "active" : ""}" type="button" onclick="toggleSystem('${sys}')">${sys} ${systemNames[sys]}</button>`).join("");
+    document.querySelectorAll("#quickFilters .filter-tag").forEach(btn => btn.classList.toggle("active", btn.dataset.filter === quickFilter));
+
+    const fileCount = visibleFiles().length;
+    const allActive = selectedMaterialId === "all" ? " active" : "";
+    let html = `<div class="all-entry${allActive}" onclick="selectMaterial('all')">
+        <div class="item-name">全部材料跨体系视图</div>
+        <div class="item-systems">${projectSystems.map(sys => badge(sys, !selectedSystems.has(sys))).join("")}</div>
+        <div class="item-footer"><div class="item-footer-left"><span>全部材料</span><span class="pill required">必交 ${s.required.length}</span></div><div class="item-footer-right"><span class="pill ${s.missing.length ? "missing" : "done"}">${s.missing.length ? "缺 " + s.missing.length + " 项" : "已齐全"}</span><span class="pill">${fileCount}个文件</span></div></div>
+    </div>`;
+    const list = visibleMaterials();
+    groupOrder.forEach(group => {
+        const groupItems = list.filter(item => item.category === group);
+        if (!groupItems.length) return;
+        const groupFileCount = groupItems.reduce((sum, item) => sum + materialFiles(item.id).length, 0);
+        html += `<section class="material-group"><div class="group-title" onclick="this.parentElement.classList.toggle('collapsed')"><span>${escapeHtml(group)} <small>${groupItems.length}项</small></span><small>${groupFileCount}个文件</small></div><div class="group-body">`;
+        groupItems.forEach(item => {
+            const filesForItem = materialFiles(item.id);
+            const missing = missingSystems(item);
+            const active = selectedMaterialId === item.id ? " active" : "";
+            const empty = filesForItem.length ? "" : " empty-files";
+            const systems = itemSystems(item);
+            html += `<div class="material-item${active}${empty}" onclick="selectMaterial('${item.id}')">
+                <div class="item-name">${escapeHtml(item.materialName)}</div>
+                <div class="item-systems">${(systems.length ? systems : item.applicableSystems).map(sys => badge(sys, !selectedSystems.has(sys) || !projectSystems.includes(sys))).join("")}</div>
+                <div class="item-footer">
+                    <div class="item-footer-left"><span>${escapeHtml(item.rawApplicableSystems || item.category)}</span>${isRequired(item) ? '<span class="pill required">必交</span>' : ""}</div>
+                    <div class="item-footer-right">${missing.length ? `<span class="pill missing">缺 ${missing.join("/")}</span>` : `<span class="pill done">${isRequired(item) ? "已齐全" : "非阻断"}</span>`}<span class="pill">${filesForItem.length ? filesForItem.length + "个文件" : "未上传"}</span></div>
+                </div>
+            </div>`;
+        });
+        html += `</div></section>`;
+    });
+    if (list.length === 0) html += `<div class="empty-state"><div class="empty-title">没有符合筛选的材料</div><div class="empty-text">请调整认证领域、快速筛选或搜索关键词。</div></div>`;
+    document.getElementById("materialNav").innerHTML = html;
+}
+function renderContent() {
+    const s = stats();
+    const selected = materials.find(item => item.id === selectedMaterialId);
+    const title = selected ? selected.materialName : "全部材料跨体系视图";
+    document.getElementById("contentTitle").textContent = title;
+    document.getElementById("contentSubtitle").textContent = selected
+        ? `${selected.id} · ${selected.category} · ${isRequired(selected) ? "初次认证必交" : "当前流程非阻断材料"}`
+        : "按项目体系检查 MSF11-20 材料覆盖情况，缺失项会阻断提交初次评定。";
+    document.getElementById("summaryCards").innerHTML = `
+        <div class="summary-card"><div class="summary-label">材料清单</div><div class="summary-value">${materials.length}</div><div class="summary-foot">MSF11-20 权威清单</div></div>
+        <div class="summary-card"><div class="summary-label">初次认证必交</div><div class="summary-value">${s.required.length}</div><div class="summary-foot">按项目体系自动过滤</div></div>
+        <div class="summary-card"><div class="summary-label">缺失必交材料</div><div class="summary-value" style="color:${s.missing.length ? "var(--danger)" : "var(--success)"}">${s.missing.length}</div><div class="summary-foot">${s.ready ? "已满足提交条件" : "仍阻断提交初次评定"}</div></div>
+        <div class="summary-card"><div class="summary-label">具体文件</div><div class="summary-value">${files.length}</div><div class="summary-foot">来自前序环节或补充上传</div></div>`;
+    document.getElementById("contentScroll").innerHTML = selected ? renderMaterialDetail(selected) : renderAllFilesPanel();
+}
+function renderAllFilesPanel() {
+    const list = visibleFiles();
+    return `<section class="panel">
+        <div class="panel-header">
+            <div><div class="panel-title">材料明细表</div><div class="panel-subtitle">当前显示 ${list.length} 个具体文件，来自 ${new Set(list.map(file => file.materialId)).size} 项材料</div></div>
+            <div class="panel-actions"><button class="button small" onclick="openLibraryModal()">从资料库选择</button><button class="button small" onclick="openUploadModal()">本地上传</button></div>
+        </div>
+        ${renderFileTable(list, "当前范围没有具体文件", "筛选结果中暂无已带入或补充上传的具体文件。")}
+    </section>`;
+}
+function renderMaterialDetail(item) {
+    const filesForItem = materialFiles(item.id).filter(file => file.systems.some(sys => selectedSystems.has(sys)));
+    const missing = missingSystems(item);
+    const systems = itemSystems(item);
+    return `<section class="panel">
+        <div class="panel-header">
+            <div><div class="panel-title">材料覆盖状态</div><div class="panel-subtitle">评定状态和问题口径落在材料清单项级别，文件仅作为证据附件展示。</div></div>
+            <div class="panel-actions"><button class="button small" onclick="openLibraryModal('${item.id}')">从资料库选择</button><button class="button small" onclick="openUploadModal('${item.id}')">本地上传</button></div>
+        </div>
+        <div class="material-detail-grid">
+            <div class="detail-box"><div class="detail-label">材料编号</div><div class="detail-value">${escapeHtml(item.id)}</div></div>
+            <div class="detail-box"><div class="detail-label">材料分类</div><div class="detail-value">${escapeHtml(item.category)}</div></div>
+            <div class="detail-box"><div class="detail-label">初次认证要求</div><div class="detail-value">${isRequired(item) ? "必交 " + escapeHtml(item.raw || "") : "非阻断材料"}</div></div>
+            <div class="detail-box"><div class="detail-label">当前文件</div><div class="detail-value">${filesForItem.length} 个</div></div>
+        </div>
+        <div class="matrix-list">${(systems.length ? systems : item.applicableSystems).map(sys => {
+            const projectHit = projectSystems.includes(sys);
+            const covered = coveredSystems(item.id).has(sys);
+            const required = isRequired(item) && projectHit;
+            const text = !projectHit ? "本项目不适用" : !required ? "非阻断" : covered ? "已齐全" : "缺失";
+            return `<div class="matrix-row">${badge(sys, !projectHit)}<div>${escapeHtml(systemNames[sys] || "其他体系")}</div><span class="pill ${required && !covered ? "missing" : "done"}">${text}</span></div>`;
+        }).join("")}</div>
+    </section>
+    <section class="panel">
+        <div class="panel-header"><div><div class="panel-title">材料明细表</div><div class="panel-subtitle">当前材料显示 ${filesForItem.length} 个具体文件${missing.length ? "，缺失体系：" + missing.join("/") : ""}</div></div></div>
+        ${renderFileTable(filesForItem, "当前材料暂无可用文件", `${escapeHtml(item.materialName)} ${isRequired(item) ? "是初次认证必交材料，缺失将阻断提交初次评定。" : "当前不阻断提交，可按业务需要补充归档。"}`)}
+    </section>`;
+}
+function renderFileTable(list, emptyTitle, emptyText) {
+    if (!list.length) {
+        return `<div class="empty-state"><div class="empty-title">${emptyTitle}</div><div class="empty-text">${emptyText}</div><button class="button" onclick="openUploadModal()">本地上传</button> <button class="button" onclick="openLibraryModal()">从资料库选择</button></div>`;
+    }
+    const rows = list.map(file => {
+        const item = materials.find(item => item.id === file.materialId);
+        return `<tr>
+            <td><div class="file-name">${escapeHtml(file.name)}</div><div class="file-meta">所属材料：${escapeHtml(item ? item.materialName : file.materialId)}<br>来源：${escapeHtml(file.source)} · 上传时间：${escapeHtml(file.uploadTime)}</div></td>
+            <td><div class="systems-cell">${file.systems.map(sys => badge(sys)).join("")}</div></td>
+            <td><div class="actions-cell"><button class="button small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="button small" onclick="openRemoveModal('${file.id}')">移除</button></div></td>
+        </tr>`;
+    }).join("");
+    return `<table><thead><tr><th>具体文件名称</th><th style="width:180px;">适用体系</th><th style="width:150px;text-align:right;">操作</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderConsole() {
+    const s = stats();
+    document.getElementById("taskStatusPill").textContent = s.ready ? "待提交" : "草稿";
+    document.getElementById("taskStatusPill").className = `pill ${s.ready ? "done" : "missing"}`;
+    document.getElementById("submitReason").textContent = s.ready ? "所有涉及体系必备材料已齐全，可以提交初次评定。" : `${s.missing.length} 项必备材料仍缺失，请先补齐右侧阻断项。`;
+    const blockers = s.missing.slice(0, 12).map(item => `<div class="blocker"><div class="blocker-title">${missingSystems(item).map(sys => badge(sys)).join("")}<span>${escapeHtml(item.materialName)}</span></div><div class="blocker-meta">${escapeHtml(item.id)} · ${escapeHtml(item.category)} · 缺失体系：${missingSystems(item).join("/")}</div></div>`).join("");
+    document.getElementById("consoleScroll").innerHTML = `
+        <section class="console-card">
+            <div class="console-title">任务状态</div>
+            <div class="status-line ${s.ready ? "ready" : ""}">${s.ready ? "当前所有体系必备材料均已齐全，等待项目管理人员提交初次评定。" : `当前还有 ${s.missing.length} 项必备材料缺失，暂不能提交初次评定。`}</div>
+        </section>
+        <section class="console-card">
+            <div class="console-title">体系完整性</div>
+            ${s.systemStats.map(row => `<div class="progress-row">
+                <div class="progress-head"><div class="progress-label">${badge(row.sys)}<span>${escapeHtml(systemNames[row.sys])}</span></div><div class="progress-value">${row.done}/${row.required} · ${row.pct}% ${row.missing ? "· 缺 " + row.missing + " 项" : ""}</div></div>
+                <div class="progress-track"><div class="progress-fill ${row.sys}" style="width:${row.pct}%"></div></div>
+            </div>`).join("")}
+        </section>
+        <section class="console-card">
+            <div class="console-title">阻断提交项 <span class="pill ${s.missing.length ? "missing" : "done"}">${s.missing.length}项</span></div>
+            <div class="blocker-list">${blockers || '<div class="empty-state" style="padding:18px 0;"><div class="empty-title">暂无阻断项</div><div class="empty-text">所有体系必备材料已满足提交条件。</div></div>'}</div>
+        </section>
+        <section class="console-card">
+            <div class="console-title">提交条件</div>
+            <div class="condition-list">
+                <div class="condition ok"><span class="condition-mark">✓</span><span>项目基本信息已生成，任务号、客户和认证类型完整。</span></div>
+                <div class="condition ok"><span class="condition-mark">✓</span><span>系统已按 MSF11-20 的 48 项材料清单建立归档范围。</span></div>
+                <div class="condition ${s.ready ? "ok" : "bad"}"><span class="condition-mark">${s.ready ? "✓" : "!"}</span><span>所有涉及体系的初次认证必交材料达到 100%。</span></div>
+            </div>
+        </section>`;
+}
+function toggleSystem(sys) {
+    if (selectedSystems.has(sys) && selectedSystems.size > 1) selectedSystems.delete(sys);
+    else selectedSystems.add(sys);
+    render();
+}
+function setQuickFilter(filter) {
+    quickFilter = filter;
+    selectedMaterialId = filter === "missing" ? "all" : selectedMaterialId;
+    render();
+}
+function selectMaterial(id) {
+    selectedMaterialId = id;
+    render();
+}
+function openModal(title, body, footer) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").innerHTML = body;
+    document.getElementById("modalFooter").innerHTML = footer;
+    document.getElementById("modalMask").classList.add("active");
+}
+function closeModal() {
+    document.getElementById("modalMask").classList.remove("active");
+    modalContext = {};
+}
+function openUploadModal(materialId = selectedMaterialId) {
+    const item = materials.find(item => item.id === materialId) || firstMissingMaterial() || materials[0];
+    modalContext = { materialId: item.id };
+    const missing = missingSystems(item);
+    const systems = itemSystems(item).length ? itemSystems(item) : projectSystems;
+    openModal("本地上传归档材料", `<div class="form-grid">
+        <div class="form-row"><label>当前材料</label><input class="field" value="${escapeHtml(item.id)} · ${escapeHtml(item.materialName)}" readonly></div>
+        <div class="form-row"><label>文件名称</label><input class="field" id="uploadName" value="${escapeHtml(item.materialName)}_补充材料.pdf"></div>
+        <div class="form-row"><label>覆盖体系</label><div class="filter-tags">${systems.map(sys => `<button class="filter-tag system-${sys} ${(missing.length ? missing : systems).includes(sys) ? "active" : ""}" type="button" data-upload-system="${sys}" onclick="this.classList.toggle('active')">${sys} ${systemNames[sys] || ""}</button>`).join("")}</div></div>
+        <div class="form-row"><label>补充说明</label><input class="field" value="用于补齐归档材料完整性检查"></div>
+    </div>`, `<button class="button" onclick="closeModal()">取消</button><button class="button primary" onclick="confirmUpload()">确认补充</button>`);
+}
+function confirmUpload() {
+    const item = materials.find(item => item.id === modalContext.materialId);
+    const name = document.getElementById("uploadName").value.trim() || `${item.materialName}_补充材料.pdf`;
+    const systems = Array.from(document.querySelectorAll("[data-upload-system].active")).map(btn => btn.dataset.uploadSystem);
+    if (!systems.length) {
+        showToast("请至少选择一个覆盖体系。");
+        return;
+    }
+    files.push(file(item.id, name, systems, "本地上传", "2026-06-16 15:30"));
+    closeModal();
+    selectedMaterialId = item.id;
+    showToast("材料已补充，完整性检查已重新计算。");
+    render();
+}
+function openLibraryModal(materialId = selectedMaterialId) {
+    const item = materials.find(item => item.id === materialId) || firstMissingMaterial() || materials[0];
+    modalContext = { materialId: item.id };
+    const library = [
+        { name: `${item.materialName}_历史归档件.pdf`, systems: itemSystems(item).slice(0, 2) },
+        { name: `${item.materialName}_客户补充版.pdf`, systems: itemSystems(item) },
+        { name: `${item.materialName}_审核组确认件.pdf`, systems: missingSystems(item).length ? missingSystems(item) : itemSystems(item) }
+    ];
+    openModal("从资料库选择", `<div class="form-grid">
+        <div class="form-row"><label>当前材料</label><input class="field" value="${escapeHtml(item.id)} · ${escapeHtml(item.materialName)}" readonly></div>
+        <div class="library-list">${library.map((lib, index) => `<label class="library-item"><input type="radio" name="libraryFile" value="${index}" ${index === 0 ? "checked" : ""}><div><div class="file-name">${escapeHtml(lib.name)}</div><div class="file-meta">资料库 · 最近更新：2026-06-12 · 覆盖体系：${lib.systems.join("/") || "待确认"}</div></div><div class="systems-cell">${lib.systems.map(sys => badge(sys)).join("")}</div></label>`).join("")}</div>
+    </div>`, `<button class="button" onclick="closeModal()">取消</button><button class="button primary" onclick='confirmLibrary(${JSON.stringify(library).replace(/'/g, "&apos;")})'>确认关联</button>`);
+}
+function confirmLibrary(library) {
+    const item = materials.find(item => item.id === modalContext.materialId);
+    const checked = document.querySelector("input[name='libraryFile']:checked");
+    const selected = library[Number(checked ? checked.value : 0)];
+    const systems = selected.systems.length ? selected.systems : itemSystems(item);
+    files.push(file(item.id, selected.name, systems, "资料库选择", "2026-06-16 15:32"));
+    closeModal();
+    selectedMaterialId = item.id;
+    showToast("已关联资料库文件，完整性检查已更新。");
+    render();
+}
+function openRemoveModal(fileId) {
+    const target = files.find(file => file.id === fileId);
+    if (!target) return;
+    modalContext = { fileId };
+    openModal("移除归档文件", `<div class="status-line">移除后会重新计算对应材料和体系完整性。确认移除“${escapeHtml(target.name)}”吗？</div>`, `<button class="button" onclick="closeModal()">取消</button><button class="button danger" onclick="confirmRemove()">确认移除</button>`);
+}
+function confirmRemove() {
+    files = files.filter(file => file.id !== modalContext.fileId);
+    closeModal();
+    showToast("文件已移除，完整性检查已重新计算。");
+    render();
+}
+function openSubmitModal() {
+    const s = stats();
+    if (!s.ready) {
+        openModal("暂不能提交初次评定", `<div class="status-line">当前还有 ${s.missing.length} 项必备材料缺失，请先补齐所有体系必备材料。右侧控制台已列出阻断项。</div>`, `<button class="button primary" onclick="closeModal()">知道了</button>`);
+        return;
+    }
+    openModal("提交初次评定", `<div class="status-line ready">所有体系必备材料已齐全。提交后任务将进入初次评定阶段，项目管理人员可继续跟踪退回补充。</div>`, `<button class="button" onclick="closeModal()">取消</button><button class="button success" onclick="confirmSubmit()">确认提交</button>`);
+}
+function confirmSubmit() {
+    closeModal();
+    showToast("已提交初次评定，任务状态已更新为“初次评定”。");
+}
+function previewFile(name) {
+    showToast(`已打开预览：${name}`);
+}
+function firstMissingMaterial() {
+    return stats().missing[0];
+}
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("active");
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => toast.classList.remove("active"), 2600);
+}
+document.getElementById("quickFilters").addEventListener("click", event => {
+    const btn = event.target.closest("[data-filter]");
+    if (btn) setQuickFilter(btn.dataset.filter);
+});
+document.getElementById("searchInput").addEventListener("input", event => {
+    searchKeyword = event.target.value;
+    render();
+});
+document.getElementById("modalMask").addEventListener("click", event => {
+    if (event.target.id === "modalMask") closeModal();
+});
+async function boot() {
+    try {
+        const response = await fetch("materials-catalog.json", { cache: "no-store" });
+        if (response.ok) {
+            const catalog = await response.json();
+            materials = catalog.materials.map(item => ({
+                id: item.id,
+                category: item.category,
+                materialName: item.materialName,
+                rawApplicableSystems: item.rawApplicableSystems,
+                applicableSystems: item.applicableSystems,
+                description: item.description,
+                required: Boolean(item.requirements.initialCertification.required),
+                raw: item.requirements.initialCertification.raw,
+                sortOrder: item.sortOrder
+            }));
+        }
+    } catch (error) {
+        materials = fallbackMaterials;
+    }
+    render();
+}
+boot();
+</script>
+</body>
+</html>

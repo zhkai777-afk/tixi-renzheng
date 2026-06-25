@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退回处理 - 审核材料归档系统</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f5f5f5;
+            color: rgba(0, 0, 0, 0.9);
+            overflow-x: auto;
+            overflow-y: hidden;
+            min-width: 1848px;
+        }
+        
+        :root {
+            --qms-color: #0052D9;
+            --ems-color: #00A870;
+            --ohsms-color: #FF7D00;
+            --fsms-color: #7B4DFE;
+            --error-color: #E34D59;
+            --error-bg: #FFF0F0;
+            --error-border: #FFD6D6;
+            --warning-color: #FF7D00;
+            --success-color: #00A870;
+            --common-color: #5E5E5E;
+        }
+        
+        .page-container {
+            width: 1848px;
+            height: 100vh;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* 顶部警示条 - 退回专用 */
+        .alert-banner {
+            background: #fff7f7;
+            color: rgba(0,0,0,0.9);
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #ffd6d6;
+            flex-shrink: 0;
+        }
+        
+        .alert-icon {
+            width: 20px;
+            height: 20px;
+            background: #fff0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #e34d59;
+            border: 1px solid #ffd6d6;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-meta {
+            color: rgba(0,0,0,0.6);
+            font-size: 13px;
+            margin-left: 8px;
+        }
+        
+        /* 顶部导航 */
+        .top-header {
+            height: 64px;
+            background: #fff;
+            border-bottom: 1px solid #e7e7e7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0052D9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            padding-left: 16px;
+            border-left: 1px solid #e7e7e7;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .breadcrumb a {
+            color: rgba(0,0,0,0.6);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: #0052D9;
+        }
+        
+        .breadcrumb .current {
+            color: rgba(0,0,0,0.9);
+            font-weight: 500;
+        }
+        
+        .task-tag {
+            background: #E34D59;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* 主体布局 */
+        .main-layout {
+            flex: 1;
+            display: flex;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+        }
+        
+        /* 左栏：退回材料导航 */
+        .sidebar-left {
+            width: 320px;
+            background: #fff;
+            border-right: 1px solid #e7e7e7;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* 从归档材料提交页面复制的筛选区域样式 - 开始 */
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e7e7e7;
+            background: #fafafa;
+        }
+        
+        .filter-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e7e7e7;
+        }
+        
+        .filter-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .filter-label {
+            font-size: 12px;
+            color: rgba(0,0,0,0.5);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #e7e7e7;
+            background: #fff;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .filter-tag:hover {
+            background: #F2F3FF;
+            border-color: #0052D9;
+            color: #0052D9;
+        }
+        
+        .filter-tag.active {
+            background: #0052D9;
+            border-color: #0052D9;
+            color: #fff;
+        }
+        
+        .filter-tag.system-Q.active { background: var(--qms-color); border-color: var(--qms-color); }
+        .filter-tag.system-E.active { background: var(--ems-color); border-color: var(--ems-color); }
+        .filter-tag.system-S.active { background: var(--ohsms-color); border-color: var(--ohsms-color); }
+        .filter-tag.system-F.active { background: var(--fsms-color); border-color: var(--fsms-color); }
+        
+        .filter-stats {
+            font-size: 11px;
+            color: rgba(0,0,0,0.4);
+            margin-top: 4px;
+            font-weight: normal;
+        }
+        /* 从归档材料提交页面复制的筛选区域样式 - 结束 */
+        
+        /* 保留原页面中用于与筛选联动的材料项样式 */
+        .material-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .material-group {
+            margin-bottom: 4px;
+        }
+        
+        .group-title {
+            padding: 12px 16px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        
+        .group-title .arrow {
+            transition: transform 0.3s;
+            color: rgba(0, 0, 0, 0.4);
+            font-size: 12px;
+        }
+        
+        .group-title.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+        
+        .group-items {
+            overflow: hidden;
+        }
+        
+        .group-items.collapsed {
+            display: none;
+        }
+        
+        .material-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f5f5f5;
+            position: relative;
+        }
+
+        .material-item.hidden-by-filter {
+            display: none !important;
+        }
+        
+        .material-item:hover {
+            background: #fafafa;
+        }
+        
+        .material-item.active {
+            background: #FFF0F0;
+            border-left-color: #E34D59;
+        }
+        
+        .material-item.returned {
+            background: #FFF0F0;
+        }
+        
+        .material-item.passed {
+            background: #f6ffed;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        
+        .item-name {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.9);
+            line-height: 1.4;
+            flex: 1;
+            word-break: break-all;
+            font-weight: 500;
+        }
+        
+        .item-status-badge {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .item-status-badge.error {
+            background: var(--error-bg);
+            color: var(--error-color);
+            border: 1px solid var(--error-border);
+        }
+        
+        .item-status-badge.success {
+            background: #D6F5E8;
+            color: var(--success-color);
+            border: 1px solid #B5F5EC;
+        }
+
+        .item-status-badge.neutral {
+            background: #f2f3f5;
+            color: rgba(0,0,0,0.55);
+            border: 1px solid #dcdde1;
+        }
+        
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .applicable-tag {
+            font-size: 10px;
+            color: #FF7D00;
+            background: #FFF0D6;
+            padding: 0px 4px;
+            border-radius: 3px;
+            margin-left: 4px;
+            font-weight: normal;
+        }
+        
+        .return-reason-preview {
+            font-size: 11px;
+            color: #E34D59;
+            line-height: 1.3;
+            margin-top: 2px;
+        }
+
+        /* 材料项内的体系标签样式 */
+        .item-system-tags {
+            display: flex;
+            gap: 3px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .item-system-tag {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        /* 标签高亮状态（被选中） */
+        .item-system-tag.highlighted {
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 标签置灰状态（未选中） */
+        .item-system-tag.dimmed {
+            opacity: 0.4;
+            filter: grayscale(0.8);
+        }
+
+        .item-system-tag.Q { background: var(--qms-color); }
+        .item-system-tag.E { background: var(--ems-color); }
+        .item-system-tag.S { background: var(--ohsms-color); }
+        .item-system-tag.F { background: var(--fsms-color); }
+        
+        /* 左侧展开更多按钮 */
+        .show-more-btn {
+            padding: 10px;
+            text-align: center;
+            color: #0052D9;
+            font-size: 12px;
+            cursor: pointer;
+            border-top: 1px dashed #e7e7e7;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+        
+        .show-more-btn:hover {
+            background: #F2F3FF;
+        }
+        
+        /* 中栏：退回处理区 */
+        .content-main {
+            flex: 1;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+        
+        .content-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e7e7e7;
+            background: linear-gradient(to right, #fff, #fafafa);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-subtitle {
+            font-size: 13px;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #fafafa;
+        }
+        
+        /* 新增：问题清单和材料明细表区域样式 */
+        .problem-list-section {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e7e7e7;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .file-list-section {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e7e7e7;
+            overflow: hidden;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #e7e7e7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-title-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title-left::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #E34D59;
+            border-radius: 2px;
+        }
+        
+        .file-list-section .section-title-left::before {
+            background: #0052D9;
+        }
+        
+        .section-title-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #FAFAFA;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: rgba(0,0,0,0.7);
+            border-bottom: 1px solid #e7e7e7;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            vertical-align: top;
+            color: rgba(0,0,0,0.8);
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover td {
+            background: #fafafa;
+        }
+
+        .data-table tr.problem-row-pending td {
+            background: #fffafa;
+        }
+
+        .data-table tr.problem-row-handled td {
+            color: rgba(0,0,0,0.62);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .status-pill.pending {
+            background: #FFF1F0;
+            color: #E34D59;
+            border-color: #FFD6D6;
+        }
+
+        .status-pill.solved {
+            background: #E6F7F1;
+            color: #00875A;
+            border-color: #B8E8D7;
+        }
+
+        .status-pill.skipped {
+            background: #FFF3E5;
+            color: #C46000;
+            border-color: #FFD5A8;
+        }
+
+        .skip-reason {
+            display: block;
+            max-width: 120px;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 11px;
+            color: rgba(0,0,0,0.5);
+        }
+        
+        .problem-type-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        
+        .problem-type-tag.error {
+            background: var(--error-bg);
+            color: var(--error-color);
+            border-color: var(--error-border);
+        }
+        
+        .problem-type-tag.warning {
+            background: #FFF0D6;
+            color: #FF7D00;
+            border-color: #FFE8B3;
+        }
+        
+        .problem-type-tag.info {
+            background: #F2F3FF;
+            color: #0052D9;
+            border-color: #D6E4FF;
+        }
+        
+        .sys-tags-inline {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .sys-tag-inline {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+        }
+        
+        .sys-tag-inline.Q { background: var(--qms-color); }
+        .sys-tag-inline.E { background: var(--ems-color); }
+        .sys-tag-inline.S { background: var(--ohsms-color); }
+        .sys-tag-inline.F { background: var(--fsms-color); }
+        
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        
+        .btn-mini {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-mini-outline {
+            background: #fff;
+            border-color: #e7e7e7;
+            color: rgba(0,0,0,0.7);
+        }
+        
+        .btn-mini-outline:hover {
+            border-color: #0052D9;
+            color: #0052D9;
+            background: #F2F3FF;
+        }
+        
+        .btn-mini-primary {
+            background: #E34D59;
+            color: #fff;
+            border-color: #E34D59;
+        }
+        
+        .btn-mini-primary:hover {
+            background: #c9353f;
+        }
+        
+        .btn-mini-success {
+            background: #00A870;
+            color: #fff;
+            border-color: #00A870;
+        }
+        
+        .btn-mini-success:hover {
+            background: #008f5d;
+        }
+        
+        .problem-desc {
+            line-height: 1.6;
+            max-width: 400px;
+        }
+        
+        .file-name-cell {
+            font-weight: 500;
+            color: #0052D9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-icon-mini {
+            width: 20px;
+            height: 20px;
+            color: #E34D59;
+        }
+        
+        /* 退回原因看板 - 保留原有样式但隐藏，用于兼容 */
+        .return-reason-panel {
+            display: none;
+        }
+        
+        .material-detail-section {
+            display: none;
+        }
+        
+        .material-detail-section.active {
+            display: block;
+        }
+
+        /* 空状态提示 */
+        .empty-filter-tip {
+            padding: 24px;
+            text-align: center;
+            color: rgba(0,0,0,0.4);
+            font-size: 13px;
+            display: none;
+        }
+
+        .empty-filter-tip.show {
+            display: block;
+        }
+
+        /* 新增：返回按钮样式 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 1px solid #e7e7e7;
+            background: #fff;
+            color: rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+        
+        .back-btn:hover {
+            background: #f5f5f5;
+            border-color: #0052D9;
+            color: #0052D9;
+        }
+        
+        /* 新增：页面标题区域样式 */
+        .page-header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(0,0,0,0.9);
+        }
+        
+        .page-header-subtitle {
+            font-size: 13px;
+            color: rgba(0,0,0,0.5);
+            font-weight: normal;
+        }
+
+        /* 底部操作栏 - 保留原有 */
+        .bottom-action-bar {
+            background: #fff;
+            border-top: 1px solid #e7e7e7;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .action-left {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .status-hint {
+            font-size: 13px;
+            color: rgba(0,0,0,0.5);
+            margin-right: 8px;
+        }
+        
+        .status-hint.ready {
+            color: var(--success-color);
+        }
+        
+        /* 按钮样式 - TDesign规范 - 保留原有 */
+        .t-button {
+            border-radius: 4px;
+            font-size: 14px;
+            padding: 8px 16px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            background: #fff;
+            color: rgba(0,0,0,0.9);
+            text-decoration: none;
+        }
+        
+        .t-button--primary {
+            background: #0052D9;
+            color: #fff;
+        }
+        
+        .t-button--primary:hover {
+            background: #003bb3;
+        }
+        
+        .t-button--primary:disabled {
+            background: #b3b3b3;
+            cursor: not-allowed;
+        }
+        
+        .t-button--danger {
+            background: #E34D59;
+            color: #fff;
+        }
+        
+        .t-button--danger:hover:not(:disabled) {
+            background: #c9353f;
+        }
+        
+        .t-button--danger:disabled {
+            background: #b3b3b3;
+            cursor: not-allowed;
+        }
+        
+        .t-button--outline {
+            border-color: #e7e7e7;
+        }
+        
+        .t-button--outline:hover {
+            border-color: #0052D9;
+            color: #0052D9;
+        }
+        
+        .t-button--ghost {
+            background: transparent;
+            border-color: transparent;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .t-button--ghost:hover {
+            background: #f5f5f5;
+            color: rgba(0,0,0,0.9);
+        }
+        
+        /* 右栏：退回统计 - 保留原有 */
+        .sidebar-right {
+            width: 368px;
+            background: #fff;
+            border-left: 1px solid #e7e7e7;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-section {
+            border-bottom: 1px solid #e7e7e7;
+            padding: 20px;
+        }
+        
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .progress-bar-bg {
+            height: 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        
+        .fill-returned { background: #E34D59; }
+        .fill-passed { background: #00A870; }
+        .fill-handled { background: #0052D9; }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .stat-card.error {
+            background: var(--error-bg);
+            border-color: var(--error-border);
+        }
+        
+        .stat-card.success {
+            background: #D6F5E8;
+            border-color: #B5F5EC;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(0,0,0,0.6);
+        }
+        
+        .timeline {
+            margin-top: 16px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E34D59;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-time {
+            font-size: 12px;
+            color: rgba(0,0,0,0.4);
+        }
+        
+        /* 提示标签 - 保留原有 */
+        .t-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .t-tag--error {
+            background: var(--error-bg);
+            color: var(--error-color);
+            border: 1px solid var(--error-border);
+        }
+        
+        .t-tag--warning {
+            background: #FFF0D6;
+            color: #FF7D00;
+            border: 1px solid #FFE8B3;
+        }
+
+        .t-tag--success {
+            background: #E6F7F1;
+            color: #00875A;
+            border: 1px solid #B8E8D7;
+        }
+
+        /* 统一规范覆盖 */
+        .sidebar-header {
+            background: #fff;
+            padding: 14px 16px;
+        }
+
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-stats {
+            font-size: 12px;
+            color: rgba(0,0,0,0.55);
+            margin-bottom: 14px;
+        }
+
+        .filter-label-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #0052D9;
+            display: inline-block;
+        }
+
+        .quick-filter-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 32px;
+            border: 1px solid #e7e7e7;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            border-color: #0052D9;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0,0,0,0.4);
+        }
+
+        .group-title {
+            padding: 10px 16px;
+            background: #f7f8fa;
+            border-bottom: 1px solid #eef0f3;
+            font-size: 13px;
+        }
+
+        .group-title-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .group-title-meta {
+            color: rgba(0,0,0,0.45);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .material-item {
+            padding: 12px 16px;
+            gap: 7px;
+            border-left: 3px solid transparent;
+            background: #fff;
+        }
+
+        .material-item.active {
+            background: #f2f7ff;
+            border-left-color: #0052D9;
+        }
+
+        .material-item.returned,
+        .material-item.passed {
+            background: #fff;
+        }
+
+        .material-item.returned.active,
+        .material-item.passed.active {
+            background: #f2f7ff;
+        }
+
+        .item-header {
+            display: block;
+        }
+
+        .item-name {
+            font-size: 13px;
+            line-height: 1.45;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .item-status-badge {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            margin-top: 7px;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 999px;
+        }
+
+        .item-system-tags {
+            gap: 4px;
+            margin-top: 0;
+        }
+
+        .item-system-tag,
+        .sys-tag-inline {
+            min-width: 24px;
+            height: 18px;
+            line-height: 16px;
+            text-align: center;
+            padding: 0 6px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            color: inherit;
+            font-size: 11px;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .item-system-tag.Q,
+        .sys-tag-inline.Q { background: #E8F1FF; border-color: #B7D3FF; color: #0052D9; }
+        .item-system-tag.E,
+        .sys-tag-inline.E { background: #E6F7F1; border-color: #B8E8D7; color: #00875A; }
+        .item-system-tag.S,
+        .sys-tag-inline.S { background: #FFF3E5; border-color: #FFD5A8; color: #C46000; }
+        .item-system-tag.F,
+        .sys-tag-inline.F { background: #F1EDFF; border-color: #D6CAFF; color: #6339D8; }
+
+        .item-system-tag.dimmed {
+            opacity: 1;
+            filter: none;
+            background: #F2F3F5 !important;
+            border-color: #DCDDE1 !important;
+            color: #9CA3AF !important;
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: rgba(0,0,0,0.5);
+        }
+
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(0,0,0,0.5);
+        }
+
+        .file-count-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 999px;
+            background: #f7f8fa;
+            border: 1px solid #e7e7e7;
+            color: rgba(0,0,0,0.55);
+            white-space: nowrap;
+        }
+
+        .material-item.has-issue .item-name {
+            color: rgba(0,0,0,0.9);
+        }
+
+        .content-main {
+            background: #f5f5f5;
+        }
+
+        .content-header {
+            padding: 16px 24px;
+            background: #fff;
+        }
+
+        .page-title {
+            font-size: 18px;
+        }
+
+        .content-body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .problem-list-section,
+        .file-list-section {
+            border-color: #dfe7f2;
+            margin-bottom: 20px;
+        }
+
+        .file-list-section .section-title {
+            min-height: 56px;
+        }
+
+        .section-title-meta {
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .file-list-section .data-table td {
+            height: 78px;
+            vertical-align: middle;
+            border-bottom-color: #edf1f5;
+        }
+
+        .file-name-cell {
+            color: rgba(0,0,0,0.9);
+            font-weight: 600;
+            align-items: flex-start;
+        }
+
+        .file-sub-meta {
+            margin-top: 4px;
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .btn-mini {
+            min-height: 32px;
+        }
+
+        .btn-mini-primary {
+            background: #0052D9;
+            border-color: #0052D9;
+        }
+
+        .problem-list-section .btn-mini-primary {
+            background: #0052D9;
+            border-color: #0052D9;
+            color: #fff;
+        }
+
+        .problem-list-section .btn-mini-primary:hover,
+        .problem-list-section .btn-mini-primary:focus-visible {
+            background: #003CAB;
+            border-color: #003CAB;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,82,217,0.12);
+        }
+
+        .problem-list-section .btn-mini-outline {
+            background: #fff;
+            border-color: #dfe7f2;
+            color: rgba(0,0,0,0.72);
+        }
+
+        .problem-list-section .btn-mini-outline:hover,
+        .problem-list-section .btn-mini-outline:focus-visible {
+            background: #fafafa;
+            border-color: #bfc7d5;
+            color: rgba(0,0,0,0.86);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(100,116,139,0.10);
+        }
+
+        .sidebar-right {
+            background: #fff;
+        }
+
+        .stat-card {
+            border-radius: 6px;
+        }
+
+        .toast-stack {
+            position: fixed;
+            right: 24px;
+            top: 82px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-item {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid #dfe7f2;
+            box-shadow: 0 8px 24px rgba(15,23,42,0.12);
+            font-size: 13px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1800;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 460px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e7e7e7;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #e7e7e7;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+            font-size: 13px;
+            color: rgba(0,0,0,0.75);
+            line-height: 1.6;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            min-height: 92px;
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .modal-body textarea:focus {
+            border-color: #0052D9;
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e7e7e7;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+    <!-- 顶部导航 -->
+    <header class="top-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="history.back()" title="返回">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <div>
+                <div class="page-header-title">
+                    审核材料退回处理
+                    <span class="page-header-subtitle">任务号：TASK-2026-001 &nbsp;|&nbsp; 客户A - Q/E/S/F 四体系整合审核</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="t-button t-button--outline" onclick="saveDraft()">保存草稿</button>
+            <button class="t-button t-button--primary" id="headerResubmitBtn" disabled onclick="headerResubmit()">重新提交初次评定</button>
+        </div>
+    </header>
+
+    <!-- 退回警示条 - 已移至顶部导航下方 -->
+    <div class="alert-banner">
+        <div class="alert-icon">!</div>
+        <div class="alert-content">
+            <strong>退回待处理</strong>
+            <span class="alert-meta">该任务被 [初评负责人-张经理] 于 [2026-04-01 15:30] 退回，请及时修正后重新提交</span>
+        </div>
+    </div>
+
+    <!-- 主体三栏布局 -->
+    <div class="main-layout">
+        <!-- 左栏：退回材料清单 -->
+        <aside class="sidebar-left">
+            <!-- 从归档材料提交页面复制的完整筛选区域 - 开始 -->
+            <div class="sidebar-header">
+                <div class="sidebar-title">归档材料清单</div>
+                <div class="sidebar-stats" id="returnStats">MSF11-20 共 48 项 | 4 项有问题 | 6 个待处理问题</div>
+                <!-- 认证领域筛选 -->
+                <div class="filter-section">
+                    <div class="filter-label">
+                        <span class="filter-label-icon"></span>
+                        <span>认证领域（多选）</span>
+                        <span class="filter-stats" id="systemFilterStats">已选：全部</span>
+                    </div>
+                    <div class="filter-tags" id="systemFilters">
+                        <span class="filter-tag system-Q" data-value="Q" onclick="toggleSystemFilter('Q')">质量管理体系(Q)</span>
+                        <span class="filter-tag system-E" data-value="E" onclick="toggleSystemFilter('E')">环境管理体系(E)</span>
+                        <span class="filter-tag system-S" data-value="S" onclick="toggleSystemFilter('S')">职业健康安全(S)</span>
+                        <span class="filter-tag system-F" data-value="F" onclick="toggleSystemFilter('F')">食品安全体系(F)</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="filter-label">
+                        <span class="filter-label-icon"></span>
+                        <span>快速筛选</span>
+                        <span class="filter-stats">显示 <span id="filteredCount">48</span> / <span id="totalCount">48</span> 项</span>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="materialSearch" placeholder="搜索材料名称..." 
+                               class="search-input"
+                               oninput="filterMaterials(this.value)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="2" 
+                             class="search-icon">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <div class="quick-filter-row">
+                        <span class="filter-tag active" data-status-filter="all" onclick="filterByStatus('all', this)">全部</span>
+                        <span class="filter-tag" data-status-filter="pending" onclick="filterByStatus('pending', this)">仅看待处理</span>
+                        <span class="filter-tag" data-status-filter="handled" onclick="filterByStatus('handled', this)">已处理</span>
+                        <span class="filter-tag" data-status-filter="issue" onclick="filterByStatus('issue', this)">有退回问题</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 从归档材料提交页面复制的完整筛选区域 - 结束 -->
+            
+            <div class="material-nav">
+                <!-- 页面加载时根据 MSF11-20 权威清单渲染 48 项材料树 -->
+            </div>
+        </aside>
+
+        <!-- 中栏：退回处理区 -->
+        <main class="content-main">
+            <div class="content-header">
+                <div class="page-title">
+                    <span id="current-material-title">认证发证推荐表</span>
+                    <span class="t-tag t-tag--error" id="current-material-tag">2个待处理问题</span>
+                </div>
+                <div class="page-subtitle">查看该材料清单项下的问题与文件证据；问题可标记为已解决，或填写说明后标记为无需解决。</div>
+            </div>
+            
+            <div class="content-body">
+                
+                <!-- 问题清单区域（顶部） -->
+                <div class="problem-list-section">
+                    <div class="section-title">
+                        <div class="section-title-left">问题清单</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">序号</th>
+                                <th style="width: 100px;">问题类型</th>
+                                <th>问题描述</th>
+                                <th style="width: 100px;">涉及领域</th>
+                                <th style="width: 100px;">提交人</th>
+                                <th style="width: 90px;">状态</th>
+                                <th style="width: 180px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="problem-table-body">
+                            <!-- 动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 材料明细表区域（底部） -->
+                <div class="file-list-section">
+                    <div class="section-title">
+                        <div class="section-title-left">材料明细表</div>
+                        <div class="section-title-meta" id="file-section-meta">当前显示 0 个具体文件，来自 1 项材料</div>
+                        <div class="section-title-actions">
+                            <button class="btn-mini btn-mini-outline" onclick="uploadLocalNew()">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                </svg>
+                                本地上传
+                            </button>
+                            <button class="btn-mini btn-mini-outline" onclick="selectFromLibraryNew()">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                从资料库选择
+                            </button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>具体文件名称</th>
+                                <th style="width: 150px;">适用体系</th>
+                                <th style="width: 140px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="file-table-body">
+                            <!-- 动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 保留原有的材料详情sections，但用于数据存储而非展示 -->
+                <div id="content-audit-report" class="material-detail-section" data-problems='[{"id":1,"type":"登记问题","description":"QMS视角：缺少末页审核组长签字（第8页），请补充手写签名或电子签章；审核完成日期（2026-03-28）早于首次会议日期（2026-03-30），请修正时间线确保逻辑合理","systems":"Q","submitter":"张经理"},{"id":2,"type":"登记问题","description":"QMS视角：第一阶段审核记录缺少审核范围描述，需补充质量管理体系审核的具体范围界定","systems":"Q","submitter":"张经理"}]' data-files='[{"id":"file1","name":"第二阶段审核报告.pdf","type":"PDF","stage":"初审","uploadDate":"2026-03-30","systems":["Q","E","S","F"],"size":"2.4MB"},{"id":"file2","name":"第一阶段审核记录.pdf","type":"PDF","stage":"初审","uploadDate":"2026-03-28","systems":["Q"],"size":"1.8MB"}]'></div>
+                
+                <div id="content-recommendation" class="material-detail-section" data-problems='[{"id":3,"type":"登记问题","description":"QMS视角：证书有效期已截止（2025-12-31），请上传最新续签版本；缺少证书内容确认件的PDF附件","systems":"Q","submitter":"张经理"},{"id":4,"type":"登记问题","description":"QMS视角：证书确认件格式不符合要求，需使用最新版模板，请重新下载模板填写后上传","systems":"Q","submitter":"张经理"}]' data-files='[{"id":"file3","name":"认证发证推荐表.pdf","type":"PDF","stage":"初审","uploadDate":"2026-03-29","systems":["Q","E","F"],"size":"856KB"},{"id":"file4","name":"证书确认件.pdf","type":"PDF","stage":"初审","uploadDate":"2026-03-29","systems":["Q"],"size":"1.2MB"}]'></div>
+                
+                <div id="content-supplement-material" class="material-detail-section" data-problems='[{"id":5,"type":"补充材料","description":"需补充2026年度环境影响评价报告、环评批复文件、排污许可证副本","systems":"E,S","submitter":"系统"}]' data-files='[]'></div>
+                
+                <div id="content-supplement-audit" class="material-detail-section" data-problems='[{"id":6,"type":"补充审核","description":"审核流程缺失第一阶段现场审核记录，需补充第一阶段现场审核记录表、首末次会议签到表、第一阶段不符合项报告（如有）","systems":"Q,E,S","submitter":"系统"}]' data-files='[]'></div>
+
+            </div>
+            
+            <!-- 底部重新提交栏 -->
+            <div class="bottom-action-bar">
+                <div class="action-left">
+                    <button class="t-button t-button--outline" onclick="cancelReturn()">取消</button>
+                    <button class="t-button t-button--outline" onclick="saveDraft()">保存草稿</button>
+                </div>
+                <div class="action-right">
+                    <span class="status-hint" id="submitHint">仍有 6 个问题待处理，全部处理后可重新提交</span>
+                    <button class="t-button t-button--primary" id="resubmitBtn" disabled onclick="resubmitAudit()">
+                        重新提交初次评定
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右栏：退回统计 -->
+        <aside class="sidebar-right">
+            <div class="panel-section">
+                <div class="panel-title">
+                    <span>退回处理进度</span>
+                </div>
+                
+                <div class="progress-list">
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span style="color: #E34D59; font-weight: 500;">问题处理进度</span>
+                            <span style="color: #E34D59; font-weight: 600;" id="pending-count">0/6</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-handled" id="pending-progress" style="width: 0%"></div>
+                        </div>
+                        <div style="font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 4px;">
+                            当前正在处理：<span id="current-processing">认证发证推荐表</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span style="color: #00A870; font-weight: 500;">未退回材料</span>
+                            <span style="color: #00A870; font-weight: 600;">44项</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-passed" style="width: 100%"></div>
+                        </div>
+                        <div style="font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 4px;">
+                            未被退回的问题材料将随本次重新提交保留
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-grid">
+                    <div class="stat-card error">
+                        <div class="stat-value" style="color: #E34D59;" id="stat-pending">6</div>
+                        <div class="stat-label">待处理</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-value" style="color: #00A870;" id="stat-solved">0</div>
+                        <div class="stat-label">已解决</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #FF7D00;" id="stat-skipped">0</div>
+                        <div class="stat-label">无需解决</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #0052D9;">4</div>
+                        <div class="stat-label">涉及材料</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel-section" style="flex: 1;">
+                <div class="panel-title">
+                    <span>审核时间线</span>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #E34D59;"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">材料被退回</div>
+                            <div class="timeline-time">2026-04-01 15:30 | 初评负责人-张经理</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #0052D9;"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title" id="timeline-current">处理中：认证发证推荐表</div>
+                            <div class="timeline-time">2026-04-02 16:18 | 归档员-李工</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #E7E7E7;"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title" style="color: rgba(0,0,0,0.4);" id="timeline-pending">待处理：6个问题</div>
+                            <div class="timeline-time">等待全部问题处理完成</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #E7E7E7;"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title" style="color: rgba(0,0,0,0.4);">重新提交初次评定</div>
+                            <div class="timeline-time">待完成所有处理后</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-header" id="confirmModalTitle">操作确认</div>
+        <div class="modal-body" id="confirmModalBody"></div>
+        <div class="modal-footer">
+            <button class="t-button t-button--outline" onclick="closeConfirmModal(false)">取消</button>
+            <button class="t-button t-button--primary" onclick="closeConfirmModal(true)">确认</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="reasonModal">
+    <div class="modal-content">
+        <div class="modal-header">无需解决说明</div>
+        <div class="modal-body">
+            <div>请填写该问题无需解决的业务说明，提交后将保留处理痕迹。</div>
+            <textarea id="skipReasonInput" placeholder="请输入说明"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="t-button t-button--outline" onclick="closeReasonModal(false)">取消</button>
+            <button class="t-button t-button--primary" onclick="closeReasonModal(true)">确认</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 从归档材料提交页面复制的筛选功能全局状态
+    let selectedSystems = new Set();
+    let currentStatusFilter = 'all';
+    let searchKeyword = '';
+    let confirmResolver = null;
+    let reasonResolver = null;
+    
+    const MATERIAL_CATALOG = [{"id":"MSF11-20-001","category":"通用材料","name":"认证发证推荐表","systems":["Q","E","S","F"]},{"id":"MSF11-20-002","category":"通用材料","name":"证书内容确认件（标黄代表需要pdf附件）","systems":["Q","E","S","F"]},{"id":"MSF11-20-003","category":"通用材料","name":"认证申请表","systems":["Q","E","S","F"]},{"id":"MSF11-20-004","category":"通用材料","name":"全国认证认可信息公共服务平台(认e云)查询截图","systems":["Q","E","S","F"]},{"id":"MSF11-20-005","category":"通用材料","name":"获证方情况调查表","systems":["Q","E","S","F"]},{"id":"MSF11-20-006","category":"通用材料","name":"证书变更申请表","systems":["Q","E","S","F"]},{"id":"MSF11-20-007","category":"通用材料","name":"认证周期绩效评价表","systems":["Q","E","S","F"]},{"id":"MSF11-20-008","category":"通用材料","name":"认证申请评审表（或认证证书转换评审记录）","systems":["Q","E","S","F"]},{"id":"MSF11-20-009","category":"通用材料","name":"法律地位证明文件复印件（如营业执照）","systems":["Q","E","S","F"]},{"id":"MSF11-20-010","category":"通用材料","name":"相关资质证明原件复印件、守法证明（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-011","category":"通用材料","name":"生产工艺/服务流程图(适用时)","systems":["Q","E","S","F"]},{"id":"MSF11-20-012","category":"通用材料","name":"管理体系过程清单（Q/E/S）","systems":["Q","E","S","F"]},{"id":"MSF11-20-013","category":"通用材料","name":"组织机构图","systems":["Q","E","S","F"]},{"id":"MSF11-20-014","category":"通用材料","name":"认证场所清单（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-015","category":"通用材料","name":"审核项目推进表","systems":["Q","E","S","F"]},{"id":"MSF11-20-016","category":"通用材料","name":"地理位置示意图和厂区平面布置图","systems":["E","S","F"]},{"id":"MSF11-20-017","category":"通用材料","name":"组织适用的产品或服务质量标准清单","systems":["Q","F"]},{"id":"MSF11-20-018","category":"通用材料","name":"组织适用的法律法规、标准清单","systems":["E","S"]},{"id":"MSF11-20-019","category":"通用材料","name":"重要环境因素清单","systems":["E"]},{"id":"MSF11-20-020","category":"通用材料","name":"主要危险源和OHS风险","systems":["S"]},{"id":"MSF11-20-021","category":"通用材料","name":"使用的主要危险材料(适用时）","systems":["S"]},{"id":"MSF11-20-022","category":"通用材料","name":"质量/环境/职业健康/食品安全目标","systems":["Q","E","S","F"]},{"id":"MSF11-20-023","category":"通用材料","name":"需要应对的风险和机遇注","systems":["E","S"]},{"id":"MSF11-20-024","category":"通用材料","name":"污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-025","category":"通用材料","name":"法规符合性证明文件（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-026","category":"通用材料","name":"适用性声明","systems":["Q","E","S","F"]},{"id":"MSF11-20-027","category":"通用材料","name":"详细产品（包括原辅料及终产品）及工艺描述","systems":["F"]},{"id":"MSF11-20-028","category":"通用材料","name":"生产车间平面布置图","systems":["Q","E","S","F"]},{"id":"MSF11-20-029","category":"通用材料","name":"危害分析及OPRP、CCP等针对显著危害的控制措施","systems":["Q","E","S","F"]},{"id":"MSF11-20-030","category":"通用材料","name":"FSMS（HACCP）认证申请组织添加剂使用清单","systems":["Q","E","S","F"]},{"id":"MSF11-20-031","category":"通用材料","name":"食品安全检测报告","systems":["Q","E","S","F"]},{"id":"MSF11-20-032","category":"通用材料","name":"食品安全认证申请组织自我声明","systems":["F"]},{"id":"MSF11-20-033","category":"一阶段材料","name":"一阶段不实施现场审核的申请（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-034","category":"一阶段材料","name":"审核任务书","systems":["Q","E","S","F"]},{"id":"MSF11-20-035","category":"一阶段材料","name":"首末次会议签到表（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-036","category":"一阶段材料","name":"审核计划（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-037","category":"一阶段材料","name":"第一阶段审核问题清单（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-038","category":"一阶段材料","name":"第一阶段审核报告","systems":["Q","E","S","F"]},{"id":"MSF11-20-039","category":"一阶段材料","name":"文件评审报告(适用时)","systems":["Q","E","S","F"]},{"id":"MSF11-20-040","category":"二阶段材料","name":"审核任务书","systems":["Q","E","S","F"]},{"id":"MSF11-20-041","category":"二阶段材料","name":"审核准备会记录(适用时)","systems":["Q","E","S","F"]},{"id":"MSF11-20-042","category":"二阶段材料","name":"首末次会议签到表","systems":["Q","E","S","F"]},{"id":"MSF11-20-043","category":"二阶段材料","name":"审核计划","systems":["Q","E","S","F"]},{"id":"MSF11-20-044","category":"二阶段材料","name":"不符合项报告及纠正措施见证材料（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-045","category":"二阶段材料","name":"核查记录表","systems":["Q","E","S","F"]},{"id":"MSF11-20-046","category":"二阶段材料","name":"审核报告","systems":["Q","E","S","F"]},{"id":"MSF11-20-047","category":"二阶段材料","name":"异地审核情况报备表（适用时）","systems":["Q","E","S","F"]},{"id":"MSF11-20-048","category":"二阶段材料","name":"其他拟上报的资料（适用时，请注明上报材料类型）","systems":["Q","E","S","F"]}];
+    const ISSUE_MATERIALS = {
+        "MSF11-20-001": { detailId: "recommendation", fileCount: 2 },
+        "MSF11-20-025": { detailId: "supplement-material", fileCount: 0 },
+        "MSF11-20-038": { detailId: "supplement-audit", fileCount: 0 },
+        "MSF11-20-046": { detailId: "audit-report", fileCount: 2 }
+    };
+
+    function showToast(message) {
+        const stack = document.getElementById('toastStack');
+        if (!stack) return;
+        const item = document.createElement('div');
+        item.className = 'toast-item';
+        item.textContent = message;
+        stack.appendChild(item);
+        setTimeout(() => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(-4px)';
+            item.style.transition = 'all 0.2s';
+            setTimeout(() => item.remove(), 220);
+        }, 2200);
+    }
+
+    function showConfirm(message, title = '操作确认') {
+        const modal = document.getElementById('confirmModal');
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalBody').textContent = message;
+        modal.classList.add('active');
+        return new Promise(resolve => {
+            confirmResolver = resolve;
+        });
+    }
+
+    function closeConfirmModal(result) {
+        document.getElementById('confirmModal').classList.remove('active');
+        if (confirmResolver) {
+            confirmResolver(result);
+            confirmResolver = null;
+        }
+    }
+
+    function showReasonModal() {
+        const input = document.getElementById('skipReasonInput');
+        input.value = '';
+        document.getElementById('reasonModal').classList.add('active');
+        setTimeout(() => input.focus(), 50);
+        return new Promise(resolve => {
+            reasonResolver = resolve;
+        });
+    }
+
+    function closeReasonModal(result) {
+        const modal = document.getElementById('reasonModal');
+        const value = document.getElementById('skipReasonInput').value.trim();
+        modal.classList.remove('active');
+        if (reasonResolver) {
+            reasonResolver(result ? value : null);
+            reasonResolver = null;
+        }
+    }
+
+    function normalizeSystemTags() {
+        document.querySelectorAll('.material-item').forEach(item => {
+            const systems = (item.getAttribute('data-systems') || '').split(',').map(s => s.trim()).filter(Boolean);
+            const uniqueSystems = Array.from(new Set(systems.filter(s => ['Q','E','S','F'].includes(s))));
+            item.setAttribute('data-systems', uniqueSystems.join(','));
+
+            const seen = new Set();
+            item.querySelectorAll('.item-system-tag').forEach(tag => {
+                const sys = tag.getAttribute('data-sys');
+                if (seen.has(sys)) {
+                    tag.remove();
+                } else {
+                    seen.add(sys);
+                }
+            });
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+    }
+
+    function renderMaterialNav() {
+        const nav = document.querySelector('.material-nav');
+        if (!nav) return;
+
+        const groups = ['通用材料', '一阶段材料', '二阶段材料'];
+        nav.innerHTML = groups.map(groupName => {
+            const groupItems = MATERIAL_CATALOG.filter(item => item.category === groupName);
+            const itemsHtml = groupItems.map(item => renderMaterialItem(item)).join('');
+            const issueCount = groupItems.filter(item => ISSUE_MATERIALS[item.id]).length;
+            const fileCount = groupItems.reduce((sum, item) => sum + getMaterialFileCount(item), 0);
+            return `
+                <div class="material-group" data-group="${escapeHtml(groupName)}">
+                    <div class="group-title" onclick="toggleGroup(this)">
+                        <span class="group-title-main">
+                            <span>${escapeHtml(groupName)}（<span class="group-count">${groupItems.length}</span>项）</span>
+                            <span class="group-title-meta">${fileCount}个文件 | ${issueCount}项有问题</span>
+                        </span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="group-items">
+                        <div class="empty-filter-tip">无匹配材料</div>
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderMaterialItem(item) {
+        const issue = ISSUE_MATERIALS[item.id];
+        const detailId = issue ? issue.detailId : item.id;
+        const isActive = detailId === 'recommendation';
+        const fileCount = getMaterialFileCount(item);
+        const systemsHtml = item.systems.map(sys => `<span class="item-system-tag ${sys}" data-sys="${sys}">${sys}</span>`).join('');
+        const status = getMaterialIssueStatus(detailId);
+        const statusHtml = `<span class="item-status-badge ${status.className}">${status.label}</span>`;
+        const classes = ['material-item', issue ? 'returned has-issue' : 'passed', isActive ? 'active' : ''].filter(Boolean).join(' ');
+
+        return `
+            <div class="${classes}"
+                 data-id="${escapeHtml(detailId)}"
+                 data-catalog-id="${escapeHtml(item.id)}"
+                 data-name="${escapeHtml(item.name)}"
+                 data-category="${escapeHtml(item.category)}"
+                 data-problem-count="${status.total}"
+                 data-pending-count="${status.pending}"
+                 data-handled-count="${status.handled}"
+                 data-has-issue="${issue ? 'true' : 'false'}"
+                 data-systems="${escapeHtml(item.systems.join(','))}"
+                 onclick="switchMaterial('${escapeHtml(detailId)}', this)">
+                <div class="item-header">
+                    <div class="item-name">${escapeHtml(item.name)}</div>
+                    ${statusHtml}
+                </div>
+                <div class="item-system-tags">${systemsHtml}</div>
+                <div class="item-footer">
+                    <span>${escapeHtml(item.category)}</span>
+                    <span class="file-count-pill">${fileCount > 0 ? `${fileCount}个文件` : '未上传'}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function getMaterialFileCount(item) {
+        const issue = ISSUE_MATERIALS[item.id];
+        if (issue) return issue.fileCount;
+        return item.id === 'MSF11-20-009' ? 3 : 1;
+    }
+
+    function getCatalogItemByDetailId(detailId) {
+        return MATERIAL_CATALOG.find(item => (ISSUE_MATERIALS[item.id]?.detailId || item.id) === detailId);
+    }
+
+    function getProblemsByDetailId(detailId) {
+        const section = document.getElementById('content-' + detailId);
+        if (!section) return [];
+        return JSON.parse(section.getAttribute('data-problems') || '[]');
+    }
+
+    function getMaterialIssueStatus(detailId) {
+        const problems = getProblemsByDetailId(detailId);
+        const total = problems.length;
+        const pending = problems.filter(problem => !problem.status || problem.status === '待解决').length;
+        const handled = total - pending;
+        if (total === 0) {
+            return { total, pending, handled, label: '无退回问题', className: 'neutral' };
+        }
+        if (pending === 0) {
+            return { total, pending, handled, label: '已处理', className: 'success' };
+        }
+        return { total, pending, handled, label: `${pending}个待处理`, className: 'error' };
+    }
+
+    function refreshMaterialIssueBadges() {
+        document.querySelectorAll('.material-item').forEach(item => {
+            const detailId = item.getAttribute('data-id');
+            const status = getMaterialIssueStatus(detailId);
+            item.setAttribute('data-problem-count', status.total);
+            item.setAttribute('data-pending-count', status.pending);
+            item.setAttribute('data-handled-count', status.handled);
+            const badge = item.querySelector('.item-status-badge');
+            if (badge) {
+                badge.className = `item-status-badge ${status.className}`;
+                badge.textContent = status.label;
+            }
+        });
+    }
+
+    function getGlobalProblemStats() {
+        const allSections = document.querySelectorAll('.material-detail-section');
+        let total = 0;
+        let pending = 0;
+        let solved = 0;
+        let skipped = 0;
+
+        allSections.forEach(section => {
+            const problems = JSON.parse(section.getAttribute('data-problems') || '[]');
+            total += problems.length;
+            problems.forEach(problem => {
+                if (problem.status === '已解决') {
+                    solved++;
+                } else if (problem.status === '无需解决') {
+                    skipped++;
+                } else {
+                    pending++;
+                }
+            });
+        });
+
+        return {
+            total,
+            pending,
+            solved,
+            skipped,
+            handled: solved + skipped
+        };
+    }
+
+    // 分组折叠
+    function toggleGroup(element) {
+        element.classList.toggle('collapsed');
+        const items = element.nextElementSibling;
+        items.classList.toggle('collapsed');
+    }
+    
+    // 展开/折叠左侧保留文件的隐藏部分
+    function toggleHiddenFiles(btn) {
+        const hiddenContainer = btn.previousElementSibling;
+        const isHidden = hiddenContainer.style.display === 'none';
+        
+        if (isHidden) {
+            hiddenContainer.style.display = 'block';
+            btn.innerHTML = '<span>收起部分已通过材料</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px; vertical-align: middle; transform: rotate(180deg);"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+        } else {
+            hiddenContainer.style.display = 'none';
+            btn.innerHTML = '<span>查看剩余 32 项已通过材料</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px; vertical-align: middle;"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+        }
+    }
+    
+    // 切换材料详情显示
+    function switchMaterial(materialType, element) {
+        document.querySelectorAll('.material-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        if (element) {
+            element.classList.add('active');
+        }
+        
+        // 更新标题
+        const catalogItem = getCatalogItemByDetailId(materialType);
+        const materialName = element?.getAttribute('data-name') || catalogItem?.name || materialType;
+        const issueStatus = getMaterialIssueStatus(materialType);
+        
+        document.getElementById('current-material-title').textContent = materialName;
+        const currentTag = document.getElementById('current-material-tag');
+        currentTag.textContent = issueStatus.total > 0 ? issueStatus.label : '无退回问题';
+        currentTag.className = issueStatus.pending > 0
+            ? 't-tag t-tag--error'
+            : issueStatus.total > 0
+                ? 't-tag t-tag--success'
+                : 't-tag';
+        document.getElementById('current-processing').textContent = materialName;
+        document.getElementById('timeline-current').textContent = '处理中：' + materialName;
+        
+        // 加载对应的问题和文件数据
+        loadMaterialData(materialType);
+    }
+    
+    // 加载材料数据并渲染表格
+    function loadMaterialData(materialType) {
+        const section = document.getElementById('content-' + materialType);
+        if (!section) {
+            const catalogItem = getCatalogItemByDetailId(materialType);
+            const systems = catalogItem?.systems || ['Q','E','S','F'];
+            const fileName = `${catalogItem?.name || '归档材料'}.pdf`;
+            renderProblemTable([]);
+            renderFileTable([{
+                id: `${materialType}-file`,
+                name: fileName,
+                type: 'PDF',
+                stage: '前序环节',
+                uploadDate: '2026-03-30',
+                systems,
+                size: '1.1MB'
+            }]);
+            return;
+        }
+        
+        const problems = JSON.parse(section.getAttribute('data-problems') || '[]');
+        const files = JSON.parse(section.getAttribute('data-files') || '[]');
+        
+        renderProblemTable(problems);
+        renderFileTable(files);
+    }
+    
+    // 渲染问题清单表格 - 增强版（支持状态管理和无需解决功能）
+    function renderProblemTable(problems) {
+        const tbody = document.getElementById('problem-table-body');
+        tbody.innerHTML = '';
+
+        if (problems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(0,0,0,0.4); padding: 32px;">该材料分类下没有问题记录</td></tr>';
+            return;
+        }
+
+        problems.forEach((problem, index) => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-problem-id', problem.id);
+
+            // 问题类型样式映射
+            let typeClass = 'error';
+            let typeText = problem.type;
+            if (problem.type === '补充材料') {
+                typeClass = 'warning';
+            } else if (problem.type === '补充审核') {
+                typeClass = 'info';
+            }
+
+            // 涉及领域标签
+            const systemsHtml = problem.systems.split(',').map(sys => 
+                `<span class="sys-tag-inline ${escapeHtml(sys.trim())}">${escapeHtml(sys.trim())}</span>`
+            ).join('');
+
+            // 状态管理（从problem对象读取或默认为"待解决"）
+            const status = problem.status || '待解决';
+            const skipReason = problem.skipReason || '';
+            tr.className = status === '待解决' ? 'problem-row-pending' : 'problem-row-handled';
+
+            let statusHtml = '';
+            if (status === '已解决') {
+                statusHtml = '<span class="status-pill solved">已解决</span>';
+            } else if (status === '无需解决') {
+                let reasonHint = '';
+                if (skipReason) {
+                    const displayText = skipReason.length > 12 ? skipReason.substring(0, 12) + '...' : skipReason;
+                    reasonHint = `<span class="skip-reason" title="${escapeHtml(skipReason)}">${escapeHtml(displayText)}</span>`;
+                }
+                statusHtml = `<span class="status-pill skipped">无需解决</span>${reasonHint}`;
+            } else {
+                statusHtml = '<span class="status-pill pending">待处理</span>';
+            }
+
+            // 根据状态生成不同的操作按钮
+            let actionButtons = '';
+            if (status === '待解决') {
+                actionButtons = `
+                    <button class="btn-mini btn-mini-primary" onclick="solveProblem(${problem.id}, this)">解决</button>
+                    <button class="btn-mini btn-mini-outline" onclick="skipProblem(${problem.id}, this)" title="认定此问题不需要解决，需填写说明">无需解决</button>
+                `;
+            } else if (status === '已解决') {
+                actionButtons = `
+                    <button class="btn-mini btn-mini-outline" onclick="cancelSolveProblem(${problem.id}, this)">取消</button>
+                `;
+            } else if (status === '无需解决') {
+                actionButtons = `
+                    <button class="btn-mini btn-mini-outline" onclick="cancelSkipProblem(${problem.id}, this)">取消</button>
+                `;
+            }
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td><span class="problem-type-tag ${typeClass}">${typeText}</span></td>
+                <td class="problem-desc">${escapeHtml(problem.description)}</td>
+                <td><div class="sys-tags-inline">${systemsHtml}</div></td>
+                <td>${escapeHtml(problem.submitter)}</td>
+                <td>${statusHtml}</td>
+                <td>
+                    <div class="action-btns">
+                        ${actionButtons}
+                    </div>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        refreshMaterialIssueBadges();
+        updateActiveMaterialHeader();
+        updateGlobalSubmitStatus();
+    }
+
+    // 辅助函数：更新问题状态并刷新表格
+    function updateProblemStatus(problemId, newStatus, skipReason) {
+        // 找到当前活动的材料类型
+        const activeItem = document.querySelector('.material-item.active');
+        if (!activeItem) return;
+
+        const materialType = activeItem.getAttribute('data-id');
+        const section = document.getElementById('content-' + materialType);
+        if (!section) return;
+
+        // 获取并更新数据
+        let problems = JSON.parse(section.getAttribute('data-problems') || '[]');
+        const problem = problems.find(p => p.id === problemId);
+        if (problem) {
+            problem.status = newStatus;
+            if (skipReason !== undefined) {
+                if (skipReason) {
+                    problem.skipReason = skipReason;
+                } else {
+                    delete problem.skipReason;
+                }
+            }
+            section.setAttribute('data-problems', JSON.stringify(problems));
+        }
+
+        // 刷新表格
+        renderProblemTable(problems);
+    }
+
+    function updateActiveMaterialHeader() {
+        const activeItem = document.querySelector('.material-item.active');
+        if (!activeItem) return;
+        const materialType = activeItem.getAttribute('data-id');
+        const issueStatus = getMaterialIssueStatus(materialType);
+        const currentTag = document.getElementById('current-material-tag');
+        if (!currentTag) return;
+        currentTag.textContent = issueStatus.total > 0 ? issueStatus.label : '无退回问题';
+        currentTag.className = issueStatus.pending > 0
+            ? 't-tag t-tag--error'
+            : issueStatus.total > 0
+                ? 't-tag t-tag--success'
+                : 't-tag';
+    }
+
+    function updateGlobalSubmitStatus() {
+        const stats = getGlobalProblemStats();
+
+        const pendingCountEl = document.getElementById('pending-count');
+        const pendingProgressEl = document.getElementById('pending-progress');
+        const statPendingEl = document.getElementById('stat-pending');
+        const statSolvedEl = document.getElementById('stat-solved');
+        const statSkippedEl = document.getElementById('stat-skipped');
+        const timelinePendingEl = document.getElementById('timeline-pending');
+        const returnStatsEl = document.getElementById('returnStats');
+
+        if (pendingCountEl) pendingCountEl.textContent = `${stats.handled}/${stats.total}`;
+        if (pendingProgressEl) pendingProgressEl.style.width = stats.total > 0 ? `${(stats.handled / stats.total) * 100}%` : '0%';
+        if (statPendingEl) statPendingEl.textContent = stats.pending;
+        if (statSolvedEl) statSolvedEl.textContent = stats.solved;
+        if (statSkippedEl) statSkippedEl.textContent = stats.skipped;
+        if (timelinePendingEl) timelinePendingEl.textContent = stats.pending > 0 ? `待处理：${stats.pending}个问题` : '待重新提交初次评定';
+        if (returnStatsEl) returnStatsEl.textContent = `MSF11-20 共 48 项 | 4 项有问题 | ${stats.pending} 个待处理问题`;
+
+        const submitHint = document.getElementById('submitHint');
+        const resubmitBtn = document.getElementById('resubmitBtn');
+        const headerResubmitBtn = document.getElementById('headerResubmitBtn');
+
+        if (submitHint) {
+            if (stats.pending === 0 && stats.total > 0) {
+                submitHint.textContent = '所有退回问题已处理完成，可重新提交初次评定';
+                submitHint.classList.add('ready');
+                if (resubmitBtn) resubmitBtn.disabled = false;
+                if (headerResubmitBtn) headerResubmitBtn.disabled = false;
+            } else {
+                submitHint.textContent = `仍有 ${stats.pending} 个问题待处理，全部处理后可重新提交`;
+                submitHint.classList.remove('ready');
+                if (resubmitBtn) resubmitBtn.disabled = true;
+                if (headerResubmitBtn) headerResubmitBtn.disabled = true;
+            }
+        }
+
+        applyLeftPanelFilter();
+    }
+
+    // 渲染材料明细表
+    function renderFileTable(files) {
+        const tbody = document.getElementById('file-table-body');
+        const meta = document.getElementById('file-section-meta');
+        tbody.innerHTML = '';
+        if (meta) {
+            meta.textContent = `当前显示 ${files.length} 个具体文件，来自 1 项材料`;
+        }
+        
+        if (files.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: rgba(0,0,0,0.4); padding: 32px;">该材料项暂无具体文件，请通过本地上传或资料库选择补充。</td></tr>';
+            return;
+        }
+        
+        files.forEach(file => {
+            const tr = document.createElement('tr');
+            
+            // 覆盖体系标签
+            const systemsHtml = Array.from(new Set(file.systems)).map(sys => 
+                `<span class="sys-tag-inline ${sys}">${sys}</span>`
+            ).join('');
+            
+            // 文件图标
+            const fileIcon = file.type === 'PDF' ? 
+                `<svg class="file-icon-mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>` :
+                `<svg class="file-icon-mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+            
+            tr.innerHTML = `
+                <td>
+                    <div class="file-name-cell">
+                        ${fileIcon}
+                        <div>
+                            <div>${file.name}</div>
+                            <div class="file-sub-meta">所属材料：${document.getElementById('current-material-title').textContent} | ${file.stage} | ${file.uploadDate} | ${file.size}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><div class="sys-tags-inline">${systemsHtml}</div></td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn-mini btn-mini-outline" onclick="previewFile('${file.id}')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            预览
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+    }
+    
+    // 解决问题
+    // 解决问题 - 增强版（支持状态流转和取消）
+    async function solveProblem(problemId, btn) {
+        if (await showConfirm('确定将问题标记为“已解决”吗？')) {
+            updateProblemStatus(problemId, '已解决');
+        }
+    }
+
+    // 标记问题为无需解决（需填写说明）
+    async function skipProblem(problemId, btn) {
+        const reason = await showReasonModal();
+        if (reason) {
+            updateProblemStatus(problemId, '无需解决', reason);
+        } else if (reason !== null) {
+            showToast('请填写无需解决的原因说明，否则无法标记为无需解决。');
+        }
+    }
+
+    // 取消解决状态（回到待解决）
+    async function cancelSolveProblem(problemId, btn) {
+        if (await showConfirm('确定要取消“已解决”状态吗？该问题将重新回到待解决状态。')) {
+            updateProblemStatus(problemId, '待解决');
+        }
+    }
+
+    // 取消无需解决状态（回到待解决）
+    async function cancelSkipProblem(problemId, btn) {
+        if (await showConfirm('确定要取消“无需解决”状态吗？该问题将重新回到待解决状态。')) {
+            updateProblemStatus(problemId, '待解决', null); // 清除说明
+        }
+    }
+    
+    // 通过文件ID标记完成（表格内使用）
+    function toggleFileCompleteById(fileId, checkbox) {
+        showToast(checkbox.checked ? '已记录文件处理状态' : '已取消文件处理状态');
+    }
+    
+    // 预览文件
+    function previewFile(fileId) {
+        showToast('正在打开文件预览：' + fileId);
+    }
+    
+    // 本地上传（行内）
+    function uploadLocal(fileId) {
+        showToast('已模拟本地上传替换：' + fileId);
+        const activeItem = document.querySelector('.material-item.active');
+        if (activeItem) {
+            const materialType = activeItem.getAttribute('data-id');
+            loadMaterialData(materialType);
+        }
+    }
+    
+    // 从资料库选择（行内）
+    function selectFromLibrary(fileId) {
+        showToast('已模拟从资料库选择替换：' + fileId);
+        const activeItem = document.querySelector('.material-item.active');
+        if (activeItem) {
+            const materialType = activeItem.getAttribute('data-id');
+            loadMaterialData(materialType);
+        }
+    }
+    
+    // 本地上传（标题栏新增）
+    function uploadLocalNew() {
+        showToast('已模拟打开本地上传入口');
+        const activeItem = document.querySelector('.material-item.active');
+        if (activeItem) {
+            const materialType = activeItem.getAttribute('data-id');
+            // 模拟上传成功后刷新
+            setTimeout(() => {
+                loadMaterialData(materialType);
+            }, 500);
+        }
+    }
+    
+    // 从资料库选择（标题栏新增）
+    function selectFromLibraryNew() {
+        showToast('已模拟打开资料库选择入口');
+        const activeItem = document.querySelector('.material-item.active');
+        if (activeItem) {
+            const materialType = activeItem.getAttribute('data-id');
+            // 模拟选择成功后刷新
+            setTimeout(() => {
+                loadMaterialData(materialType);
+            }, 500);
+        }
+    }
+    
+    // 顶部保存草稿
+    function saveDraft() {
+        showToast('草稿已保存');
+    }
+    
+    // 顶部重新提交
+    async function headerResubmit() {
+        const btn = document.getElementById('headerResubmitBtn');
+        if (btn && btn.disabled) {
+            return;
+        }
+        if (await showConfirm('确定要重新提交初次评定吗？请确认所有退回问题已处理完毕。')) {
+            resubmitAudit();
+        }
+    }
+    
+    // 从归档材料提交页面复制的认证领域筛选功能
+    function toggleSystemFilter(system) {
+        const tag = document.querySelector(`.filter-tag[data-value="${system}"]`);
+        
+        if (selectedSystems.has(system)) {
+            selectedSystems.delete(system);
+            tag.classList.remove('active');
+        } else {
+            selectedSystems.add(system);
+            tag.classList.add('active');
+        }
+        
+        updateFilterStats();
+        applyLeftPanelFilter();
+        updateTagHighlights();
+    }
+    
+    // 从归档材料提交页面复制的更新筛选统计文本功能
+    function updateFilterStats() {
+        const sysStats = document.getElementById('systemFilterStats');
+        
+        if (selectedSystems.size === 0) {
+            sysStats.textContent = '已选：全部';
+        } else {
+            sysStats.textContent = `已选：${Array.from(selectedSystems).join('+')}`;
+        }
+    }
+    
+    // 从归档材料提交页面复制的按状态筛选功能
+    function filterByStatus(type, element) {
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            const parent = tag.parentElement;
+            if (parent && parent.id !== 'systemFilters') {
+                tag.classList.remove('active');
+            }
+        });
+        if (element) {
+            element.classList.add('active');
+        }
+        
+        currentStatusFilter = type;
+        applyLeftPanelFilter();
+    }
+    
+    // 从归档材料提交页面复制的搜索功能
+    function filterMaterials(keyword) {
+        searchKeyword = keyword;
+        applyLeftPanelFilter();
+    }
+    
+    // 从归档材料提交页面复制的左侧材料列表筛选功能
+    function applyLeftPanelFilter() {
+        const items = document.querySelectorAll('.material-item:not([style*="center"])');
+        let totalVisible = 0;
+        
+        items.forEach(item => {
+            const systems = item.getAttribute('data-systems') || '';
+            const hasIssue = item.getAttribute('data-has-issue') === 'true';
+            const pendingCount = Number(item.getAttribute('data-pending-count') || 0);
+            const handledCount = Number(item.getAttribute('data-handled-count') || 0);
+            
+            const systemMatch = selectedSystems.size === 0 || 
+                systems.split(',').some(s => selectedSystems.has(s.trim()));
+
+            const itemName = item.querySelector('.item-name')?.textContent.toLowerCase() || '';
+            const searchMatch = !searchKeyword || itemName.includes(searchKeyword.toLowerCase());
+            const statusMatch = currentStatusFilter === 'all'
+                || (currentStatusFilter === 'pending' && pendingCount > 0)
+                || (currentStatusFilter === 'handled' && hasIssue && pendingCount === 0 && handledCount > 0)
+                || (currentStatusFilter === 'issue' && hasIssue);
+            
+            const shouldShow = systemMatch && searchMatch && statusMatch;
+            
+            if (shouldShow) {
+                item.classList.remove('hidden-by-filter');
+                totalVisible++;
+
+                const tags = item.querySelectorAll('.item-system-tag');
+                tags.forEach(tag => {
+                    const sys = tag.getAttribute('data-sys');
+                    if (selectedSystems.size === 0 || selectedSystems.has(sys)) {
+                        tag.classList.remove('dimmed');
+                        tag.classList.add('highlighted');
+                    } else {
+                        tag.classList.add('dimmed');
+                        tag.classList.remove('highlighted');
+                    }
+                });
+            } else {
+                item.classList.add('hidden-by-filter');
+            }
+        });
+        
+        updateGroupCounts();
+        updateEmptyStates();
+        document.getElementById('filteredCount').textContent = totalVisible;
+    }
+    
+    function updateGroupCounts() {
+        document.querySelectorAll('.material-group').forEach(group => {
+            const visibleItems = group.querySelectorAll('.material-item:not(.hidden-by-filter)');
+            const countSpan = group.querySelector('.group-count');
+            if (countSpan) countSpan.textContent = visibleItems.length;
+        });
+    }
+
+    function updateEmptyStates() {
+        document.querySelectorAll('.material-group').forEach(group => {
+            const hasVisibleItems = group.querySelectorAll('.material-item:not(.hidden-by-filter)').length > 0;
+            const empty = group.querySelector('.empty-filter-tip');
+            if (empty) empty.classList.toggle('show', !hasVisibleItems);
+        });
+    }
+
+    function updateTagHighlights() {
+        const selected = Array.from(selectedSystems);
+        
+        document.querySelectorAll('.item-system-tag').forEach(tag => {
+            const sys = tag.getAttribute('data-sys');
+            
+            tag.classList.remove('highlighted', 'dimmed');
+            
+            if (selected.length === 0 || selected.includes(sys)) {
+                tag.classList.add('highlighted');
+            } else {
+                tag.classList.add('dimmed');
+            }
+        });
+    }
+    
+    // 取消退回处理
+    async function cancelReturn() {
+        if (await showConfirm('确定取消退回处理吗？未保存的修改将丢失。')) {
+            window.location.href = '#';
+        }
+    }
+    
+    // 重新提交初次评定
+    function resubmitAudit() {
+        const btn = document.getElementById('resubmitBtn');
+        const stats = getGlobalProblemStats();
+        if (stats.pending > 0) {
+            showToast(`仍有 ${stats.pending} 个问题待处理，暂不能重新提交。`);
+            return;
+        }
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: rotate 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12" stroke-linecap="round"></circle></svg> 提交中...';
+        
+        setTimeout(() => {
+            showToast('材料已重新提交初次评定，系统将通知初评负责人张经理复核。');
+            btn.innerHTML = '已提交';
+            btn.disabled = true;
+            const headerBtn = document.getElementById('headerResubmitBtn');
+            if (headerBtn) headerBtn.disabled = true;
+        }, 1500);
+    }
+
+    // 删除文件
+    async function deleteFile(fileId) {
+        if (!await showConfirm('确定要删除该文件吗？此操作不可恢复。')) {
+            return;
+        }
+
+        // 找到当前活动的材料类型
+        const activeItem = document.querySelector('.material-item.active');
+        if (!activeItem) return;
+
+        const materialType = activeItem.getAttribute('data-id');
+        const section = document.getElementById('content-' + materialType);
+        if (!section) return;
+
+        // 获取并更新文件数据
+        let files = JSON.parse(section.getAttribute('data-files') || '[]');
+        const initialLength = files.length;
+        files = files.filter(f => f.id !== fileId);
+
+        if (files.length < initialLength) {
+            section.setAttribute('data-files', JSON.stringify(files));
+            // 刷新表格
+            renderFileTable(files);
+            showToast('文件已删除');
+        }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        renderMaterialNav();
+        normalizeSystemTags();
+        updateTagHighlights();
+        // 初始化加载第一个材料的数据
+        loadMaterialData('recommendation');
+        // 初始化全局问题统计
+        updateGlobalSubmitStatus();
+    });
+    
+    // 添加旋转动画
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+</body>
+</html>
