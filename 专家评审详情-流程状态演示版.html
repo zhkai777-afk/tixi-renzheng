@@ -985,6 +985,67 @@
             gap: 6px;
         }
 
+        .issue-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        #issueTable {
+            min-width: 1360px;
+            table-layout: fixed;
+        }
+
+        #issueTable th,
+        #issueTable td {
+            background-clip: padding-box;
+        }
+
+        .issue-text-cell {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.6;
+            vertical-align: top;
+        }
+
+        .issue-status-col {
+            position: sticky;
+            right: 148px;
+            z-index: 3;
+            width: 128px;
+            min-width: 128px;
+            background: #fafafa;
+            box-shadow: -1px 0 0 #edf1f5;
+            vertical-align: top;
+        }
+
+        td.issue-status-col {
+            z-index: 2;
+            background: #fff;
+        }
+
+        .issue-action-col {
+            position: sticky;
+            right: 0;
+            z-index: 3;
+            width: 148px;
+            min-width: 148px;
+            background: #fafafa;
+            box-shadow: -1px 0 0 #edf1f5;
+            vertical-align: top;
+        }
+
+        td.issue-action-col {
+            z-index: 2;
+            background: #fff;
+        }
+
+        tr:hover td.issue-status-col,
+        tr:hover td.issue-action-col {
+            background: #fafafa;
+        }
+
         .status-tag {
             padding: 2px 8px;
             border: 1px solid transparent;
@@ -1603,7 +1664,7 @@
                         </div>
                         <button class="btn btn-primary" id="issueRegisterBtn" onclick="openIssueModal()">+ 登记问题</button>
                     </div>
-                    <div style="overflow-x:auto;">
+                    <div class="issue-table-scroll">
                         <table id="issueTable">
                             <thead id="issueTableHead">
                                 <tr>
@@ -1611,11 +1672,11 @@
                                     <th style="width: 190px;">所属材料</th>
                                     <th style="width: 120px;">涉及体系</th>
                                     <th style="width: 120px;">问题类型</th>
-                                    <th>问题描述</th>
+                                    <th style="width: 260px;">问题描述</th>
                                     <th style="width: 180px;">要求整改材料/附件</th>
                                     <th style="width: 120px;">来源/提交人</th>
-                                    <th style="width: 120px;">问题状态</th>
-                                    <th style="width: 90px;">操作</th>
+                                    <th class="issue-status-col">问题状态</th>
+                                    <th class="issue-action-col">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="issueTableBody"></tbody>
@@ -2313,12 +2374,12 @@ function renderIssues() {
             <th style="width: 60px;">序号</th>
             <th style="width: 190px;">所属材料</th>
             <th style="width: 90px;">涉及体系</th>
-            <th style="width: 190px;">原问题描述</th>
-            <th style="width: 180px;">要求整改材料/附件</th>
-            <th style="width: 190px;">整改说明</th>
+            <th style="width: 250px;">原问题描述</th>
+            <th style="width: 210px;">要求整改材料/附件</th>
+            <th style="width: 230px;">整改说明</th>
             <th style="width: 180px;">整改材料/附件</th>
-            <th style="width: 110px;">复核状态</th>
-            <th style="width: 150px;">操作</th>
+            <th class="issue-status-col">复核状态</th>
+            <th class="issue-action-col">操作</th>
         </tr>
     ` : `
         <tr>
@@ -2326,11 +2387,11 @@ function renderIssues() {
             <th style="width: 190px;">所属材料</th>
             <th style="width: 120px;">涉及体系</th>
             <th style="width: 120px;">问题类型</th>
-            <th>问题描述</th>
-            <th style="width: 180px;">要求整改材料/附件</th>
+            <th style="width: 260px;">问题描述</th>
+            <th style="width: 210px;">要求整改材料/附件</th>
             <th style="width: 120px;">来源/提交人</th>
-            <th style="width: 120px;">问题状态</th>
-            <th style="width: 90px;">操作</th>
+            <th class="issue-status-col">问题状态</th>
+            <th class="issue-action-col">操作</th>
         </tr>
     `;
     document.getElementById("issueTableBody").innerHTML = scopedIssues.length ? scopedIssues.map((issue, index) => {
@@ -2338,39 +2399,39 @@ function renderIssues() {
         if (tableMode === "rectification") return `
             <tr>
                 <td>${index + 1}</td>
-                <td>
+                <td class="issue-text-cell">
                     <div class="issue-main-text">${escapeHtml(normalized.materialName)}</div>
                     <div class="issue-subtext">${normalized.materialId}</div>
                 </td>
                 <td>${systemBadges([normalized.system])}</td>
-                <td>
+                <td class="issue-text-cell">
                     <div class="issue-main-text">${escapeHtml(normalized.desc)}</div>
                     <div class="issue-subtext">${normalized.typeName} · 专家王建国</div>
                 </td>
-                <td>${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记要求</span>'}</td>
-                <td>
+                <td class="issue-text-cell">${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记要求</span>'}</td>
+                <td class="issue-text-cell">
                     <div class="issue-main-text">${escapeHtml(normalized.rectificationDesc || "项目人员尚未提交整改说明")}</div>
                     ${normalized.rectificationTime ? `<div class="issue-subtext">提交时间：${normalized.rectificationTime}</div>` : ""}
                 </td>
-                <td>${normalized.rectificationAttachment ? escapeHtml(normalized.rectificationAttachment) : '<span class="file-meta">未提交整改附件</span>'}</td>
-                <td>
+                <td class="issue-text-cell">${normalized.rectificationAttachment ? escapeHtml(normalized.rectificationAttachment) : '<span class="file-meta">未提交整改附件</span>'}</td>
+                <td class="issue-status-col">
                     ${issueStatusBadge(normalized.status)}
                     ${normalized.reviewComment ? `<div class="issue-subtext">${escapeHtml(normalized.reviewComment)}</div>` : ""}
                 </td>
-                <td>${renderRectificationActions(normalized)}</td>
+                <td class="issue-action-col">${renderRectificationActions(normalized)}</td>
             </tr>
         `;
         return `
             <tr>
                 <td>${index + 1}</td>
-                <td>${normalized.materialName}</td>
+                <td class="issue-text-cell">${escapeHtml(normalized.materialName)}</td>
                 <td>${systemBadges([normalized.system])}</td>
                 <td><span class="status-tag ${normalized.type === "fix" ? "reject" : (normalized.type === "material" ? "pending" : "info")}">${normalized.typeName}</span></td>
-                <td>${escapeHtml(normalized.desc)}</td>
-                <td>${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记</span>'}</td>
+                <td class="issue-text-cell">${escapeHtml(normalized.desc)}</td>
+                <td class="issue-text-cell">${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记</span>'}</td>
                 <td><span class="status-tag info">专家提出</span><div class="file-meta">王建国</div></td>
-                <td>${issueStatusBadge(normalized.status)}</td>
-                <td>${isExpertDraftStage() ? `<button class="btn" onclick="deleteIssue(${normalized.id})">删除</button>` : '<span class="file-meta">只读</span>'}</td>
+                <td class="issue-status-col">${issueStatusBadge(normalized.status)}</td>
+                <td class="issue-action-col">${isExpertDraftStage() ? `<button class="btn" onclick="deleteIssue(${normalized.id})">删除</button>` : '<span class="file-meta">只读</span>'}</td>
             </tr>
         `;
     }).join("") : `

@@ -222,35 +222,129 @@
 
         .btn:focus-visible,
         .tab:focus-visible,
-        .type-chip:focus-visible,
+        .filter-trigger:focus-visible,
+        .multi-option input:focus-visible + span,
         .page-btn:focus-visible {
             outline: 2px solid rgba(0, 82, 217, 0.35);
             outline-offset: 2px;
         }
 
-        .type-filter {
+        .advanced-filters {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 16px;
             flex-wrap: wrap;
-            margin: 20px 0 18px;
+            margin: 14px 0 16px;
+            padding: 12px 16px;
+            border: 1px solid #edf0f5;
+            background: #fafcff;
         }
 
-        .type-chip {
-            display: inline-flex;
+        .multi-select {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto minmax(180px, 240px);
             align-items: center;
-            gap: 7px;
-            height: 30px;
-            border: 1px solid #dfe5ee;
+            gap: 8px;
+        }
+
+        .multi-label {
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .filter-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            height: 32px;
+            border: 1px solid #dcdfe6;
             border-radius: 4px;
             background: #fff;
             color: var(--text-main);
-            padding: 0 14px;
+            padding: 0 10px 0 12px;
+            text-align: left;
         }
 
-        .type-chip.active {
-            border-color: var(--primary);
-            color: var(--primary);
+        .filter-trigger[aria-expanded="true"] {
+            border-color: #9ec5ff;
+            box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.08);
+        }
+
+        .filter-trigger::after {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-right: 1px solid #8c95a3;
+            border-bottom: 1px solid #8c95a3;
+            transform: rotate(45deg) translateY(-2px);
+            flex: 0 0 auto;
+        }
+
+        .filter-trigger[aria-expanded="true"]::after {
+            transform: rotate(225deg) translateY(-1px);
+        }
+
+        .filter-summary {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .multi-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 10;
+            display: none;
+            width: min(280px, calc(100vw - 32px));
+            border: 1px solid #dfe5ee;
+            border-radius: 6px;
             background: #fff;
+            box-shadow: 0 8px 24px rgba(21, 35, 66, 0.12);
+            padding: 6px;
+        }
+
+        .multi-select.open .multi-menu {
+            display: block;
+        }
+
+        .multi-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            color: var(--text-main);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .multi-option:hover {
+            background: #f5f8ff;
+        }
+
+        .multi-option input {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            accent-color: var(--primary);
+        }
+
+        .multi-option .dot {
+            flex: 0 0 auto;
+        }
+
+        .multi-option span:last-child {
+            white-space: nowrap;
+        }
+
+        .multi-select.has-value .filter-trigger {
+            border-color: #b7d3ff;
+            color: var(--primary);
             font-weight: 600;
         }
 
@@ -771,7 +865,7 @@
             }
 
             .filter-actions,
-            .type-filter {
+            .advanced-filters {
                 gap: 8px;
             }
 
@@ -831,17 +925,49 @@
                 </div>
             </form>
 
-            <div class="type-filter source-filter" aria-label="任务来源">
-                <button class="type-chip active" type="button" data-source="全部来源">全部来源</button>
-                <button class="type-chip" type="button" data-source="初次评定分配"><span class="dot"></span>初次评定分配</button>
-                <button class="type-chip" type="button" data-source="认证决定分配"><span class="dot orange"></span>认证决定分配</button>
-            </div>
+            <div class="advanced-filters" aria-label="高级筛选">
+                <div class="multi-select" data-filter="source">
+                    <span class="multi-label">任务来源</span>
+                    <button class="filter-trigger" type="button" aria-expanded="false" aria-haspopup="listbox">
+                        <span class="filter-summary">全部来源</span>
+                    </button>
+                    <div class="multi-menu" role="listbox" aria-label="任务来源多选">
+                        <label class="multi-option">
+                            <input type="checkbox" value="初次评定分配">
+                            <span class="dot"></span>
+                            <span>初次评定分配</span>
+                        </label>
+                        <label class="multi-option">
+                            <input type="checkbox" value="认证决定分配">
+                            <span class="dot orange"></span>
+                            <span>认证决定分配</span>
+                        </label>
+                    </div>
+                </div>
 
-            <div class="type-filter" aria-label="认证类型">
-                <button class="type-chip active" type="button" data-type="全部类型">全部类型</button>
-                <button class="type-chip" type="button" data-type="初次认证"><span class="dot"></span>初次认证</button>
-                <button class="type-chip" type="button" data-type="监督审核"><span class="dot green"></span>监督审核</button>
-                <button class="type-chip" type="button" data-type="再认证"><span class="dot orange"></span>再认证</button>
+                <div class="multi-select" data-filter="type">
+                    <span class="multi-label">认证类型</span>
+                    <button class="filter-trigger" type="button" aria-expanded="false" aria-haspopup="listbox">
+                        <span class="filter-summary">全部类型</span>
+                    </button>
+                    <div class="multi-menu" role="listbox" aria-label="认证类型多选">
+                        <label class="multi-option">
+                            <input type="checkbox" value="初次认证">
+                            <span class="dot"></span>
+                            <span>初次认证</span>
+                        </label>
+                        <label class="multi-option">
+                            <input type="checkbox" value="监督审核">
+                            <span class="dot green"></span>
+                            <span>监督审核</span>
+                        </label>
+                        <label class="multi-option">
+                            <input type="checkbox" value="再认证">
+                            <span class="dot orange"></span>
+                            <span>再认证</span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <div class="table-panel">
@@ -1051,16 +1177,17 @@
     <script>
         const rows = Array.from(document.querySelectorAll("#taskRows tr"));
         const tabs = Array.from(document.querySelectorAll(".tab"));
-        const sourceChips = Array.from(document.querySelectorAll(".type-chip[data-source]"));
-        const typeChips = Array.from(document.querySelectorAll(".type-chip[data-type]"));
+        const multiSelects = Array.from(document.querySelectorAll(".multi-select"));
+        const sourceSelect = document.querySelector('.multi-select[data-filter="source"]');
+        const typeSelect = document.querySelector('.multi-select[data-filter="type"]');
         const form = document.querySelector("#searchForm");
         const taskNo = document.querySelector("#taskNo");
         const customer = document.querySelector("#customer");
         const statusSelect = document.querySelector("#statusSelect");
         const toast = document.querySelector("#toast");
         let activeStatus = "全部";
-        let activeSource = "全部来源";
-        let activeType = "全部类型";
+        let activeSources = [];
+        let activeTypes = [];
 
         function markZeroIssuePills() {
             document.querySelectorAll(".issue-summary .issue-pill").forEach((pill) => {
@@ -1076,10 +1203,53 @@
             showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
         }
 
+        function getCheckedValues(select) {
+            return Array.from(select.querySelectorAll('input[type="checkbox"]:checked')).map((input) => input.value);
+        }
+
+        function formatSelection(values, emptyText) {
+            if (!values.length) return emptyText;
+            if (values.length <= 2) return values.join("、");
+            return `${values.slice(0, 2).join("、")} +${values.length - 2}`;
+        }
+
+        function updateMultiSelect(select) {
+            const values = getCheckedValues(select);
+            const filterName = select.dataset.filter;
+            const summary = select.querySelector(".filter-summary");
+            const emptyText = filterName === "source" ? "全部来源" : "全部类型";
+
+            select.classList.toggle("has-value", values.length > 0);
+            summary.textContent = formatSelection(values, emptyText);
+
+            if (filterName === "source") {
+                activeSources = values;
+            } else {
+                activeTypes = values;
+            }
+        }
+
+        function closeMultiSelects(exceptSelect) {
+            multiSelects.forEach((select) => {
+                if (select === exceptSelect) return;
+                select.classList.remove("open");
+                select.querySelector(".filter-trigger").setAttribute("aria-expanded", "false");
+            });
+        }
+
+        function resetMultiSelect(select) {
+            select.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+                input.checked = false;
+            });
+            updateMultiSelect(select);
+            select.classList.remove("open");
+            select.querySelector(".filter-trigger").setAttribute("aria-expanded", "false");
+        }
+
         function rowMatches(row) {
             const rowStatus = row.dataset.status;
             const rowSource = row.dataset.source;
-            const rowType = row.dataset.type;
+            const rowTypes = row.dataset.type.split(",");
             const rowTask = row.dataset.task.toLowerCase();
             const rowCustomer = row.dataset.customer;
             const keyword = taskNo.value.trim().toLowerCase();
@@ -1087,8 +1257,8 @@
             const selectedStatus = statusSelect.value;
 
             const statusOk = activeStatus === "全部" || rowStatus === activeStatus;
-            const sourceOk = activeSource === "全部来源" || rowSource === activeSource;
-            const typeOk = activeType === "全部类型" || rowType.includes(activeType);
+            const sourceOk = !activeSources.length || activeSources.includes(rowSource);
+            const typeOk = !activeTypes.length || activeTypes.some((type) => rowTypes.includes(type));
             const taskOk = !keyword || rowTask.includes(keyword);
             const customerOk = !selectedCustomer || rowCustomer === selectedCustomer;
             const selectStatusOk = !selectedStatus || rowStatus === selectedStatus;
@@ -1117,22 +1287,32 @@
             });
         });
 
-        sourceChips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                sourceChips.forEach((item) => item.classList.remove("active"));
-                chip.classList.add("active");
-                activeSource = chip.dataset.source;
-                applyFilters();
+        multiSelects.forEach((select) => {
+            const trigger = select.querySelector(".filter-trigger");
+            const inputs = Array.from(select.querySelectorAll('input[type="checkbox"]'));
+
+            trigger.addEventListener("click", () => {
+                const shouldOpen = !select.classList.contains("open");
+                closeMultiSelects(select);
+                select.classList.toggle("open", shouldOpen);
+                trigger.setAttribute("aria-expanded", String(shouldOpen));
+            });
+
+            inputs.forEach((input) => {
+                input.addEventListener("change", () => {
+                    updateMultiSelect(select);
+                    applyFilters();
+                });
             });
         });
 
-        typeChips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                typeChips.forEach((item) => item.classList.remove("active"));
-                chip.classList.add("active");
-                activeType = chip.dataset.type;
-                applyFilters();
-            });
+        document.addEventListener("click", (event) => {
+            if (event.target.closest(".multi-select")) return;
+            closeMultiSelects();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeMultiSelects();
         });
 
         form.addEventListener("submit", (event) => {
@@ -1143,11 +1323,11 @@
         form.addEventListener("reset", () => {
             window.setTimeout(() => {
                 activeStatus = "全部";
-                activeSource = "全部来源";
-                activeType = "全部类型";
+                activeSources = [];
+                activeTypes = [];
                 tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === "全部"));
-                sourceChips.forEach((item) => item.classList.toggle("active", item.dataset.source === "全部来源"));
-                typeChips.forEach((item) => item.classList.toggle("active", item.dataset.type === "全部类型"));
+                resetMultiSelect(sourceSelect);
+                resetMultiSelect(typeSelect);
                 applyFilters();
             });
         });

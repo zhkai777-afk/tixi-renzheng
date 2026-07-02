@@ -614,7 +614,8 @@
         }
 
         .problem-table {
-            min-width: 1460px;
+            min-width: 1420px;
+            table-layout: fixed;
         }
 
         .data-table th {
@@ -662,8 +663,47 @@
         }
 
         .problem-table .problem-desc {
-            min-width: 380px;
             line-height: 1.65;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .problem-table .issue-desc-col {
+            width: 27%;
+        }
+
+        .problem-table .issue-requirement-col,
+        .problem-table .issue-solution-col {
+            width: 16%;
+        }
+
+        .problem-table .issue-status-col {
+            position: sticky;
+            right: 160px;
+            z-index: 3;
+            width: 128px;
+            min-width: 128px;
+            background: #FAFAFA;
+            box-shadow: -1px 0 0 #e7e7e7;
+        }
+
+        .problem-table td.issue-status-col {
+            z-index: 2;
+            background: #fff;
+            line-height: 1.65;
+        }
+
+        .problem-table tr:hover td.issue-status-col {
+            background: #fafafa;
+        }
+
+        .problem-table tr.problem-row-pending td.issue-status-col {
+            background: #fffafa;
+        }
+
+        .problem-table tr.problem-row-review td.issue-status-col {
+            background: #fffdf5;
         }
 
         .problem-material-cell {
@@ -688,6 +728,8 @@
             position: sticky;
             right: 0;
             z-index: 3;
+            width: 160px;
+            min-width: 160px;
             background: #FAFAFA;
             box-shadow: -1px 0 0 #e7e7e7;
         }
@@ -2212,11 +2254,11 @@
                                     <th style="width: 200px;">所属材料</th>
                                     <th style="width: 100px;">涉及体系</th>
                                     <th style="width: 100px;">问题类型</th>
-                                    <th>问题描述</th>
-                                    <th style="width: 180px;">要求整改材料/附件</th>
-                                    <th style="width: 150px;">问题状态</th>
-                                    <th style="width: 190px;">整改说明/整改材料</th>
-                                    <th class="problem-action-col" style="width: 180px;">操作</th>
+                                    <th class="issue-desc-col">问题描述</th>
+                                    <th class="issue-requirement-col">要求整改材料/附件</th>
+                                    <th class="issue-status-col">问题状态</th>
+                                    <th class="issue-solution-col">整改说明/整改材料</th>
+                                    <th class="problem-action-col">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="problem-table-body">
@@ -3289,10 +3331,10 @@
                 <td class="problem-material-cell">${escapeHtml(materialName)}</td>
                 <td><div class="sys-tags-inline">${systemsHtml}</div></td>
                 <td><span class="problem-type-tag ${typeClass}">${typeText}</span></td>
-                <td class="problem-desc">${escapeHtml(problem.description)}</td>
-                <td class="problem-desc">${escapeHtml(requirementText)}</td>
-                <td>${statusHtml}</td>
-                <td>${solutionTrace || '<span style="color: rgba(0,0,0,0.4);">尚未提交整改</span>'}</td>
+                <td class="problem-desc issue-desc-col">${escapeHtml(problem.description)}</td>
+                <td class="problem-desc issue-requirement-col">${escapeHtml(requirementText)}</td>
+                <td class="issue-status-col">${statusHtml}</td>
+                <td class="problem-desc issue-solution-col">${solutionTrace || '<span style="color: rgba(0,0,0,0.4);">尚未提交整改</span>'}</td>
                 <td class="problem-action-col">
                     <div class="action-btns">
                         ${actionButtons}

@@ -569,6 +569,64 @@
         }
         .material-data-table tr:hover { background: #fafafa; }
         .material-data-table tr.attention { background: #FFFBE6; }
+        .issue-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .material-data-table.issue-table {
+            min-width: 1380px;
+            table-layout: fixed;
+        }
+        .issue-table th,
+        .issue-table td {
+            background-clip: padding-box;
+        }
+        .issue-table .issue-text-cell {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.6;
+            vertical-align: top;
+        }
+        .issue-table .issue-status-col {
+            position: sticky;
+            right: 156px;
+            z-index: 3;
+            width: 132px;
+            min-width: 132px;
+            background: #fafafa;
+            box-shadow: -1px 0 0 #edf1f5;
+            vertical-align: top;
+        }
+        .issue-table td.issue-status-col {
+            z-index: 2;
+            background: #fff;
+        }
+        .issue-table .issue-action-col {
+            position: sticky;
+            right: 0;
+            z-index: 3;
+            width: 156px;
+            min-width: 156px;
+            background: #fafafa;
+            box-shadow: -1px 0 0 #edf1f5;
+            vertical-align: top;
+        }
+        .issue-table td.issue-action-col {
+            z-index: 2;
+            background: #fff;
+        }
+        .issue-table tr:hover td.issue-status-col,
+        .issue-table tr:hover td.issue-action-col {
+            background: #fafafa;
+        }
+        .issue-table .issue-actions-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: flex-start;
+        }
         .file-name-text {
             margin-bottom: 5px;
             color: rgba(0,0,0,.88);
@@ -2038,21 +2096,21 @@ function renderIssuesTable(scopeMaterialId = null) {
         return `
             <tr>
                 <td>${index + 1}</td>
-                <td>${escapeHtml(material ? material.materialName : '-')}</td>
+                <td class="issue-text-cell">${escapeHtml(material ? material.materialName : '-')}</td>
                 <td><div class="systems-cell">${renderSystemBadges(issue.systems, 'system-badge-table')}</div></td>
                 <td>
                     <span class="issue-type-tag ${typeClass}">${escapeHtml(issue.type)}</span>
                     <div class="file-parent-text">${escapeHtml(issue.source || '协调员登记')} · ${escapeHtml(issue.submitter || '-')}</div>
                 </td>
-                <td>${escapeHtml(issue.description)}</td>
-                <td>${escapeHtml(requirement)}</td>
-                <td>
+                <td class="issue-text-cell">${escapeHtml(issue.description)}</td>
+                <td class="issue-text-cell">${escapeHtml(requirement)}</td>
+                <td class="issue-text-cell">
                     ${issue.remediation ? `<div>${escapeHtml(issue.remediation)}</div>` : '<span class="file-parent-text">项目人员暂未提交整改说明</span>'}
                     ${issue.remediationFile ? `<div class="file-parent-text" style="color:#0052D9;">${escapeHtml(issue.remediationFile)}</div>` : ''}
                 </td>
-                <td>${renderRemediationStatus(issue)}${reviewOpinion ? `<div class="file-parent-text" style="margin-top:6px;color:${issue.returnReason ? 'var(--reject-color)' : '#64748B'};">${escapeHtml(reviewOpinion)}</div>` : ''}</td>
-                <td>
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <td class="issue-status-col">${renderRemediationStatus(issue)}${reviewOpinion ? `<div class="file-parent-text" style="margin-top:6px;color:${issue.returnReason ? 'var(--reject-color)' : '#64748B'};">${escapeHtml(reviewOpinion)}</div>` : ''}</td>
+                <td class="issue-action-col">
+                    <div class="issue-actions-cell">
                         ${renderIssueActions(issue)}
                     </div>
                 </td>
@@ -2068,10 +2126,12 @@ function renderIssuesTable(scopeMaterialId = null) {
                     <button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>
                 </div>
             </div>
-            <table class="material-data-table">
-                <thead><tr><th style="width:5%;">序号</th><th style="width:15%;">所属材料</th><th style="width:8%;">涉及体系</th><th style="width:10%;">问题类型</th><th style="width:17%;">原问题描述</th><th style="width:15%;">要求整改材料/附件</th><th style="width:18%;">整改说明/整改材料</th><th style="width:8%;">复核状态</th><th style="width:12%;">操作</th></tr></thead>
-                <tbody>${rows || '<tr><td colspan="9"><div class="empty-state">暂无有效整改问题。问题关闭后可结合右侧控制台判断是否通过初评。</div></td></tr>'}</tbody>
-            </table>
+            <div class="issue-table-scroll">
+                <table class="material-data-table issue-table">
+                    <thead><tr><th style="width:60px;">序号</th><th style="width:180px;">所属材料</th><th style="width:104px;">涉及体系</th><th style="width:132px;">问题类型</th><th style="width:260px;">原问题描述</th><th style="width:220px;">要求整改材料/附件</th><th style="width:240px;">整改说明/整改材料</th><th class="issue-status-col">复核状态</th><th class="issue-action-col">操作</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="9"><div class="empty-state">暂无有效整改问题。问题关闭后可结合右侧控制台判断是否通过初评。</div></td></tr>'}</tbody>
+                </table>
+            </div>
         </div>`;
 }
 function renderFilesTable(materialList, scopedMaterial = null) {
