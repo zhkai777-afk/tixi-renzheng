@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材料归档管理 - 体系认证平台</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0052d9;
+            --primary-light: #e8f1ff;
+            --success: #00a870;
+            --warning: #ff7d00;
+            --danger: #e34d59;
+            --text-main: rgba(0, 0, 0, 0.9);
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --text-tertiary: rgba(0, 0, 0, 0.4);
+            --line: #e7e7e7;
+            --line-strong: #dfe3eb;
+            --surface: #fff;
+            --page: #f5f6fa;
+            --table-head: #f3f6fa;
+            --q: #0052d9;
+            --e: #00a870;
+            --s: #ff7d00;
+            --f: #7b4dfe;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            background: var(--page);
+            color: var(--text-main);
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            border-left: 4px solid #2b2878;
+            padding: clamp(12px, 1.2vw, 20px);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 38px;
+            padding: 4px 4px 16px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0;
+        }
+
+        .page-subtitle {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+
+        .workspace {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid #edf0f5;
+            padding: clamp(14px, 1.2vw, 20px);
+        }
+
+        .tabs {
+            display: inline-flex;
+            max-width: 100%;
+            border: 1px solid var(--line);
+            background: #f7f9fc;
+            overflow-x: auto;
+        }
+
+        .tab {
+            position: relative;
+            min-width: 86px;
+            height: 38px;
+            padding: 0 18px;
+            border: 0;
+            border-right: 1px solid #eef1f5;
+            background: transparent;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .tab:last-child {
+            border-right: 0;
+        }
+
+        .tab.active {
+            background: #fff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 17px;
+            height: 17px;
+            margin-left: 4px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #f56c6c;
+            color: #fff;
+            font-size: 11px;
+            line-height: 17px;
+        }
+
+        .filters {
+            margin-top: 20px;
+            padding: 24px clamp(16px, 2.7vw, 48px);
+            background: #f3f6fa;
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.3fr) minmax(260px, 1.3fr) auto;
+            gap: 16px 32px;
+            align-items: center;
+        }
+
+        .field {
+            display: grid;
+            grid-template-columns: 56px minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .field label {
+            color: var(--text-secondary);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .control {
+            width: 100%;
+            height: 32px;
+            border: 1px solid #dcdfe6;
+            border-radius: 0;
+            background: #fff;
+            color: var(--text-main);
+            padding: 0 12px;
+            outline: none;
+        }
+
+        .control::placeholder {
+            color: #c2c8d1;
+        }
+
+        .control:focus {
+            border-color: #9ec5ff;
+            box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.08);
+        }
+
+        select.control {
+            appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #b4bac4 50%),
+                linear-gradient(135deg, #b4bac4 50%, transparent 50%);
+            background-position:
+                calc(100% - 17px) 13px,
+                calc(100% - 11px) 13px;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+
+        .btn {
+            min-width: 80px;
+            height: 32px;
+            border: 1px solid #dcdfe6;
+            border-radius: 0;
+            background: #fff;
+            color: var(--text-main);
+            padding: 0 16px;
+        }
+
+        .btn.primary {
+            border-color: #bcd7ff;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .btn.link {
+            min-width: auto;
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            padding: 0 2px;
+        }
+
+        .btn:focus-visible,
+        .tab:focus-visible,
+        .type-chip:focus-visible,
+        .page-btn:focus-visible {
+            outline: 2px solid rgba(0, 82, 217, 0.35);
+            outline-offset: 2px;
+        }
+
+        .type-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0 18px;
+        }
+
+        .type-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 30px;
+            border: 1px solid #dfe5ee;
+            border-radius: 4px;
+            background: #fff;
+            color: var(--text-main);
+            padding: 0 14px;
+        }
+
+        .type-chip.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #fff;
+            font-weight: 600;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .dot.green {
+            background: var(--success);
+        }
+
+        .dot.orange {
+            background: var(--warning);
+        }
+
+        .table-panel {
+            border: 1px solid var(--line-strong);
+            overflow-x: auto;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1420px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 11px 28px;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        th {
+            height: 47px;
+            background: var(--table-head);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        tbody tr:hover {
+            background: #fafcff;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .task-link,
+        .action-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .action-link + .action-link {
+            margin-left: 6px;
+        }
+
+        .system-badges,
+        .type-tags {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .system-badges {
+            flex-wrap: nowrap;
+        }
+
+        .sys {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 0 7px;
+            font-size: 11px;
+            line-height: 18px;
+            font-weight: 600;
+        }
+
+        .sys.q {
+            border-color: #b7d3ff;
+            background: #e8f1ff;
+            color: #0052d9;
+        }
+
+        .sys.e {
+            border-color: #b8e8d7;
+            background: #e6f7f1;
+            color: #00875a;
+        }
+
+        .sys.s {
+            min-width: 58px;
+            border-color: #ffd5a8;
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .sys.f {
+            min-width: 50px;
+            border-color: #d6caff;
+            background: #f1edff;
+            color: #6339d8;
+        }
+
+        .system-more,
+        .system-collapse {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 20px;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            background: #f2f3f5;
+            color: rgba(0, 0, 0, 0.55);
+            padding: 0 7px;
+            font-size: 11px;
+            line-height: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .system-more:hover,
+        .system-collapse:hover {
+            border-color: #b7d3ff;
+            color: var(--primary);
+        }
+
+        .system-extra,
+        .system-collapse,
+        .system-badges[data-expanded="true"] .system-more {
+            display: none;
+        }
+
+        .system-badges[data-expanded="true"] .system-extra,
+        .system-badges[data-expanded="true"] .system-collapse {
+            display: inline-flex;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 0 12px;
+            font-size: 12px;
+            line-height: 24px;
+        }
+
+        .tag.blue {
+            border-color: #b7d3ff;
+            background: #e8f1ff;
+            color: #0052d9;
+        }
+
+        .tag.green {
+            border-color: #b8e8d7;
+            background: #e6f7f1;
+            color: #00875a;
+        }
+
+        .tag.orange {
+            border-color: #ffd5a8;
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .tag.purple {
+            border-color: #d6caff;
+            background: #f1edff;
+            color: #6339d8;
+        }
+
+        .tag.gray {
+            background: #f2f3f5;
+            color: rgba(0, 0, 0, 0.55);
+        }
+
+        .tag.red {
+            background: #ffecee;
+            color: #d54941;
+        }
+
+        .progress {
+            width: 100px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 5px;
+            border-radius: 999px;
+            background: #eef0f0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--success);
+        }
+
+        .progress-bar.danger {
+            background: var(--danger);
+        }
+
+        .progress-value {
+            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .rectify-overview {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 156px;
+            flex-wrap: wrap;
+        }
+
+        .rectify-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 24px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            background: #f7f8fa;
+            color: var(--text-secondary);
+            padding: 0 8px;
+            font-size: 12px;
+            line-height: 22px;
+        }
+
+        .rectify-pill strong {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .rectify-pill.warning {
+            border-color: #ffd5a8;
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .rectify-pill.warning strong {
+            color: #c46000;
+        }
+
+        .rectify-pill.danger {
+            border-color: #ffc2c7;
+            background: #ffecee;
+            color: #d54941;
+        }
+
+        .rectify-pill.danger strong {
+            color: #d54941;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 72px;
+            height: 25px;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        .status.pending {
+            background: #ffefd6;
+            color: #d96800;
+        }
+
+        .status.submitted {
+            background: #edf2ff;
+            color: #0052d9;
+        }
+
+        .status.cert {
+            background: #e5fbf5;
+            color: #00875a;
+        }
+
+        .status.done {
+            background: #e5fbf5;
+            color: #00875a;
+        }
+
+        .status.draft {
+            background: #f2f3f5;
+            color: rgba(0, 0, 0, 0.58);
+        }
+
+        .status.returned {
+            background: #ffecee;
+            color: #d54941;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 0 8px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .page-size,
+        .jump-input {
+            height: 32px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            padding: 0 8px;
+        }
+
+        .page-size {
+            min-width: 88px;
+        }
+
+        .jump-input {
+            width: 64px;
+            text-align: center;
+        }
+
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            color: var(--text-main);
+            padding: 0 8px;
+        }
+
+        .page-btn.icon {
+            border-color: transparent;
+            color: var(--text-secondary);
+        }
+
+        .page-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .page-btn.outline {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .ellipsis {
+            padding: 0 4px;
+            color: var(--text-tertiary);
+        }
+
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 20;
+            display: none;
+            max-width: min(360px, calc(100vw - 40px));
+            border: 1px solid #b7d3ff;
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text-main);
+            box-shadow: 0 8px 24px rgba(21, 35, 66, 0.12);
+            padding: 12px 16px;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @media (max-width: 1180px) {
+            .filters {
+                grid-template-columns: repeat(2, minmax(240px, 1fr));
+            }
+
+            .filter-actions {
+                grid-column: 1 / -1;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                font-size: 13px;
+            }
+
+            .page {
+                padding: 10px;
+                border-left-width: 3px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .workspace {
+                padding: 12px;
+            }
+
+            .tabs {
+                display: flex;
+                width: 100%;
+            }
+
+            .tab {
+                min-width: max-content;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-top: 14px;
+                padding: 14px;
+            }
+
+            .field {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .field label {
+                text-align: left;
+            }
+
+            .filter-actions,
+            .type-filter {
+                gap: 8px;
+            }
+
+            th,
+            td {
+                padding: 10px 18px;
+            }
+
+            .pagination {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="page-header">
+            <h1 class="page-title">材料归档管理</h1>
+            <span class="page-subtitle">认证项目材料归档、评定流转与完成情况查询</span>
+        </header>
+
+        <section class="workspace" aria-label="材料归档任务列表">
+            <nav class="tabs" aria-label="任务状态">
+                <button class="tab active" type="button" data-status="全部">全部</button>
+                <button class="tab" type="button" data-status="草稿">草稿</button>
+                <button class="tab" type="button" data-status="初次评定中">初次评定中</button>
+                <button class="tab" type="button" data-status="认证决定中">认证决定中</button>
+                <button class="tab" type="button" data-status="已完结">已完结</button>
+            </nav>
+
+            <form class="filters" id="searchForm">
+                <div class="field">
+                    <label for="taskNo">任务号</label>
+                    <input class="control" id="taskNo" name="taskNo" type="search" placeholder="请输入项目编号">
+                </div>
+                <div class="field">
+                    <label for="customer">客户名称</label>
+                    <select class="control" id="customer" name="customer">
+                        <option value="">全部</option>
+                        <option value="华锐精密机械制造有限公司">华锐精密机械制造有限公司</option>
+                        <option value="绿源生态食品科技股份有限公司">绿源生态食品科技股份有限公司</option>
+                        <option value="恒信芯联电子元器件有限公司">恒信芯联电子元器件有限公司</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="statusSelect">状态</label>
+                    <select class="control" id="statusSelect" name="statusSelect">
+                        <option value="">全部</option>
+                        <option value="草稿">草稿</option>
+                        <option value="初次评定中">初次评定中</option>
+                        <option value="认证决定中">认证决定中</option>
+                        <option value="已完结">已完结</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn primary" type="submit">查询</button>
+                    <button class="btn" type="reset">重置</button>
+                    <button class="btn link" type="button" id="expandBtn">展开⌄</button>
+                </div>
+            </form>
+
+            <div class="type-filter" aria-label="认证类型">
+                <button class="type-chip active" type="button" data-type="全部类型">全部类型</button>
+                <button class="type-chip" type="button" data-type="初次认证"><span class="dot"></span>初次认证</button>
+                <button class="type-chip" type="button" data-type="监督审核"><span class="dot green"></span>监督审核</button>
+                <button class="type-chip" type="button" data-type="再认证"><span class="dot orange"></span>再认证</button>
+            </div>
+
+            <div class="table-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>任务号</th>
+                            <th>客户名称</th>
+                            <th>认证领域</th>
+                            <th>认证类型</th>
+                            <th>归属机构</th>
+                            <th>归属部门</th>
+                            <th>计划审核时间</th>
+                            <th>材料进度</th>
+                            <th>问题整改概览</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskRows">
+                        <tr data-status="草稿" data-rectify="0" data-review-return="0" data-type="初次认证" data-task="1100-Q-2026-0001" data-customer="华锐精密机械制造有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0001</a></td>
+                            <td>华锐精密机械制造有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span></div></td>
+                            <td>中国质量认证中心（CQC）</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status draft">草稿</span></td>
+                            <td><a class="action-link" href="#">提交</a><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="2" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0002" data-customer="绿源生态食品科技股份有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0002</a></td>
+                            <td>绿源生态食品科技股份有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / FSMS" aria-label="QMS / EMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag green">监督一</span><span class="tag orange">监督二</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>2</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="认证决定中" data-rectify="0" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0003" data-customer="恒信芯联电子元器件有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0003</a></td>
+                            <td>恒信芯联电子元器件有限公司</td>
+                            <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status cert">认证决定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="草稿" data-rectify="0" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0004" data-customer="鑫泰筑邦建材实业有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0004</a></td>
+                            <td>鑫泰筑邦建材实业有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS" aria-label="QMS / EMS / OHSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag orange">监督二</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar danger" style="width: 25%"></div></div><div class="progress-value">12/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status draft">草稿</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="已完结" data-rectify="0" data-review-return="0" data-type="初次认证,再认证" data-task="1100-Q-2026-0005" data-customer="安捷通运输仓储有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0005</a></td>
+                            <td>安捷通运输仓储有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 100%"></div></div><div class="progress-value">48/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status done">已完结</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="4" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0006</a></td>
+                            <td>盛达新材化工有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>4</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="认证决定中" data-rectify="2" data-review-return="1" data-type="再认证" data-task="1100-Q-2026-0007" data-customer="科瑞智联新能源科技有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0007</a></td>
+                            <td>科瑞智联新能源科技有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>2</strong></span><span class="rectify-pill danger">复核退回 <strong>1</strong></span></div></td>
+                            <td><span class="status cert">认证决定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="认证决定中" data-rectify="5" data-review-return="2" data-type="初次认证,再认证" data-task="1100-Q-2026-0008" data-customer="锦程织造服饰有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0008</a></td>
+                            <td>锦程织造服饰有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / FSMS" aria-label="QMS / EMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>5</strong></span><span class="rectify-pill danger">复核退回 <strong>2</strong></span></div></td>
+                            <td><span class="status cert">认证决定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="0" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0009" data-customer="康泰瑞康医疗器械有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0009</a></td>
+                            <td>康泰瑞康医疗器械有限公司</td>
+                            <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="1" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0010" data-customer="宏远精工五金制品有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0010</a></td>
+                            <td>宏远精工五金制品有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS" aria-label="QMS / EMS / OHSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>1</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="0" data-review-return="0" data-type="初次认证,再认证" data-task="1100-Q-2026-0011" data-customer="佳禾优品包装印刷有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0011</a></td>
+                            <td>佳禾优品包装印刷有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="初次评定中" data-rectify="3" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0012" data-customer="博通智能自动化设备有限公司">
+                            <td><a class="task-link" href="#">1100-Q-2026-0012</a></td>
+                            <td>博通智能自动化设备有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>3</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="pagination" aria-label="分页">
+                <select class="page-size" aria-label="每页条数">
+                    <option>10条/页</option>
+                    <option>20条/页</option>
+                    <option>50条/页</option>
+                </select>
+                <button class="page-btn icon" type="button" aria-label="上一页">‹</button>
+                <button class="page-btn" type="button">1</button>
+                <span class="ellipsis">...</span>
+                <button class="page-btn" type="button">50</button>
+                <button class="page-btn" type="button">51</button>
+                <button class="page-btn active" type="button">52</button>
+                <button class="page-btn outline" type="button">53</button>
+                <button class="page-btn" type="button">54</button>
+                <span class="ellipsis">...</span>
+                <button class="page-btn" type="button">90</button>
+                <button class="page-btn icon" type="button" aria-label="下一页">›</button>
+                <span>跳至</span>
+                <input class="jump-input" type="text" value="11" aria-label="跳转页码">
+                <span>/20页</span>
+            </footer>
+        </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const rows = Array.from(document.querySelectorAll("#taskRows tr"));
+        const tabs = Array.from(document.querySelectorAll(".tab"));
+        const chips = Array.from(document.querySelectorAll(".type-chip"));
+        const form = document.querySelector("#searchForm");
+        const taskNo = document.querySelector("#taskNo");
+        const customer = document.querySelector("#customer");
+        const statusSelect = document.querySelector("#statusSelect");
+        const toast = document.querySelector("#toast");
+        let activeStatus = "全部";
+        let activeType = "全部类型";
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            window.clearTimeout(showToast.timer);
+            showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+        }
+
+        function rowMatches(row) {
+            const rowStatus = row.dataset.status;
+            const rowType = row.dataset.type;
+            const rowTask = row.dataset.task.toLowerCase();
+            const rowCustomer = row.dataset.customer;
+            const keyword = taskNo.value.trim().toLowerCase();
+            const selectedCustomer = customer.value;
+            const selectedStatus = statusSelect.value;
+
+            const statusOk = activeStatus === "全部" || rowStatus === activeStatus;
+            const typeOk = activeType === "全部类型" || rowType.includes(activeType);
+            const taskOk = !keyword || rowTask.includes(keyword);
+            const customerOk = !selectedCustomer || rowCustomer === selectedCustomer;
+            const selectStatusOk = !selectedStatus || rowStatus === selectedStatus;
+
+            return statusOk && typeOk && taskOk && customerOk && selectStatusOk;
+        }
+
+        function applyFilters() {
+            let visibleCount = 0;
+            rows.forEach((row) => {
+                const visible = rowMatches(row);
+                row.hidden = !visible;
+                if (visible) visibleCount += 1;
+            });
+            showToast(`已筛选出 ${visibleCount} 条归档任务`);
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                tabs.forEach((item) => item.classList.remove("active"));
+                tab.classList.add("active");
+                activeStatus = tab.dataset.status;
+                applyFilters();
+            });
+        });
+
+        chips.forEach((chip) => {
+            chip.addEventListener("click", () => {
+                chips.forEach((item) => item.classList.remove("active"));
+                chip.classList.add("active");
+                activeType = chip.dataset.type;
+                applyFilters();
+            });
+        });
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            applyFilters();
+        });
+
+        form.addEventListener("reset", () => {
+            window.setTimeout(() => {
+                activeStatus = "全部";
+                activeType = "全部类型";
+                tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === "全部"));
+                chips.forEach((item) => item.classList.toggle("active", item.dataset.type === "全部类型"));
+                applyFilters();
+            });
+        });
+
+        document.querySelector("#expandBtn").addEventListener("click", () => {
+            showToast("当前原型筛选项已全部展示");
+        });
+
+        document.querySelectorAll(".system-badges[data-expanded]").forEach((group) => {
+            group.addEventListener("click", (event) => {
+                const button = event.target.closest(".system-more, .system-collapse");
+                if (!button) return;
+
+                const shouldExpand = button.classList.contains("system-more");
+                group.dataset.expanded = String(shouldExpand);
+                const moreButton = group.querySelector(".system-more");
+                if (moreButton) {
+                    moreButton.setAttribute("aria-expanded", String(shouldExpand));
+                }
+            });
+        });
+
+        const archiveDetailUrl = "归档材料提交-详情-10体系重构版.html";
+        const returnedDetailUrl = "归档材料退回-详情-简化布局-v2-顶部统计卡片版.html";
+
+        document.querySelectorAll("#taskRows tr").forEach((row) => {
+            const detailLink = Array.from(row.querySelectorAll(".action-link"))
+                .find((link) => link.textContent.trim() === "详情");
+            if (!detailLink) return;
+
+            const hasRectifyWork = Number(row.dataset.rectify || 0) > 0 || Number(row.dataset.reviewReturn || 0) > 0;
+            detailLink.classList.add("detail-link");
+            detailLink.target = "_self";
+            detailLink.href = hasRectifyWork
+                ? returnedDetailUrl
+                : archiveDetailUrl;
+        });
+
+        document.querySelectorAll(".action-link").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                if (link.classList.contains("detail-link")) return;
+
+                event.preventDefault();
+                const action = link.textContent.trim();
+                const task = link.closest("tr").dataset.task;
+                showToast(`${task}：${action}操作已触发`);
+            });
+        });
+    </script>
+</body>
+</html>

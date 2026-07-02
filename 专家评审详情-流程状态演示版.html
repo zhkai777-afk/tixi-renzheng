@@ -135,6 +135,22 @@
             color: #C46000;
         }
 
+        .btn-success {
+            border-color: #B8E8D7;
+            background: #E6F7F1;
+            color: #00875A;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
+        }
+
+        .btn:disabled:hover {
+            border-color: var(--border-color);
+            color: rgba(0, 0, 0, 0.85);
+        }
+
         .page-title {
             padding-left: 16px;
             border-left: 1px solid var(--border-color);
@@ -331,6 +347,43 @@
 
         .quick-filter-block .filter-tags {
             gap: 8px;
+        }
+
+        .stage-switcher {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stage-switch-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .stage-switch-row .filter-tag {
+            min-height: 28px;
+        }
+
+        .stage-flow-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stage-flow-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .flow-note {
+            padding: 10px 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 6px;
+            background: #f8fbff;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.55;
         }
 
         .multi-select {
@@ -914,6 +967,24 @@
             font-size: 12px;
         }
 
+        .issue-main-text {
+            color: rgba(0, 0, 0, 0.86);
+            line-height: 1.55;
+        }
+
+        .issue-subtext {
+            margin-top: 4px;
+            color: var(--light-text);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .issue-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
         .status-tag {
             padding: 2px 8px;
             border: 1px solid transparent;
@@ -1156,6 +1227,10 @@
         }
 
         #confirmModal {
+            z-index: 1140;
+        }
+
+        #rejectModal {
             z-index: 1140;
         }
 
@@ -1454,7 +1529,7 @@
                 <span>任务号：TASK-2026-001</span>
                 <span>客户A</span>
                 <span class="stage-tags" aria-label="评定阶段">
-                    <span class="stage-tag active">初次评定</span>
+                    <span class="stage-tag active" id="flowStageTag">专家登记中</span>
                 </span>
             </div>
         </div>
@@ -1530,15 +1605,16 @@
                     </div>
                     <div style="overflow-x:auto;">
                         <table id="issueTable">
-                            <thead>
+                            <thead id="issueTableHead">
                                 <tr>
                                     <th style="width: 70px;">序号</th>
-                                    <th style="width: 120px;">问题类型</th>
-                                    <th>问题描述</th>
-                                    <th style="width: 180px;">整改材料/附件</th>
                                     <th style="width: 190px;">所属材料</th>
                                     <th style="width: 120px;">涉及体系</th>
+                                    <th style="width: 120px;">问题类型</th>
+                                    <th>问题描述</th>
+                                    <th style="width: 180px;">要求整改材料/附件</th>
                                     <th style="width: 120px;">来源/提交人</th>
+                                    <th style="width: 120px;">问题状态</th>
                                     <th style="width: 90px;">操作</th>
                                 </tr>
                             </thead>
@@ -1589,6 +1665,17 @@
                 </div>
 
                 <div class="console-card">
+                    <h3>流程状态切换</h3>
+                    <div class="console-card-content">
+                        <div class="stage-switcher">
+                            <div class="stage-switch-row" id="stageSwitchButtons"></div>
+                            <div class="stage-flow-actions" id="stageFlowActions"></div>
+                            <div class="flow-note" id="stageHint">用于演示专家提出问题后的流转状态。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="console-card">
                     <h3>项目概况</h3>
                     <div class="console-card-content">
                         <div class="check-list">
@@ -1628,7 +1715,7 @@
                 <select id="issueSystems"></select>
                 <label for="issueDesc">问题描述</label>
                 <textarea id="issueDesc" placeholder="请输入问题原因、补充要求或补充审核要求，至少 10 个字。"></textarea>
-                <label for="issueAttachment">整改材料/附件</label>
+                <label for="issueAttachment">要求整改材料/附件</label>
                 <textarea id="issueAttachment" placeholder="请输入需补充的整改材料名称、附件要求或说明。"></textarea>
             </div>
         </div>
@@ -1665,6 +1752,26 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="rejectModal">
+    <div class="modal-container" style="width:520px;">
+        <div class="modal-header">
+            <span class="modal-title">填写退回复改原因</span>
+            <button class="close-btn" onclick="closeRejectModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="review-form" style="grid-template-columns: 110px 1fr;">
+                <label for="rejectReason">退回原因</label>
+                <textarea id="rejectReason" placeholder="请说明整改材料仍不满足要求的原因，至少 6 个字。"></textarea>
+            </div>
+            <div class="helper-text" style="margin-top:10px;">该原因会作为本条问题的复核退回意见，项目人员再次整改时应能直接看到。</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeRejectModal()">取消</button>
+            <button class="btn btn-danger" onclick="confirmRejectIssue()">确认退回</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1684,6 +1791,67 @@ let viewedMaterialIds = new Set();
 let previewScopeFiles = [];
 let currentPreviewIndex = 0;
 let pendingConfirmAction = null;
+let pendingRejectIssueId = null;
+let reviewStage = "expert_draft";
+const REVIEW_FLOW_STORAGE_KEY = "TASK-2026-001-review-issues";
+
+const REVIEW_STAGES = {
+    expert_draft: {
+        label: "专家登记中",
+        tableMode: "draft",
+        hint: "专家审阅授权体系材料，登记问题草稿；此阶段问题可新增、删除，尚未退回项目人员。"
+    },
+    expert_submitted: {
+        label: "已提交协调员",
+        tableMode: "draft",
+        hint: "专家已整体提交评审结果给协调员；问题只读，等待协调员确认是否退回项目人员整改。"
+    },
+    coordinator_returned: {
+        label: "协调员已退回",
+        tableMode: "rectification",
+        hint: "协调员已将专家提出的问题正式退回项目人员；专家侧只读等待项目人员逐条整改。"
+    },
+    rectification_submitted: {
+        label: "项目已提交整改",
+        tableMode: "rectification",
+        hint: "项目人员按单条问题提交整改说明和附件；专家可对每条问题执行复核通过或退回复改。"
+    },
+    review_finished: {
+        label: "复核结果演示",
+        tableMode: "rectification",
+        hint: "演示单条问题复核后的混合结果：部分问题通过，部分问题退回复改，便于说明后续流转。"
+    }
+};
+
+const ISSUE_STATUS = {
+    draft: { label: "草稿", className: "info" },
+    submitted: { label: "已提交协调员", className: "info" },
+    returned_to_project: { label: "待项目整改", className: "pending" },
+    rectification_submitted: { label: "待专家复核", className: "pending" },
+    review_passed: { label: "复核通过", className: "pass" },
+    review_rejected: { label: "复核退回", className: "reject" }
+};
+
+const DEMO_ISSUE_TEMPLATES = [
+    {
+        id: 2026001,
+        type: "material",
+        typeName: "补充材料",
+        desc: "认证申请表中审核范围与系统项目范围不完全一致，需要项目人员补充说明并修订表单。",
+        attachment: "补充认证申请表修订版、范围差异说明，需带项目负责人确认记录。",
+        system: "Q",
+        materialId: "MSF11-20-003"
+    },
+    {
+        id: 2026002,
+        type: "fix",
+        typeName: "材料问题",
+        desc: "法律地位证明文件复印件有效期信息不清晰，无法支撑本次初次评定判断。",
+        attachment: "重新上传清晰版营业执照扫描件，并补充最新主体信息核验截图。",
+        system: "Q",
+        materialId: "MSF11-20-009"
+    }
+];
 
 function systemBadges(systems, mutedOthers = false, className = "system-badge") {
     return systems.map(sys => {
@@ -1701,6 +1869,166 @@ function systemTags(systems, mutedOthers = false) {
 
 function getMaterial(id) {
     return MATERIALS.find(item => item.id === id);
+}
+
+function issueStatusBadge(status) {
+    const config = ISSUE_STATUS[status] || ISSUE_STATUS.draft;
+    return `<span class="status-tag ${config.className}">${config.label}</span>`;
+}
+
+function isExpertDraftStage() {
+    return reviewStage === "expert_draft";
+}
+
+function isRectificationReviewStage() {
+    return reviewStage === "rectification_submitted";
+}
+
+function normalizeIssue(issue) {
+    const material = getMaterial(issue.materialId);
+    return {
+        ...issue,
+        materialName: issue.materialName || (material ? material.name : issue.materialId),
+        status: issue.status || "draft",
+        rectificationDesc: issue.rectificationDesc || "",
+        rectificationAttachment: issue.rectificationAttachment || "",
+        rectificationTime: issue.rectificationTime || "",
+        reviewComment: issue.reviewComment || ""
+    };
+}
+
+function loadSharedReviewIssues() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(REVIEW_FLOW_STORAGE_KEY) || "null");
+        if (!saved || !Array.isArray(saved.issues)) return false;
+        issues = saved.issues.map(normalizeIssue);
+        reviewStage = inferReviewStageFromIssues(issues, saved.stage);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function saveSharedReviewIssues(stage = reviewStage) {
+    localStorage.setItem(REVIEW_FLOW_STORAGE_KEY, JSON.stringify({
+        taskNo: "TASK-2026-001",
+        stage,
+        updatedAt: currentDateTimeText(),
+        issues: issues.map(issue => normalizeIssue(issue))
+    }));
+}
+
+function inferReviewStageFromIssues(list, fallback = "expert_draft") {
+    if (!list.length) return fallback || "expert_draft";
+    const statuses = list.map(issue => issue.status);
+    if (statuses.some(status => status === "rectification_submitted")) return "rectification_submitted";
+    if (statuses.some(status => status === "returned_to_project" || status === "review_rejected")) return "coordinator_returned";
+    if (statuses.every(status => status === "submitted")) return "expert_submitted";
+    if (statuses.every(status => status === "review_passed")) return "review_finished";
+    return fallback || "expert_draft";
+}
+
+function ensureDemoIssues() {
+    if (issues.length) {
+        issues = issues.map(normalizeIssue);
+        return;
+    }
+    issues = DEMO_ISSUE_TEMPLATES.map(item => {
+        const material = getMaterial(item.materialId);
+        return normalizeIssue({
+            ...item,
+            materialName: material ? material.name : item.materialId,
+            status: "draft"
+        });
+    });
+}
+
+function fillRectificationData() {
+    issues = issues.map((issue, index) => ({
+        ...issue,
+        rectificationDesc: issue.rectificationDesc || (index === 0
+            ? "已按专家意见修订认证申请表，补充审核范围差异说明，并由项目负责人确认。"
+            : "已重新上传清晰版营业执照扫描件，同时补充认e云主体信息核验截图。"),
+        rectificationAttachment: issue.rectificationAttachment || (index === 0
+            ? "认证申请表_修订版.pdf；审核范围差异说明.docx"
+            : "营业执照清晰版.pdf；主体信息核验截图.png"),
+        rectificationTime: issue.rectificationTime || `2026-04-${String(8 + index).padStart(2, "0")} 10:2${index}`
+    }));
+}
+
+function applyReviewStageToIssues() {
+    if (reviewStage !== "expert_draft") ensureDemoIssues();
+    if (reviewStage === "expert_draft") {
+        issues = issues.map(issue => ({ ...normalizeIssue(issue), status: issue.status === "draft" ? "draft" : "draft" }));
+    }
+    if (reviewStage === "expert_submitted") {
+        issues = issues.map(issue => ({ ...normalizeIssue(issue), status: "submitted" }));
+    }
+    if (reviewStage === "coordinator_returned") {
+        issues = issues.map(issue => ({ ...normalizeIssue(issue), status: "returned_to_project" }));
+    }
+    if (reviewStage === "rectification_submitted") {
+        fillRectificationData();
+        issues = issues.map(issue => ({ ...normalizeIssue(issue), status: "rectification_submitted" }));
+    }
+    if (reviewStage === "review_finished") {
+        fillRectificationData();
+        issues = issues.map((issue, index) => ({
+            ...normalizeIssue(issue),
+            status: index === 0 ? "review_passed" : "review_rejected",
+            reviewComment: index === 0 ? "整改材料完整，复核通过。" : "整改附件仍缺少项目负责人确认页，退回继续补充。"
+        }));
+    }
+}
+
+function setReviewStage(stage) {
+    reviewStage = stage;
+    applyReviewStageToIssues();
+    saveSharedReviewIssues(stage);
+    renderAll();
+    showToast(`已切换到：${REVIEW_STAGES[stage].label}`);
+}
+
+function renderStageSwitcher() {
+    const container = document.getElementById("stageSwitchButtons");
+    if (!container) return;
+    container.innerHTML = Object.entries(REVIEW_STAGES).map(([key, config]) => `
+        <span class="filter-tag ${reviewStage === key ? "active" : ""}" onclick="setReviewStage('${key}')">${config.label}</span>
+    `).join("");
+    const flowActions = document.getElementById("stageFlowActions");
+    if (flowActions) flowActions.innerHTML = renderStageFlowActions();
+    document.getElementById("flowStageTag").textContent = REVIEW_STAGES[reviewStage].label;
+    document.getElementById("stageHint").textContent = REVIEW_STAGES[reviewStage].hint;
+}
+
+function renderStageFlowActions() {
+    if (reviewStage === "expert_draft") {
+        return issues.length
+            ? '<button class="btn btn-primary" onclick="submitReview()">提交专家问题给协调员</button>'
+            : '<button class="btn" onclick="openIssueModal()">先登记一条问题</button>';
+    }
+    if (reviewStage === "expert_submitted") {
+        return '<button class="btn btn-danger" onclick="coordinatorReturnIssues()">模拟协调员退回项目人员</button>';
+    }
+    if (reviewStage === "coordinator_returned") {
+        return '<div class="flow-note">问题已退回项目人员，专家侧只读等待项目人员在归档材料退回页面提交整改。</div>';
+    }
+    if (reviewStage === "rectification_submitted") {
+        const waitingProject = issues.find(issue => ["returned_to_project", "review_rejected"].includes(issue.status));
+        return waitingProject
+            ? '<div class="flow-note">仍有问题等待项目人员整改；专家侧不提交整改。</div>'
+            : '<div class="flow-note">在问题清单操作列逐条选择“复核通过”或“退回复改”。</div>';
+    }
+    return '<div class="flow-note">可切回“专家登记中”重新演示完整闭环。</div>';
+}
+
+function renderAll() {
+    renderStageSwitcher();
+    renderMaterialTree();
+    renderMain();
+    renderIssues();
+    renderConsole();
+    if (document.getElementById("previewModal").classList.contains("show")) renderPreview();
 }
 
 function hasAnySystem(material, systems = activeReviewSystems) {
@@ -1946,7 +2274,10 @@ function renderMain() {
         ? `MSF11-20 共 48 项，当前筛选 ${activeLabel}，左侧范围显示 ${materials.length} 项材料。`
         : `${material.id} / ${material.category} / ${material.required ? "初次认证必备材料" : "适用时归档材料"}`;
     document.getElementById("materialSystems").innerHTML = systemTags(materialSystems, true);
-    document.getElementById("issueRegisterBtn").style.visibility = editable ? "visible" : "hidden";
+    const registerBtn = document.getElementById("issueRegisterBtn");
+    registerBtn.style.visibility = editable ? "visible" : "hidden";
+    registerBtn.disabled = !isExpertDraftStage();
+    registerBtn.textContent = isExpertDraftStage() ? "+ 登记问题" : "问题已锁定";
     renderFiles(materials);
 }
 
@@ -1973,34 +2304,112 @@ function renderFiles(materials) {
 
 function renderIssues() {
     const scopedIssues = currentMaterialId === "all" ? issues : issues.filter(issue => issue.materialId === currentMaterialId);
+    const tableMode = REVIEW_STAGES[reviewStage].tableMode;
+    const emptyColspan = tableMode === "rectification" ? 9 : 9;
     document.getElementById("issuePanelTitle").textContent = `问题清单（${currentMaterialId === "all" ? "全部" : "当前材料"}）`;
-    document.getElementById("issuePanelCount").textContent = `当前有效 ${scopedIssues.length} 项`;
-    document.getElementById("issueTableBody").innerHTML = scopedIssues.length ? scopedIssues.map((issue, index) => `
+    document.getElementById("issuePanelCount").textContent = `${REVIEW_STAGES[reviewStage].label} · 当前 ${scopedIssues.length} 项`;
+    document.getElementById("issueTableHead").innerHTML = tableMode === "rectification" ? `
         <tr>
-            <td>${index + 1}</td>
-            <td><span class="status-tag ${issue.type === "fix" ? "reject" : (issue.type === "material" ? "pending" : "info")}">${issue.typeName}</span></td>
-            <td>${escapeHtml(issue.desc)}</td>
-            <td>${issue.attachment ? escapeHtml(issue.attachment) : '<span class="file-meta">未登记</span>'}</td>
-            <td>${issue.materialName}</td>
-            <td>${systemBadges([issue.system])}</td>
-            <td><span class="status-tag info">专家提出</span><div class="file-meta">王建国</div></td>
-            <td><button class="btn" onclick="deleteIssue(${issue.id})">删除</button></td>
+            <th style="width: 60px;">序号</th>
+            <th style="width: 190px;">所属材料</th>
+            <th style="width: 90px;">涉及体系</th>
+            <th style="width: 190px;">原问题描述</th>
+            <th style="width: 180px;">要求整改材料/附件</th>
+            <th style="width: 190px;">整改说明</th>
+            <th style="width: 180px;">整改材料/附件</th>
+            <th style="width: 110px;">复核状态</th>
+            <th style="width: 150px;">操作</th>
         </tr>
-    `).join("") : `
+    ` : `
         <tr>
-            <td colspan="8">
-                <div class="empty-state">暂无有效问题。专家提出或协调员登记后会显示在这里。</div>
+            <th style="width: 70px;">序号</th>
+            <th style="width: 190px;">所属材料</th>
+            <th style="width: 120px;">涉及体系</th>
+            <th style="width: 120px;">问题类型</th>
+            <th>问题描述</th>
+            <th style="width: 180px;">要求整改材料/附件</th>
+            <th style="width: 120px;">来源/提交人</th>
+            <th style="width: 120px;">问题状态</th>
+            <th style="width: 90px;">操作</th>
+        </tr>
+    `;
+    document.getElementById("issueTableBody").innerHTML = scopedIssues.length ? scopedIssues.map((issue, index) => {
+        const normalized = normalizeIssue(issue);
+        if (tableMode === "rectification") return `
+            <tr>
+                <td>${index + 1}</td>
+                <td>
+                    <div class="issue-main-text">${escapeHtml(normalized.materialName)}</div>
+                    <div class="issue-subtext">${normalized.materialId}</div>
+                </td>
+                <td>${systemBadges([normalized.system])}</td>
+                <td>
+                    <div class="issue-main-text">${escapeHtml(normalized.desc)}</div>
+                    <div class="issue-subtext">${normalized.typeName} · 专家王建国</div>
+                </td>
+                <td>${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记要求</span>'}</td>
+                <td>
+                    <div class="issue-main-text">${escapeHtml(normalized.rectificationDesc || "项目人员尚未提交整改说明")}</div>
+                    ${normalized.rectificationTime ? `<div class="issue-subtext">提交时间：${normalized.rectificationTime}</div>` : ""}
+                </td>
+                <td>${normalized.rectificationAttachment ? escapeHtml(normalized.rectificationAttachment) : '<span class="file-meta">未提交整改附件</span>'}</td>
+                <td>
+                    ${issueStatusBadge(normalized.status)}
+                    ${normalized.reviewComment ? `<div class="issue-subtext">${escapeHtml(normalized.reviewComment)}</div>` : ""}
+                </td>
+                <td>${renderRectificationActions(normalized)}</td>
+            </tr>
+        `;
+        return `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${normalized.materialName}</td>
+                <td>${systemBadges([normalized.system])}</td>
+                <td><span class="status-tag ${normalized.type === "fix" ? "reject" : (normalized.type === "material" ? "pending" : "info")}">${normalized.typeName}</span></td>
+                <td>${escapeHtml(normalized.desc)}</td>
+                <td>${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记</span>'}</td>
+                <td><span class="status-tag info">专家提出</span><div class="file-meta">王建国</div></td>
+                <td>${issueStatusBadge(normalized.status)}</td>
+                <td>${isExpertDraftStage() ? `<button class="btn" onclick="deleteIssue(${normalized.id})">删除</button>` : '<span class="file-meta">只读</span>'}</td>
+            </tr>
+        `;
+    }).join("") : `
+        <tr>
+            <td colspan="${emptyColspan}">
+                <div class="empty-state">${tableMode === "rectification" ? "暂无待复核问题。项目人员提交整改后会显示整改说明和附件。" : "暂无有效问题。专家提出或协调员登记后会显示在这里。"}</div>
             </td>
         </tr>
     `;
 }
 
+function renderRectificationActions(issue) {
+    if (["returned_to_project", "review_rejected"].includes(issue.status)) {
+        const note = issue.status === "review_rejected" ? "已复核退回，等待项目人员重新提交" : "等待项目人员整改";
+        return `<span class="file-meta">${note}</span>`;
+    }
+    if (isRectificationReviewStage() && issue.status === "rectification_submitted") {
+        return `
+            <div class="issue-actions">
+                <button class="btn btn-success" onclick="approveIssue(${issue.id})">复核通过</button>
+                <button class="btn btn-danger" onclick="rejectIssue(${issue.id})">退回复改</button>
+            </div>
+        `;
+    }
+    return '<span class="file-meta">无待办</span>';
+}
+
 function renderConsole() {
     const editableMaterials = getAuthorizedMaterials();
     const filteredMaterials = getVisibleMaterials();
+    const pendingReviewCount = issues.filter(issue => issue.status === "rectification_submitted").length;
+    const passedCount = issues.filter(issue => issue.status === "review_passed").length;
+    const rejectedCount = issues.filter(issue => issue.status === "review_rejected").length;
     document.getElementById("editableCount").textContent = editableMaterials.length;
     document.getElementById("issueCount").textContent = issues.length;
-    document.getElementById("progressText").textContent = `授权体系 ${systemsLabel(authorizedSystems)} 可审材料 ${editableMaterials.length} 项，当前筛选显示 ${filteredMaterials.length} 项，问题清单 ${issues.length} 项。`;
+    document.getElementById("progressText").textContent = `当前状态：${REVIEW_STAGES[reviewStage].label}；授权体系 ${systemsLabel(authorizedSystems)} 可审材料 ${editableMaterials.length} 项，当前筛选显示 ${filteredMaterials.length} 项，问题 ${issues.length} 项，待复核 ${pendingReviewCount} 项，通过 ${passedCount} 项，退回 ${rejectedCount} 项。`;
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.textContent = reviewStage === "expert_draft" ? "提交结果至管理员" : "已提交协调员";
+    submitBtn.disabled = reviewStage !== "expert_draft";
 }
 
 function toggleGroup(el) {
@@ -2009,6 +2418,10 @@ function toggleGroup(el) {
 }
 
 function openIssueModal(type = "fix", materialId = currentMaterialId, fileName = "") {
+    if (!isExpertDraftStage()) {
+        showToast("当前阶段问题已锁定，不能新增登记");
+        return;
+    }
     currentIssueType = type;
     const fromPreview = Boolean(fileName);
     const targetMaterialId = materialId === "all" ? "" : materialId;
@@ -2063,8 +2476,10 @@ function saveIssue() {
         attachment,
         system,
         materialId,
-        materialName: material.name
+        materialName: material.name,
+        status: "draft"
     });
+    saveSharedReviewIssues("expert_draft");
     closeIssueModal();
     renderMaterialTree();
     renderMain();
@@ -2075,8 +2490,13 @@ function saveIssue() {
 }
 
 function deleteIssue(id) {
+    if (!isExpertDraftStage()) {
+        showToast("当前阶段问题已锁定，不能删除");
+        return;
+    }
     openConfirmModal("删除问题记录", "确定删除这条问题记录吗？删除后当前材料项的问题数量会同步更新。", () => {
         issues = issues.filter(issue => issue.id !== id);
+        saveSharedReviewIssues("expert_draft");
         renderMaterialTree();
         renderMain();
         renderIssues();
@@ -2084,6 +2504,66 @@ function deleteIssue(id) {
         if (document.getElementById("previewModal").classList.contains("show")) renderPreview();
         showToast("问题记录已删除");
     });
+}
+
+function coordinatorReturnIssues() {
+    if (reviewStage !== "expert_submitted") {
+        showToast("请先提交专家评审结果给协调员");
+        return;
+    }
+    if (!issues.length) {
+        showToast("请先登记至少 1 条问题");
+        return;
+    }
+    openConfirmModal("协调员退回整改", "模拟协调员确认专家问题，并将问题退回给项目人员整改。退回后项目人员可按单条问题提交整改说明和附件。", () => {
+        reviewStage = "coordinator_returned";
+        issues = issues.map(issue => ({
+            ...normalizeIssue(issue),
+            status: "returned_to_project",
+            reviewComment: "协调员已退回项目人员整改。",
+            coordinatorComment: "协调员已退回项目人员整改。"
+        }));
+        saveSharedReviewIssues("coordinator_returned");
+        renderAll();
+        showToast("协调员已将问题退回项目人员");
+    });
+}
+
+function approveIssue(id) {
+    issues = issues.map(issue => issue.id === id
+        ? { ...normalizeIssue(issue), status: "review_passed", reviewComment: "整改材料完整，复核通过。" }
+        : issue);
+    saveSharedReviewIssues("rectification_submitted");
+    renderAll();
+    showToast("该问题已复核通过");
+}
+
+function rejectIssue(id) {
+    pendingRejectIssueId = id;
+    const reasonInput = document.getElementById("rejectReason");
+    reasonInput.value = "";
+    document.getElementById("rejectModal").classList.add("show");
+    window.setTimeout(() => reasonInput.focus(), 0);
+}
+
+function closeRejectModal() {
+    pendingRejectIssueId = null;
+    document.getElementById("rejectModal").classList.remove("show");
+}
+
+function confirmRejectIssue() {
+    const reason = document.getElementById("rejectReason").value.trim();
+    if (reason.length < 6) {
+        showToast("请填写至少 6 个字的退回原因");
+        return;
+    }
+    issues = issues.map(issue => issue.id === pendingRejectIssueId
+        ? { ...normalizeIssue(issue), status: "review_rejected", reviewComment: `退回原因：${reason}` }
+        : issue);
+    saveSharedReviewIssues("coordinator_returned");
+    closeRejectModal();
+    renderAll();
+    showToast("该问题已复核退回");
 }
 
 function buildPreviewScope() {
@@ -2153,6 +2633,7 @@ function renderPreview() {
                                             <td><span class="status-tag ${issue.type === "fix" ? "reject" : (issue.type === "material" ? "pending" : "info")}">${issue.typeName}</span></td>
                                             <td>${escapeHtml(issue.desc)}</td>
                                             <td>${issue.attachment ? escapeHtml(issue.attachment) : '<span class="file-meta">未登记整改材料/附件</span>'}</td>
+                                            <td>${issueStatusBadge(issue.status || "draft")}</td>
                                         </tr>
                                     `).join("") : `<tr><td><div class="empty-state">当前材料项暂无问题。发现不符合项时，可在本窗口直接登记。</div></td></tr>`}
                                 </tbody>
@@ -2169,7 +2650,7 @@ function renderPreview() {
                 </div>
                 <div class="button-row">
                     <button class="btn" onclick="switchMaterialFromPreview('${file.material.id}')">切换到该材料项</button>
-                    <button class="btn btn-primary" onclick="openPreviewIssue()">登记当前文件问题</button>
+                    <button class="btn btn-primary" onclick="openPreviewIssue()" ${isExpertDraftStage() ? "" : "disabled"}>${isExpertDraftStage() ? "登记当前文件问题" : "问题已锁定"}</button>
                 </div>
             </div>
         </div>
@@ -2236,8 +2717,17 @@ function closePreview() {
 
 function submitReview() {
     saveCurrentDraft();
+    if (!isExpertDraftStage()) return;
+    if (!issues.length) {
+        showToast("请先登记至少 1 条问题，再演示提交给协调员");
+        return;
+    }
     const editableMaterials = getAuthorizedMaterials();
     openConfirmModal("提交专家评审结果", `${systemsLabel(authorizedSystems)} 体系可审材料：${editableMaterials.length} 项；当前问题清单：${issues.length} 项。提交后将进入管理员复核。`, () => {
+        reviewStage = "expert_submitted";
+        applyReviewStageToIssues();
+        saveSharedReviewIssues("expert_submitted");
+        renderAll();
         showToast("专家评审结果已提交至管理员");
     });
 }
@@ -2260,6 +2750,12 @@ function showToast(message) {
     toast.classList.add("show");
     window.clearTimeout(showToast.timer);
     showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function currentDateTimeText() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, "0");
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function escapeHtml(text) {
@@ -2287,6 +2783,9 @@ document.getElementById("previewModal").addEventListener("click", event => {
 document.getElementById("confirmModal").addEventListener("click", event => {
     if (event.target.id === "confirmModal") closeConfirmModal();
 });
+document.getElementById("rejectModal").addEventListener("click", event => {
+    if (event.target.id === "rejectModal") closeRejectModal();
+});
 document.addEventListener("click", event => {
     const select = document.getElementById("systemMultiSelect");
     if (select && !select.contains(event.target)) closeSystemDropdown();
@@ -2296,11 +2795,14 @@ document.addEventListener("keydown", event => {
         closeIssueModal();
         closePreview();
         closeConfirmModal();
+        closeRejectModal();
         closeSystemDropdown();
     }
 });
 
+loadSharedReviewIssues();
 renderSystemFilter();
+renderStageSwitcher();
 renderMaterialTree();
 renderMain();
 renderIssues();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>初次评定整改复核 - 审核材料归档系统</title>
+    <title>初次评定 - 审核材料归档系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
@@ -540,6 +540,7 @@
         .issue-toolbar-actions {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 8px;
         }
         .material-data-table {
@@ -826,7 +827,8 @@
             flex-direction: column;
             overflow: hidden;
         }
-        .modal.wide { width: 920px; }
+        .modal.wide { width: min(920px, calc(100vw - 32px)); }
+        .modal.expert-picker { width: min(900px, calc(100vw - 32px)); }
         .modal-header, .modal-footer {
             min-height: 56px;
             padding: 0 18px;
@@ -927,16 +929,93 @@
             font-size: 13px;
             line-height: 1.5;
         }
+        .expert-modal-body {
+            padding: 24px;
+        }
         .expert-modal-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .expert-coverage-panel {
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fafcff;
+            padding: 16px;
+        }
+        .expert-coverage-title {
+            margin-bottom: 12px;
+            color: #1f2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .expert-coverage-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 240px;
-            gap: 16px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 36px;
+        }
+        .expert-coverage-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+        }
+        .expert-system-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            color: #4b6584;
+            font-size: 13px;
+        }
+        .expert-coverage-note {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border: 1px solid #FFD5A8;
+            border-radius: 6px;
+            background: #FFF8F0;
+            color: #D54900;
+            font-size: 13px;
+            line-height: 1.5;
         }
         .modal-filter-row {
             display: grid;
-            grid-template-columns: 150px 150px 180px;
+            grid-template-columns: 150px 150px minmax(180px, 1fr) auto auto;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .expert-modal-table-wrap {
+            min-height: 350px;
+        }
+        .expert-systems-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .expert-system-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            cursor: pointer;
+            color: #334155;
+            font-size: 13px;
+        }
+        .expert-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-top: 18px;
+            color: #486581;
+            font-size: 13px;
+        }
+        .expert-page-controls {
+            display: flex;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
         }
         .toast {
             position: fixed;
@@ -997,13 +1076,14 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     返回
                 </button>
-                <span class="project-title">初次评定整改复核</span>
+                <span class="project-title">初次评定</span>
                 <span class="project-task">任务号：TASK-2026-001</span>
                 <span class="header-meta">客户A</span>
                 <span class="status-pill pending" id="headerStatePill">未指派专家</span>
             </div>
             <div class="header-actions">
                 <button class="t-button btn-outline" onclick="openExpertModal()">指派专家</button>
+                <button class="t-button btn-success" id="headerPassBtn" onclick="openDecisionModal('pass')" disabled>通过初评</button>
             </div>
         </div>
         <div class="project-tip" id="projectTip">复核项目管理人员提交的整改说明和补充材料，确认待关闭问题清零后通过初评或继续退回整改。</div>
@@ -1069,7 +1149,7 @@
                     <div class="title-text" id="contentTitle">全部材料跨体系视图</div>
                     <span class="status-pill" id="contentScopeTag">协调员视角</span>
                 </div>
-                <div class="content-subtitle" id="contentSubtitle">查看整改问题、专家反馈和材料文件证据，判断是否具备通过初评条件。</div>
+                <div class="content-subtitle" id="contentSubtitle">查看整改问题、复核意见和材料文件证据，判断是否具备通过初评条件。</div>
             </div>
             <div class="content-body" id="contentBody"></div>
         </main>
@@ -1115,11 +1195,7 @@
                 <div class="char-count" id="issueCharCount">0字</div>
             </div>
             <div style="margin-top:14px;">
-                <label class="form-label">整改说明</label>
-                <textarea class="form-textarea" id="issueRemediationInput" placeholder="可填写项目管理人员已提交的整改说明，新增问题可留空" oninput="validateIssueModal()"></textarea>
-            </div>
-            <div style="margin-top:14px;">
-                <label class="form-label">整改材料/附件</label>
+                <label class="form-label">要求整改材料/附件</label>
                 <input class="form-control" id="issueAttachmentInput" placeholder="模拟字段：可填写附件名称，非必填">
             </div>
         </div>
@@ -1171,11 +1247,11 @@
 <div class="modal-mask" id="deleteModal">
     <div class="modal">
         <div class="modal-header">
-            <span>删除问题并保留日志</span>
+            <span id="deleteModalTitle">删除问题并保留日志</span>
             <button class="t-button btn-text" onclick="closeModal('deleteModal')">关闭</button>
         </div>
         <div class="modal-body">
-            <div style="color:#64748B;font-size:13px;margin-bottom:12px;">删除后该问题不再作为待关闭问题阻断通过，但系统会保留删除人、时间和原因。</div>
+            <div id="deleteModalTip" style="color:#64748B;font-size:13px;margin-bottom:12px;">删除后该问题不再作为待关闭问题阻断通过，但系统会保留删除人、时间和原因。</div>
             <label class="form-label">删除原因（至少5字）</label>
             <textarea class="form-textarea" id="deleteReasonInput" placeholder="请填写删除原因" oninput="validateDeleteReason()"></textarea>
             <div class="char-count" id="deleteReasonCount">0字</div>
@@ -1204,39 +1280,50 @@
 </div>
 
 <div class="modal-mask" id="expertModal">
-    <div class="modal wide">
+    <div class="modal expert-picker">
         <div class="modal-header">
-            <span>选择评审专家</span>
-            <button class="t-button btn-text" onclick="closeModal('expertModal')">关闭</button>
+            <span>选择评审专家（支持多选）</span>
+            <button class="t-button btn-text" onclick="closeModal('expertModal')">×</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body expert-modal-body">
             <div class="expert-modal-layout">
-                <div>
-                    <div class="modal-filter-row">
-                        <select id="expertDomainFilter" onchange="renderExpertCandidates()">
-                            <option value="">全部领域</option>
-                            <option value="Q">质量管理体系(Q)</option>
-                            <option value="E">环境管理体系(E)</option>
-                            <option value="S">职业健康安全(S)</option>
-                            <option value="F">食品安全体系(F)</option>
-                        </select>
-                        <input class="form-control" id="expertNameFilter" placeholder="专家姓名" oninput="renderExpertCandidates()">
-                        <input class="form-control" id="expertOrgFilter" placeholder="所属机构/公司" oninput="renderExpertCandidates()">
-                    </div>
+                <div id="coveragePreview"></div>
+                <div class="modal-filter-row">
+                    <select id="expertDomainFilter" onchange="renderExpertCandidates()">
+                        <option value="">全部领域</option>
+                        <option value="Q">质量管理体系(Q)</option>
+                        <option value="E">环境管理体系(E)</option>
+                        <option value="S">职业健康安全(S)</option>
+                        <option value="F">食品安全体系(F)</option>
+                    </select>
+                    <input class="form-control" id="expertNameFilter" placeholder="专家姓名" oninput="renderExpertCandidates()">
+                    <input class="form-control" id="expertOrgFilter" placeholder="所属公司/机构" oninput="renderExpertCandidates()">
+                    <button class="t-button btn-primary" onclick="renderExpertCandidates()">查询</button>
+                    <button class="t-button btn-outline" onclick="resetExpertFilters()">重置</button>
+                </div>
+                <div class="expert-modal-table-wrap">
                     <table class="modal-table">
                         <thead>
                             <tr>
                                 <th style="width:52px;">选择</th>
                                 <th style="width:120px;">专家姓名</th>
-                                <th style="width:150px;">所属机构</th>
-                                <th style="width:130px;">授权领域</th>
-                                <th>本次负责体系</th>
+                                <th style="width:170px;">所属机构/公司</th>
+                                <th>覆盖领域</th>
+                                <th style="width:110px;">负责项目数</th>
+                                <th style="width:140px;">预计结束日期</th>
                             </tr>
                         </thead>
                         <tbody id="expertCandidateBody"></tbody>
                     </table>
                 </div>
-                <div id="coveragePreview"></div>
+                <div class="expert-pagination">
+                    <span id="expertPaginationInfo">共 0 条，当前 0-0 条，每页 10 条</span>
+                    <div class="expert-page-controls">
+                        <button class="t-button btn-outline" disabled>上一页</button>
+                        <span>1 / 1</span>
+                        <button class="t-button btn-outline" disabled>下一页</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -1249,25 +1336,23 @@
 <div class="modal-mask" id="replaceExpertModal">
     <div class="modal">
         <div class="modal-header">
-            <span>替换专家并转交问题</span>
+            <span>撤销专家指派</span>
             <button class="t-button btn-text" onclick="closeModal('replaceExpertModal')">关闭</button>
         </div>
         <div class="modal-body">
             <div class="transfer-summary" id="replaceExpertSummary"></div>
             <div class="transfer-policy">
-                默认规则：保留原专家已提出的待关闭问题，问题来源仍显示原专家；后续跟进责任转交给新专家，并记录专家调整日志。
+                撤销后该专家已提出的待关闭问题会继续保留，问题来源仍显示原专家；任务会重新计算专家覆盖，缺失体系需另行补齐。
             </div>
-            <label class="form-label">接替专家</label>
-            <select id="replacementExpertInput" onchange="validateReplacementModal()"></select>
             <div style="margin-top:14px;">
-                <label class="form-label">调整原因（至少5字）</label>
-                <textarea class="form-textarea" id="replacementReasonInput" placeholder="请填写替换原因，例如专家无法继续评定、授权范围调整、误派需更正等" oninput="validateReplacementModal()"></textarea>
+                <label class="form-label">撤销原因（至少5字）</label>
+                <textarea class="form-textarea" id="replacementReasonInput" placeholder="请填写撤销原因，例如专家无法继续评定、授权范围调整、误派需更正等" oninput="validateReplacementModal()"></textarea>
                 <div class="char-count" id="replacementReasonCount">0字</div>
             </div>
         </div>
         <div class="modal-footer">
             <button class="t-button btn-outline" onclick="closeModal('replaceExpertModal')">取消</button>
-            <button class="t-button btn-primary" id="confirmReplacementBtn" onclick="confirmExpertReplacement()" disabled>确认替换并转交</button>
+            <button class="t-button btn-danger" id="confirmReplacementBtn" onclick="confirmExpertReplacement()" disabled>确认撤销指派</button>
         </div>
     </div>
 </div>
@@ -1303,12 +1388,12 @@ const CATEGORY_LABELS = {
 };
 const FALLBACK_CATALOG = [{"id":"MSF11-20-001","category":"通用材料","materialName":"认证发证推荐表","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":1,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-002","category":"通用材料","materialName":"证书内容确认件（标黄代表需要pdf附件）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":2,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-003","category":"通用材料","materialName":"认证申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":3,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-004","category":"通用材料","materialName":"全国认证认可信息公共服务平台(认e云)查询截图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":4,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-005","category":"通用材料","materialName":"获证方情况调查表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":5,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-006","category":"通用材料","materialName":"证书变更申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":6,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-007","category":"通用材料","materialName":"认证周期绩效评价表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":7,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-008","category":"通用材料","materialName":"认证申请评审表（或认证证书转换评审记录）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":8,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-009","category":"通用材料","materialName":"法律地位证明文件复印件（如营业执照）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":9,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-010","category":"通用材料","materialName":"相关资质证明原件复印件、守法证明（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":10,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-011","category":"通用材料","materialName":"生产工艺/服务流程图(适用时)","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":11,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-012","category":"通用材料","materialName":"管理体系过程清单（Q/E/S）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":12,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-013","category":"通用材料","materialName":"组织机构图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":13,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-014","category":"通用材料","materialName":"认证场所清单（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":14,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-015","category":"通用材料","materialName":"审核项目推进表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":15,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-016","category":"通用材料","materialName":"地理位置示意图和厂区平面布置图","tag":"Q除外","applicableSystems":["E","S","F"],"sortOrder":16,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-017","category":"通用材料","materialName":"组织适用的产品或服务质量标准清单","tag":"Q/F/H","applicableSystems":["Q","F"],"sortOrder":17,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-018","category":"通用材料","materialName":"组织适用的法律法规、标准清单","tag":"E/S","applicableSystems":["E","S"],"sortOrder":18,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-019","category":"通用材料","materialName":"重要环境因素清单","tag":"E","applicableSystems":["E"],"sortOrder":19,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-020","category":"通用材料","materialName":"主要危险源和OHS风险","tag":"S","applicableSystems":["S"],"sortOrder":20,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-021","category":"通用材料","materialName":"使用的主要危险材料(适用时）","tag":"S","applicableSystems":["S"],"sortOrder":21,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-022","category":"通用材料","materialName":"质量/环境/职业健康/食品安全目标","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":22,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-023","category":"通用材料","materialName":"需要应对的风险和机遇注","tag":"E/S","applicableSystems":["E","S"],"sortOrder":23,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-024","category":"通用材料","materialName":"污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":24,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-025","category":"通用材料","materialName":"法规符合性证明文件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":25,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-026","category":"通用材料","materialName":"适用性声明","tag":"IS","applicableSystems":["Q","E","S","F"],"sortOrder":26,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-027","category":"通用材料","materialName":"详细产品（包括原辅料及终产品）及工艺描述","tag":"F/H","applicableSystems":["F"],"sortOrder":27,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-028","category":"通用材料","materialName":"生产车间平面布置图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":28,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-029","category":"通用材料","materialName":"危害分析及OPRP、CCP等针对显著危害的控制措施","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":29,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-030","category":"通用材料","materialName":"FSMS（HACCP）认证申请组织添加剂使用清单","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":30,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-031","category":"通用材料","materialName":"食品安全检测报告","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":31,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-032","category":"通用材料","materialName":"食品安全认证申请组织自我声明","tag":"F/H","applicableSystems":["F"],"sortOrder":32,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-033","category":"一阶段材料","materialName":"一阶段不实施现场审核的申请（适用时）","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":33,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-034","category":"一阶段材料","materialName":"审核任务书","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":34,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-035","category":"一阶段材料","materialName":"首末次会议签到表（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":35,"requirements":{"initialCertification":"◆"}},{"id":"MSF11-20-036","category":"一阶段材料","materialName":"审核计划（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":36,"requirements":{"initialCertification":"◆"}},{"id":"MSF11-20-037","category":"一阶段材料","materialName":"第一阶段审核问题清单（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":37,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-038","category":"一阶段材料","materialName":"第一阶段审核报告","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":38,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-039","category":"一阶段材料","materialName":"文件评审报告(适用时)","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":39,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-040","category":"二阶段及其他审核材料","materialName":"审核任务书","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":40,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-041","category":"二阶段及其他审核材料","materialName":"审核准备会记录(适用时)","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":41,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-042","category":"二阶段及其他审核材料","materialName":"首末次会议签到表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":42,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-043","category":"二阶段及其他审核材料","materialName":"审核计划","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":43,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-044","category":"二阶段及其他审核材料","materialName":"不符合项报告及纠正措施见证材料（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":44,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-045","category":"二阶段及其他审核材料","materialName":"核查记录表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":45,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-046","category":"二阶段及其他审核材料","materialName":"审核报告","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":46,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-047","category":"二阶段及其他审核材料","materialName":"异地审核情况报备表（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":47,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-048","category":"二阶段及其他审核材料","materialName":"其他拟上报的资料（适用时，请注明上报材料类型）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":48,"requirements":{"initialCertification":"★"}}];
 const EXPERT_CANDIDATES = [
-    { id: 'e1', name: '刘建国', org: '内部专家', systems: ['Q'] },
-    { id: 'e2', name: '张明', org: '内部专家', systems: ['E', 'S'] },
-    { id: 'e3', name: '李华', org: '外部机构A', systems: ['F', 'Q'] },
-    { id: 'e4', name: '陈超', org: '外部机构B', systems: ['F'] },
-    { id: 'e5', name: '吴芳', org: '内部专家', systems: ['F', 'S'] },
-    { id: 'e6', name: '王磊', org: '外部机构C', systems: ['E', 'S'] }
+    { id: 'e1', name: '刘建国', org: '内部专家', systems: ['Q'], activeProjects: 4, dueDate: '2026-04-15' },
+    { id: 'e2', name: '张明', org: '内部专家', systems: ['E', 'S'], activeProjects: 6, dueDate: '2026-04-18' },
+    { id: 'e3', name: '李华', org: '外部机构A', systems: ['F', 'Q'], activeProjects: 4, dueDate: '2026-04-15' },
+    { id: 'e4', name: '陈超', org: '外部机构B', systems: ['F'], activeProjects: 7, dueDate: '2026-04-20' },
+    { id: 'e5', name: '吴芳', org: '内部专家', systems: ['F', 'S'], activeProjects: 3, dueDate: '2026-04-12' },
+    { id: 'e6', name: '王磊', org: '外部机构C', systems: ['E', 'S'], activeProjects: 8, dueDate: '2026-04-18' }
 ];
 let catalog = [];
 let materials = [];
@@ -1333,6 +1418,8 @@ let pendingDecision = null;
 let pendingReplaceExpertId = null;
 let taskDecisionStatus = 'active';
 let toastTimer = null;
+let expertCoverageExpanded = false;
+const REVIEW_FLOW_STORAGE_KEY = 'TASK-2026-001-review-issues';
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1340,6 +1427,121 @@ function escapeHtml(value) {
 function normalizeSystems(systems) {
     const filtered = (systems || []).filter(system => PROJECT_SYSTEMS.includes(system));
     return filtered.length ? filtered : PROJECT_SYSTEMS;
+}
+function getSharedReviewPayload() {
+    try {
+        return JSON.parse(localStorage.getItem(REVIEW_FLOW_STORAGE_KEY) || 'null');
+    } catch (error) {
+        return null;
+    }
+}
+function getSharedReviewIssues() {
+    const payload = getSharedReviewPayload();
+    return payload && Array.isArray(payload.issues) ? payload.issues : [];
+}
+function mapSharedStatusToInitial(status) {
+    const statusMap = {
+        draft: '草稿',
+        submitted: '待退回',
+        returned_to_project: '待提交',
+        rectification_submitted: '待复核',
+        review_passed: '已通过',
+        review_rejected: '已退回'
+    };
+    return statusMap[status] || '待退回';
+}
+function mapInitialStatusToShared(status) {
+    const statusMap = {
+        草稿: 'draft',
+        待退回: 'submitted',
+        待提交: 'returned_to_project',
+        已退回: 'review_rejected',
+        待复核: 'rectification_submitted',
+        无需解决: 'rectification_submitted',
+        已通过: 'review_passed'
+    };
+    return statusMap[status] || 'submitted';
+}
+function applySharedReviewIssues() {
+    const sharedIssues = getSharedReviewIssues();
+    if (!sharedIssues.length) return false;
+    issues = sharedIssues.map(item => {
+        const material = catalog.find(entry => entry.id === item.materialId);
+        const reviewStatus = mapSharedStatusToInitial(item.status);
+        return {
+            id: item.id,
+            type: item.typeName || item.type || '材料问题',
+            description: item.desc || item.description || '',
+            systems: normalizeSystems(item.systems || [item.system]),
+            submitter: item.submitter || item.expertName || '王建国',
+            source: item.source || '专家提出',
+            materialId: item.materialId,
+            status: 'active',
+            reviewStatus,
+            createdAt: item.createdAt || item.updatedAt || '2026-04-02 10:30:15',
+            remediation: item.rectificationDesc || '',
+            remediationFile: item.rectificationAttachment || '',
+            requiredAttachment: item.attachment || item.requiredAttachment || '',
+            expertFeedback: item.attachment || item.reviewComment || '专家提出问题，等待协调员退回项目人员整改。',
+            returnReason: item.coordinatorComment || item.returnReason || (item.status === 'review_rejected' ? item.reviewComment : ''),
+            reviewComment: item.reviewComment || '',
+            sharedFlow: true,
+            materialName: item.materialName || (material ? material.materialName : item.materialId)
+        };
+    });
+    issueActionLogs = [];
+    issues.forEach(issue => addIssueLog(issue, '同步专家问题', '从专家评审页面同步到初次评定复核。'));
+    expertReviewStarted = true;
+    expertReviewCompleted = true;
+    assignedExperts.forEach(expert => {
+        if (issueSubmitterMatchesExpert(expert)) expert.reviewStatus = 'submitted';
+    });
+    return true;
+}
+function issueSubmitterMatchesExpert(expert) {
+    return issues.some(issue => issue.submitter === expert.name || issue.systems.some(system => expert.systems.includes(system)));
+}
+function saveInitialIssuesToShared(stage = '') {
+    const sharedIssues = getSharedReviewIssues();
+    const existingById = new Map(sharedIssues.map(item => [String(item.id), item]));
+    const nextIssues = issues.filter(issue => issue.status !== 'deleted').map(issue => {
+        const previous = existingById.get(String(issue.id)) || {};
+        const material = getMaterialById(issue.materialId);
+        const sharedStatus = mapInitialStatusToShared(issue.reviewStatus);
+        return {
+            ...previous,
+            id: issue.id,
+            type: previous.type || (issue.type === '补充材料' ? 'material' : issue.type === '补充审核' ? 'review' : 'fix'),
+            typeName: issue.type,
+            desc: issue.description,
+            attachment: issue.requiredAttachment || previous.attachment || issue.expertFeedback || '',
+            system: issue.systems[0] || 'Q',
+            systems: issue.systems,
+            submitter: issue.submitter || previous.submitter || '王建国',
+            source: issue.source || previous.source || '专家提出',
+            materialId: issue.materialId,
+            materialName: material ? material.materialName : (issue.materialName || issue.materialId),
+            status: sharedStatus,
+            rectificationDesc: issue.remediation || previous.rectificationDesc || '',
+            rectificationAttachment: issue.remediationFile || previous.rectificationAttachment || '',
+            rectificationTime: previous.rectificationTime || '',
+            coordinatorComment: issue.returnReason || issue.coordinatorComment || previous.coordinatorComment || '',
+            reviewComment: issue.returnReason ? `协调员退回原因：${issue.returnReason}` : (issue.reviewComment || previous.reviewComment || ''),
+            updatedAt: new Date().toLocaleString('zh-CN', { hour12: false })
+        };
+    });
+    localStorage.setItem(REVIEW_FLOW_STORAGE_KEY, JSON.stringify({
+        taskNo: 'TASK-2026-001',
+        stage: stage || inferSharedStageFromInitialIssues(nextIssues),
+        updatedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+        issues: nextIssues
+    }));
+}
+function inferSharedStageFromInitialIssues(list) {
+    if (list.some(issue => issue.status === 'rectification_submitted')) return 'rectification_submitted';
+    if (list.some(issue => issue.status === 'returned_to_project')) return 'coordinator_returned';
+    if (list.some(issue => issue.status === 'submitted')) return 'expert_submitted';
+    return 'expert_draft';
 }
 function showToast(message) {
     const toast = document.getElementById('toast');
@@ -1352,6 +1554,7 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('active');
     if (id === 'issueModal') pendingEditIssueId = null;
     if (id === 'returnIssueModal') pendingReturnIssueId = null;
+    if (id === 'deleteModal') pendingDeleteIssueId = null;
     if (id === 'undoIssueModal') {
         pendingUndoIssueId = null;
         pendingUndoAction = null;
@@ -1426,18 +1629,19 @@ function initData() {
     materials = catalog.map(item => ({ ...item, files: createMockFiles(item) }));
     assignedExperts = [
         { id: 'e1', name: '刘建国', org: '内部专家', systems: ['Q'], assignedAt: '2026-04-18 09:20', reviewStatus: 'submitted' },
-        { id: 'e2', name: '张明', org: '内部专家', systems: ['E','S'], assignedAt: '2026-04-18 09:25', reviewStatus: 'reviewing' },
-        { id: 'e5', name: '吴芳', org: '内部专家', systems: ['F'], assignedAt: '2026-04-18 09:35', reviewStatus: 'reviewing' }
+        { id: 'e2', name: '张明', org: '内部专家', systems: ['E','S'], assignedAt: '2026-04-18 09:25', reviewStatus: 'reviewing' }
     ];
     expertReviewStarted = true;
     expertReviewCompleted = false;
     issues = [
-        { id: 1, type: '材料问题', description: '审核报告缺少末页审核组长签字，需补充手写签名或电子签章。', systems: ['Q'], submitter: '刘建国', source: '专家提出', materialId: 'MSF11-20-046', status: 'active', reviewStatus: '待复核', createdAt: '2026-04-02 10:30:15', remediation: '项目管理人员已上传审核报告签章补正页，并说明原扫描件漏扫末页。', remediationFile: '审核报告_签章补正页.pdf', expertFeedback: '专家已反馈：签章页与报告版本一致。' },
+        { id: 1, type: '材料问题', description: '审核报告缺少末页审核组长签字，需补充手写签名或电子签章。', systems: ['Q'], submitter: '刘建国', source: '专家提出', materialId: 'MSF11-20-046', status: 'active', reviewStatus: '待退回', createdAt: '2026-04-02 10:30:15', remediation: '', remediationFile: '', expertFeedback: '专家反馈：审核报告末页缺少签字，需退回项目管理人员补充。' },
+        { id: 5, type: '材料问题', description: '质量手册中过程接口描述不清晰，需补充流程图。', systems: ['Q'], submitter: '协调员', source: '协调员登记', materialId: 'MSF11-20-012', status: 'active', reviewStatus: '待复核', createdAt: '2026-04-02 16:20:00', remediation: '归档提交者说明该问题已在补充材料中合并处理，无需单独整改。', remediationFile: '质量手册_过程接口流程图.pdf', expertFeedback: '无需专家复核，协调员仅查看状态。', noNeedAt: '2026-04-18 11:10:00', noNeedBy: '项目管理人员' },
         { id: 2, type: '补充材料', description: '环境影响评价报告中的监测数据过期，需更新2026年度数据。', systems: ['E'], submitter: '张明', source: '专家提出', materialId: 'MSF11-20-024', status: 'active', reviewStatus: '已退回', createdAt: '2026-04-02 14:15:22', remediation: '项目管理人员补充了2025年监测报告，尚未覆盖2026年度要求。', remediationFile: '环境监测报告_2025.pdf', expertFeedback: '专家反馈：整改材料年度不符合要求。', returnReason: '需补充2026年度有效监测数据。', returnedAt: '2026-04-18 10:20:00' },
         { id: 3, type: '材料问题', description: '质量手册中过程接口描述不清晰，需补充流程图。', systems: ['Q'], submitter: '协调员', source: '协调员登记', materialId: 'MSF11-20-012', status: 'active', reviewStatus: '无需解决', createdAt: '2026-04-02 16:20:00', remediation: '归档提交者说明该问题已在补充材料中合并处理，无需单独整改。', remediationFile: '质量手册_过程接口流程图.pdf', expertFeedback: '无需专家复核，协调员仅查看状态。', noNeedAt: '2026-04-18 11:10:00', noNeedBy: '项目管理人员' },
         { id: 4, type: '补充审核', description: 'HACCP计划中关键控制点监控频次不符合标准要求。', systems: ['F'], submitter: '吴芳', source: '专家提出', materialId: 'MSF11-20-029', status: 'active', reviewStatus: '待复核', createdAt: '2026-04-02 17:40:00', remediation: '项目管理人员已提交HACCP计划修订页，调整CCP监控频次为每批次记录。', remediationFile: 'HACCP计划_修订页.pdf', expertFeedback: '专家待查看整改。' }
     ];
     initIssueLogs();
+    applySharedReviewIssues();
 }
 function getMaterialById(id) {
     return materials.find(item => item.id === id);
@@ -1459,6 +1663,12 @@ function getReturnedIssues() {
 }
 function getPendingReviewIssues() {
     return getActiveIssues().filter(issue => issue.reviewStatus === '待复核');
+}
+function getPendingSubmitIssues() {
+    return getActiveIssues().filter(issue => issue.reviewStatus === '待提交');
+}
+function getPendingReturnIssues() {
+    return getActiveIssues().filter(issue => issue.reviewStatus === '待退回');
 }
 function getIssuesForMaterial(materialId) {
     return getActiveIssues().filter(issue => issue.materialId === materialId);
@@ -1548,12 +1758,16 @@ function getTaskState() {
     if (!coverage.complete) blockers.push(`未覆盖体系：${coverage.missingSystems.join('、')}`);
     const returnedIssues = getReturnedIssues();
     const pendingIssues = getPendingReviewIssues();
+    const pendingSubmitIssues = getPendingSubmitIssues();
+    const pendingReturnIssues = getPendingReturnIssues();
     if (coverage.complete && !expertReviewCompleted) blockers.push('必要专家尚未提交整改复核反馈');
+    if (pendingReturnIssues.length > 0) blockers.push(`待退回整改问题：${pendingReturnIssues.length}项`);
+    if (pendingSubmitIssues.length > 0) blockers.push(`待提交整改问题：${pendingSubmitIssues.length}项`);
     if (returnedIssues.length > 0) blockers.push(`已退回整改问题：${returnedIssues.length}项`);
     if (pendingIssues.length > 0) blockers.push(`待关闭整改问题：${pendingIssues.length}项`);
     if (!coverage.complete) return { key: 'pending', text: '未指派专家', blockers, next: '请先补齐 F 体系专家覆盖，专家覆盖完整后才能进入完整评定判断。' };
-    if (!expertReviewCompleted) return { key: 'pending', text: '复核中', blockers, next: '等待必要专家完成整改复核；协调员也可直接关闭无需专家复核的问题。' };
-    if (openIssues.length > 0) return { key: 'pending', text: '复核中', blockers, next: '存在未关闭整改问题时不能通过初评，可逐项通过整改或继续退回任务。' };
+    if (!expertReviewCompleted) return { key: 'pending', text: '进行中', blockers, next: '等待必要专家完成整改复核；协调员也可直接关闭无需专家复核的问题。' };
+    if (openIssues.length > 0) return { key: 'pending', text: '进行中', blockers, next: '存在未关闭整改问题时不能通过初评，可逐项通过整改或继续退回任务。' };
     return { key: 'pending', text: '可通过', blockers, next: '专家覆盖完整、整改问题已关闭，可以通过初评进入二次评定。' };
 }
 function renderSystemBadges(systems, className = 'sys-badge') {
@@ -1613,10 +1827,11 @@ function renderMaterialNav() {
                         const issueCount = getIssuesForMaterial(item.id).length;
                         const required = isRequired(item);
                         const tag = item.tag === '通用材料' ? '通用' : item.tag;
+                        const systemBadges = item.category === '通用材料' ? '' : `<div class="item-systems">${renderSystemBadges(item.applicableSystems)}</div>`;
                         return `
                             <div class="material-item ${currentMaterialId === item.id ? 'active' : ''}" onclick="switchMaterial('${item.id}')">
                                 <div class="item-name">${escapeHtml(item.materialName)}</div>
-                                <div class="item-systems">${renderSystemBadges(item.applicableSystems)}</div>
+                                ${systemBadges}
                                 <div class="item-meta">
                                     <span>${escapeHtml(tag || CATEGORY_LABELS[item.category] || item.category)}</span>
                                     <span class="material-item-status">
@@ -1728,7 +1943,7 @@ function renderGlobalStatsStrip() {
 function renderRemediationStatus(issue) {
     if (issue.reviewStatus === '已退回') {
         return `
-            <div><span class="review-status reviewing" style="color:var(--reject-color);background:#FFEBED;border-color:#FFD6DB;">已退回</span></div>
+            <div><span class="review-status reviewing" style="color:var(--reject-color);background:#FFEBED;border-color:#FFD6DB;">复核退回</span></div>
             ${issue.returnedAt ? `<div class="file-parent-text" style="margin-top:6px;color:var(--reject-color);">退回时间：${escapeHtml(issue.returnedAt)}</div>` : ''}
         `;
     }
@@ -1737,6 +1952,20 @@ function renderRemediationStatus(issue) {
             <div><span class="review-status submitted">已通过</span></div>
             ${issue.passedAt ? `<div class="file-parent-text" style="margin-top:6px;color:#00875A;">通过时间：${escapeHtml(issue.passedAt)}</div>` : ''}
         `;
+    }
+    if (issue.reviewStatus === '待退回') {
+        return `
+            <div><span class="review-status reviewing" style="color:var(--reject-color);background:#FFEBED;border-color:#FFD6DB;">待退回</span></div>
+        `;
+    }
+    if (issue.reviewStatus === '待提交') {
+        return `
+            <div><span class="review-status reviewing">待提交</span></div>
+            ${issue.returnSubmittedAt ? `<div class="file-parent-text" style="margin-top:6px;color:#C46000;">退回时间：${escapeHtml(issue.returnSubmittedAt)}</div>` : ''}
+        `;
+    }
+    if (issue.reviewStatus === '待复核') {
+        return '<span class="review-status reviewing">待复核</span>';
     }
     if (issue.reviewStatus === '无需解决') {
         return `
@@ -1760,6 +1989,20 @@ function renderIssueActions(issue) {
             <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>
         `;
     }
+    if (issue.reviewStatus === '待退回') {
+        return `
+            <button class="t-button btn-danger btn-small" onclick="returnRemediationIssue(${issue.id})">退回</button>
+            <button class="t-button btn-outline btn-small" onclick="openIssueModal('${issue.materialId}', ${issue.id})">编辑</button>
+            <button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id})">删除</button>
+            <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>
+        `;
+    }
+    if (issue.reviewStatus === '待提交' && issue.canUndoPendingReturn) {
+        return `
+            <button class="t-button btn-outline btn-small" onclick="openUndoIssueModal(${issue.id}, 'pendingReturn')">撤回</button>
+            <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>
+        `;
+    }
     if (issue.reviewStatus === '无需解决') {
         return `
             <button class="t-button btn-success btn-small" onclick="resolveRemediationIssue(${issue.id})">通过整改</button>
@@ -1776,31 +2019,38 @@ function renderIssueActions(issue) {
         <button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id})">删除</button>
     `;
 }
-function renderIssuesTable(scopeMaterialId = null) {
+function getScopedIssues(scopeMaterialId = '') {
     let scopedIssues = getActiveIssues();
-    if (scopeMaterialId) scopedIssues = scopedIssues.filter(issue => issue.materialId === scopeMaterialId);
-    if (!scopeMaterialId && currentSystemFilter !== 'all') scopedIssues = scopedIssues.filter(issue => issue.systems.includes(currentSystemFilter));
+    const materialScope = scopeMaterialId || null;
+    if (materialScope) scopedIssues = scopedIssues.filter(issue => issue.materialId === materialScope);
+    if (!materialScope && currentSystemFilter !== 'all') scopedIssues = scopedIssues.filter(issue => issue.systems.includes(currentSystemFilter));
+    return scopedIssues;
+}
+function renderIssuesTable(scopeMaterialId = null) {
+    let scopedIssues = getScopedIssues(scopeMaterialId || '');
     const rows = scopedIssues.map((issue, index) => {
         const material = getMaterialById(issue.materialId);
         const typeClass = issue.type === '补充材料' ? 'supplement' : issue.type === '补充审核' ? 'audit' : 'material';
-        const sourceClass = issue.source === '专家提出' ? 'expert' : 'coordinator';
+        const requirement = issue.requiredAttachment || issue.remediationRequirement || issue.expertFeedback || '-';
+        const reviewOpinion = issue.returnReason
+            ? `退回原因：${issue.returnReason}`
+            : issue.reviewComment || issue.reviewNote || '';
         return `
             <tr>
                 <td>${index + 1}</td>
-                <td><span class="issue-type-tag ${typeClass}">${escapeHtml(issue.type)}</span></td>
-                <td>${escapeHtml(issue.description)}</td>
                 <td>${escapeHtml(material ? material.materialName : '-')}</td>
                 <td><div class="systems-cell">${renderSystemBadges(issue.systems, 'system-badge-table')}</div></td>
                 <td>
-                    <span class="source-tag ${sourceClass}">${escapeHtml(issue.source)}</span>
-                    <div class="file-parent-text">${escapeHtml(issue.submitter)} · ${escapeHtml(issue.expertFeedback || '-')}</div>
-                    ${issue.returnReason ? `<div class="file-parent-text" style="color:var(--reject-color);">退回原因：${escapeHtml(issue.returnReason)}</div>` : ''}
+                    <span class="issue-type-tag ${typeClass}">${escapeHtml(issue.type)}</span>
+                    <div class="file-parent-text">${escapeHtml(issue.source || '协调员登记')} · ${escapeHtml(issue.submitter || '-')}</div>
                 </td>
+                <td>${escapeHtml(issue.description)}</td>
+                <td>${escapeHtml(requirement)}</td>
                 <td>
-                    <div>${escapeHtml(issue.remediation || '项目管理人员暂未提交整改说明')}</div>
+                    ${issue.remediation ? `<div>${escapeHtml(issue.remediation)}</div>` : '<span class="file-parent-text">项目人员暂未提交整改说明</span>'}
                     ${issue.remediationFile ? `<div class="file-parent-text" style="color:#0052D9;">${escapeHtml(issue.remediationFile)}</div>` : ''}
                 </td>
-                <td>${renderRemediationStatus(issue)}</td>
+                <td>${renderRemediationStatus(issue)}${reviewOpinion ? `<div class="file-parent-text" style="margin-top:6px;color:${issue.returnReason ? 'var(--reject-color)' : '#64748B'};">${escapeHtml(reviewOpinion)}</div>` : ''}</td>
                 <td>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
                         ${renderIssueActions(issue)}
@@ -1819,7 +2069,7 @@ function renderIssuesTable(scopeMaterialId = null) {
                 </div>
             </div>
             <table class="material-data-table">
-                <thead><tr><th style="width:5%;">序号</th><th style="width:9%;">问题类型</th><th style="width:18%;">原问题描述</th><th style="width:15%;">所属材料</th><th style="width:9%;">涉及体系</th><th style="width:14%;">专家反馈</th><th style="width:20%;">整改说明/材料</th><th style="width:8%;">状态</th><th style="width:12%;">操作</th></tr></thead>
+                <thead><tr><th style="width:5%;">序号</th><th style="width:15%;">所属材料</th><th style="width:8%;">涉及体系</th><th style="width:10%;">问题类型</th><th style="width:17%;">原问题描述</th><th style="width:15%;">要求整改材料/附件</th><th style="width:18%;">整改说明/整改材料</th><th style="width:8%;">复核状态</th><th style="width:12%;">操作</th></tr></thead>
                 <tbody>${rows || '<tr><td colspan="9"><div class="empty-state">暂无有效整改问题。问题关闭后可结合右侧控制台判断是否通过初评。</div></td></tr>'}</tbody>
             </table>
         </div>`;
@@ -1849,7 +2099,7 @@ function showAllMaterials() {
     currentMaterialId = 'all';
     document.getElementById('contentTitle').textContent = '全部材料跨体系视图';
     document.getElementById('contentScopeTag').textContent = '整改复核';
-    document.getElementById('contentSubtitle').textContent = '查看整改问题、专家反馈和材料文件证据，判断是否具备通过初评条件。';
+    document.getElementById('contentSubtitle').textContent = '查看整改问题、复核意见和材料文件证据，判断是否具备通过初评条件。';
     renderMaterialNav();
     renderAllMaterialsView();
 }
@@ -1895,12 +2145,13 @@ function renderRightConsole() {
     const activeIssues = getActiveIssues();
     const openIssues = getOpenIssues();
     const pendingIssues = getPendingReviewIssues();
+    const pendingSubmitIssues = getPendingSubmitIssues();
+    const pendingReturnIssues = getPendingReturnIssues();
     const returnedIssues = getReturnedIssues();
     const passedIssues = getPassedIssues();
     const closedIssues = getClosedIssues();
     const isTaskClosed = taskDecisionStatus !== 'active';
     const canPass = !isTaskClosed && coverage.complete && expertReviewCompleted && openIssues.length === 0;
-    const canReject = !isTaskClosed && openIssues.length > 0;
     const coverageRows = PROJECT_SYSTEMS.map(system => `
         <div class="coverage-row">
             <span class="coverage-left"><span class="system-tag-mini ${system}">${system}</span>${SYSTEM_META[system].name}</span>
@@ -1908,7 +2159,6 @@ function renderRightConsole() {
         </div>`).join('');
     const expertCards = assignedExperts.map(expert => {
         const expertIssues = getIssuesForExpert(expert);
-        const replacementCandidates = getReplacementCandidates(expert);
         const reviewStatus = expert.reviewStatus === 'submitted'
             ? { key: 'submitted', text: '已提交复核反馈' }
             : { key: 'reviewing', text: '复核中' };
@@ -1923,19 +2173,22 @@ function renderRightConsole() {
             </div>
             <div class="expert-meta">
                 负责体系：${expert.systems.join('、')}<br>
-                ${expert.replacedAt ? `替换时间：${escapeHtml(expert.replacedAt)}` : `指派时间：${escapeHtml(expert.assignedAt || '-')}`}<br>
-                关联整改问题：${expertIssues.length}项${expert.replacedFrom ? ` · 接替 ${escapeHtml(expert.replacedFrom)}` : ''}
+                指派时间：${escapeHtml(expert.assignedAt || '-')}<br>
+                关联整改问题：${expertIssues.length}项
             </div>
             <div class="expert-actions">
-                <button class="t-button btn-outline btn-small" onclick="openReplaceExpertModal('${expert.id}')" ${replacementCandidates.length ? '' : 'disabled'}>${expertIssues.length ? '替换并转交' : '替换专家'}</button>
+                <button class="t-button btn-outline btn-small" onclick="openReplaceExpertModal('${expert.id}')">撤销指派</button>
             </div>
         </div>`;
     }).join('');
+    const expertList = expertCoverageExpanded
+        ? `<div style="margin-top:12px;">${expertCards || '<div class="empty-state" style="padding:18px;">暂未指派专家</div>'}</div>`
+        : '';
     const deleteLogs = deletedIssueLogs.slice(-3).reverse().map(log => `<div class="blocker-item">已删除：${escapeHtml(log.type)} · ${escapeHtml(log.deleteReason)}</div>`).join('');
     const adjustmentLogs = expertAdjustmentLogs.slice(-3).reverse().map(log => `
         <div class="blocker-item">
-            ${escapeHtml(log.oldExpertName)} → ${escapeHtml(log.newExpertName)} · 负责体系：${log.systems.join('、')} · 转交 ${log.issueCount} 项问题<br>
-            <span style="color:#64748B;">替换时间：${escapeHtml(log.createdAt)} · ${escapeHtml(log.reason)}</span>
+            ${escapeHtml(log.oldExpertName)} · 已撤销指派 · 负责体系：${log.systems.join('、')} · 保留 ${log.issueCount} 项问题<br>
+            <span style="color:#64748B;">撤销时间：${escapeHtml(log.createdAt)} · ${escapeHtml(log.reason)}</span>
         </div>`).join('');
     document.getElementById('rightConsole').innerHTML = `
         <div class="console-card">
@@ -1948,20 +2201,25 @@ function renderRightConsole() {
         </div>
         <div class="console-card">
             <div class="console-card-header"><span>专家覆盖</span><button class="t-button btn-outline btn-small" onclick="openExpertModal()">调整</button></div>
-            <div class="console-card-body">${coverageRows}<div style="margin-top:12px;">${expertCards || '<div class="empty-state" style="padding:18px;">暂未指派专家</div>'}</div></div>
+            <div class="console-card-body">
+                ${coverageRows}
+                <button class="t-button btn-outline btn-small expert-list-toggle" onclick="toggleExpertCoverageDetail()">${expertCoverageExpanded ? '收起具体专家' : '展开具体专家'}</button>
+                ${expertList}
+            </div>
         </div>
         <div class="console-card">
             <div class="console-card-header"><span>整改复核判断</span></div>
             <div class="console-card-body">
                 <div class="stats-row"><span>项目体系</span><strong>4个</strong></div>
                 <div class="stats-row"><span>复核专家</span><strong>${assignedExperts.length}人</strong></div>
+                <div class="stats-row"><span>待退回问题</span><strong style="color:${pendingReturnIssues.length ? 'var(--reject-color)' : 'var(--pass-color)'};">${pendingReturnIssues.length}项</strong></div>
+                <div class="stats-row"><span>待提交问题</span><strong style="color:${pendingSubmitIssues.length ? 'var(--reject-color)' : 'var(--pass-color)'};">${pendingSubmitIssues.length}项</strong></div>
                 <div class="stats-row"><span>待复核问题</span><strong style="color:${pendingIssues.length ? 'var(--reject-color)' : 'var(--pass-color)'};">${pendingIssues.length}项</strong></div>
                 <div class="stats-row"><span>已退回问题</span><strong style="color:${returnedIssues.length ? 'var(--reject-color)' : 'var(--pass-color)'};">${returnedIssues.length}项</strong></div>
                 <div class="stats-row"><span>已关闭问题</span><strong style="color:${closedIssues.length ? 'var(--pass-color)' : 'rgba(0,0,0,.72)'};">${closedIssues.length}项</strong></div>
                 <div class="stats-row"><span>待关闭问题</span><strong style="color:${openIssues.length ? 'var(--reject-color)' : 'var(--pass-color)'};">${openIssues.length}项</strong></div>
                 <div class="stats-row"><span>删除日志</span><strong>${deletedIssueLogs.length}条</strong></div>
                 <div class="decision-actions" style="margin-top:12px;">
-                    <button class="t-button btn-danger" onclick="openDecisionModal('reject')" ${canReject ? '' : 'disabled'}>退回任务</button>
                     <button class="t-button btn-success" onclick="openDecisionModal('pass')" ${canPass ? '' : 'disabled'}>通过初评</button>
                 </div>
                 <div style="margin-top:10px;display:flex;gap:8px;">
@@ -1974,6 +2232,10 @@ function renderRightConsole() {
         ${deletedIssueLogs.length ? `<div class="console-card"><div class="console-card-header"><span>删除日志</span></div><div class="console-card-body">${deleteLogs}</div></div>` : ''}
     `;
 }
+function toggleExpertCoverageDetail() {
+    expertCoverageExpanded = !expertCoverageExpanded;
+    renderRightConsole();
+}
 function updateHeaderState() {
     const taskState = getTaskState();
     const coverage = collectCoverage();
@@ -1982,8 +2244,10 @@ function updateHeaderState() {
     const canPass = !isTaskClosed && coverage.complete && expertReviewCompleted && openIssues.length === 0;
     const canReject = !isTaskClosed && openIssues.length > 0;
     const headerPill = document.getElementById('headerStatePill');
+    const headerPassBtn = document.getElementById('headerPassBtn');
     headerPill.textContent = taskState.text;
     headerPill.className = `status-pill ${taskState.key}`;
+    headerPassBtn.disabled = !canPass;
     document.getElementById('projectTip').textContent = taskState.next;
     renderGlobalStatsStrip();
     renderMaterialNav();
@@ -1998,7 +2262,6 @@ function openIssueModal(materialId = currentMaterialId, issueId = null) {
     document.getElementById('confirmIssueBtn').textContent = issue ? '保存修改' : '确认登记';
     document.getElementById('issueTypeInput').value = issue ? issue.type : '材料问题';
     document.getElementById('issueDescInput').value = issue ? issue.description : '';
-    document.getElementById('issueRemediationInput').value = issue ? (issue.remediation || '') : '';
     document.getElementById('issueAttachmentInput').value = issue ? (issue.remediationFile || '') : '';
     syncIssueSystemsFromMaterial(issue ? issue.systems : null);
     validateIssueModal();
@@ -2025,7 +2288,6 @@ function confirmIssueRegistration() {
     const materialId = document.getElementById('issueMaterialInput').value;
     const type = document.getElementById('issueTypeInput').value;
     const description = document.getElementById('issueDescInput').value.trim();
-    const remediation = document.getElementById('issueRemediationInput').value.trim();
     const remediationFile = document.getElementById('issueAttachmentInput').value.trim();
     const systems = Array.from(document.querySelectorAll('input[name="issueSystems"]:checked')).map(input => input.value);
     if (description.length < 10 || systems.length === 0) return;
@@ -2036,13 +2298,13 @@ function confirmIssueRegistration() {
         issue.description = description;
         issue.systems = systems;
         issue.materialId = materialId;
-        issue.remediation = remediation || '项目管理人员暂未提交整改说明';
         issue.remediationFile = remediationFile;
         issue.updatedBy = '协调员';
         issue.updatedAt = new Date().toLocaleString('zh-CN', { hour12: false });
-        addIssueLog(issue, '编辑问题', '协调员修改了问题类型、描述、所属材料或整改说明。');
+        addIssueLog(issue, '编辑问题', '协调员修改了问题类型、描述、所属材料或整改附件。');
         pendingEditIssueId = null;
         closeModal('issueModal');
+        saveInitialIssuesToShared();
         showToast('问题信息已更新。');
         currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
         return;
@@ -2058,12 +2320,13 @@ function confirmIssueRegistration() {
         status: 'active',
         reviewStatus: '待复核',
         createdAt: new Date().toLocaleString('zh-CN', { hour12: false }),
-        remediation: remediation || '协调员新增问题，待项目管理人员补充整改。',
+        remediation: '协调员新增问题，待项目管理人员补充整改。',
         remediationFile,
         expertFeedback: '协调员新增，暂未指派专家反馈。'
     };
     issues.push(newIssue);
     addIssueLog(newIssue, '登记问题', '协调员登记新的整改复核问题。');
+    saveInitialIssuesToShared();
     closeModal('issueModal');
     showToast('整改问题已登记到材料清单项。');
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
@@ -2077,12 +2340,24 @@ function resolveRemediationIssue(issueId) {
     issue.passedAt = new Date().toLocaleString('zh-CN', { hour12: false });
     issue.returnReason = '';
     addIssueLog(issue, '通过整改', '整改说明和补充材料已满足初评复核要求。');
+    saveInitialIssuesToShared('review_finished');
     showToast('整改已通过，问题保留在列表中且不再阻断初评。');
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function returnRemediationIssue(issueId) {
     const issue = issues.find(item => item.id === issueId);
     if (!issue) return;
+    if (issue.reviewStatus === '待退回') {
+        issue.reviewStatus = '待提交';
+        issue.canUndoPendingReturn = true;
+        issue.returnSubmittedBy = '协调员';
+        issue.returnSubmittedAt = new Date().toLocaleString('zh-CN', { hour12: false });
+        addIssueLog(issue, '退回', '已将待退回问题流转为待提交，等待项目管理人员提交整改。');
+        saveInitialIssuesToShared('coordinator_returned');
+        showToast('问题已退回并转为待提交，可在当前行撤回本次退回。');
+        currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
+        return;
+    }
     pendingReturnIssueId = issueId;
     const material = getMaterialById(issue.materialId);
     document.getElementById('returnIssueSummary').innerHTML = `
@@ -2110,6 +2385,7 @@ function confirmReturnRemediationIssue() {
     issue.passedBy = '';
     issue.passedAt = '';
     addIssueLog(issue, '退回整改', reason);
+    saveInitialIssuesToShared('coordinator_returned');
     pendingReturnIssueId = null;
     closeModal('returnIssueModal');
     showToast('已记录退回原因，问题仍作为待关闭项阻断通过初评。');
@@ -2121,7 +2397,7 @@ function openUndoIssueModal(issueId, action) {
     pendingUndoIssueId = issueId;
     pendingUndoAction = action;
     const material = getMaterialById(issue.materialId);
-    const title = action === 'pass' ? '撤回通过' : '撤销退回';
+    const title = action === 'pass' ? '撤回通过' : action === 'pendingReturn' ? '撤回退回' : '撤销退回';
     document.getElementById('undoIssueTitle').textContent = title;
     document.getElementById('undoIssueReasonLabel').textContent = `${title}原因（至少5字）`;
     document.getElementById('confirmUndoIssueBtn').textContent = `确认${title}`;
@@ -2144,11 +2420,16 @@ function confirmUndoIssue() {
     const reason = document.getElementById('undoReasonInput').value.trim();
     const issue = issues.find(item => item.id === pendingUndoIssueId);
     if (!issue || reason.length < 5) return;
-    const actionText = pendingUndoAction === 'pass' ? '撤回通过' : '撤销退回';
-    issue.reviewStatus = '待复核';
+    const actionText = pendingUndoAction === 'pass' ? '撤回通过' : pendingUndoAction === 'pendingReturn' ? '撤回退回' : '撤销退回';
+    issue.reviewStatus = pendingUndoAction === 'pendingReturn' ? '待退回' : '待复核';
     issue.returnReason = '';
     issue.passedBy = '';
     issue.passedAt = '';
+    if (pendingUndoAction === 'pendingReturn') {
+        issue.returnSubmittedBy = '';
+        issue.returnSubmittedAt = '';
+        issue.canUndoPendingReturn = false;
+    }
     issue.noNeedBy = '';
     issue.noNeedAt = '';
     issue.undoBy = '协调员';
@@ -2157,11 +2438,13 @@ function confirmUndoIssue() {
     pendingUndoIssueId = null;
     pendingUndoAction = null;
     closeModal('undoIssueModal');
-    showToast(`${actionText}已完成，问题已恢复为待复核。`);
+    showToast(`${actionText}已完成，问题已恢复为${issue.reviewStatus}。`);
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function requestDeleteIssue(issueId) {
     pendingDeleteIssueId = issueId;
+    document.getElementById('deleteModalTitle').textContent = '删除问题并保留日志';
+    document.getElementById('deleteModalTip').textContent = '删除后该问题不再作为待关闭问题阻断通过，但系统会保留删除人、时间和原因。';
     document.getElementById('deleteReasonInput').value = '';
     validateDeleteReason();
     document.getElementById('deleteModal').classList.add('active');
@@ -2173,11 +2456,12 @@ function validateDeleteReason() {
 }
 function confirmDeleteIssue() {
     const reason = document.getElementById('deleteReasonInput').value.trim();
-    const issue = issues.find(item => item.id === pendingDeleteIssueId);
+    const issue = issues.find(item => item.id === pendingDeleteIssueId && item.status !== 'deleted');
     if (!issue || reason.length < 5) return;
+    const deletedAt = new Date().toLocaleString('zh-CN', { hour12: false });
     issue.status = 'deleted';
     addIssueLog(issue, '删除问题', reason);
-    deletedIssueLogs.push({ ...issue, deletedBy: '协调员', deletedAt: new Date().toLocaleString('zh-CN', { hour12: false }), deleteReason: reason });
+    deletedIssueLogs.push({ ...issue, deletedBy: '协调员', deletedAt, deleteReason: reason });
     pendingDeleteIssueId = null;
     closeModal('deleteModal');
     showToast('问题已删除，并保留处理日志。');
@@ -2221,7 +2505,6 @@ function openReplaceExpertModal(expertId) {
     if (!expert) return;
     pendingReplaceExpertId = expertId;
     const relatedIssues = getIssuesForExpert(expert);
-    const candidates = getReplacementCandidates(expert);
     const issueMaterials = Array.from(new Set(relatedIssues.map(issue => {
         const material = getMaterialById(issue.materialId);
         return material ? material.materialName : '未知材料';
@@ -2231,12 +2514,6 @@ function openReplaceExpertModal(expertId) {
         <div><strong>负责体系：</strong>${expert.systems.join('、')}</div>
         <div><strong>已提出/跟进问题：</strong>${relatedIssues.length} 项${issueMaterials.length ? `，涉及 ${escapeHtml(issueMaterials.slice(0, 3).join('、'))}${issueMaterials.length > 3 ? '等材料' : ''}` : ''}</div>
     `;
-    document.getElementById('replacementExpertInput').innerHTML = candidates.length
-        ? '<option value="">请选择接替专家</option>' + candidates.map(candidate => {
-            const assignedTag = assignedExperts.some(item => item.id === candidate.id) ? '｜已在本任务' : '';
-            return `<option value="${candidate.id}">${escapeHtml(candidate.name)}｜${escapeHtml(candidate.org)}｜${candidate.systems.join('/')}${assignedTag}</option>`;
-        }).join('')
-        : '<option value="">暂无可覆盖原专家全部体系的候选专家</option>';
     document.getElementById('replacementReasonInput').value = '';
     document.getElementById('replacementReasonCount').textContent = '0字';
     document.getElementById('replaceExpertModal').classList.add('active');
@@ -2244,54 +2521,27 @@ function openReplaceExpertModal(expertId) {
 }
 function validateReplacementModal() {
     const reason = document.getElementById('replacementReasonInput').value.trim();
-    const selectedExpertId = document.getElementById('replacementExpertInput').value;
     document.getElementById('replacementReasonCount').textContent = `${reason.length}字`;
-    document.getElementById('confirmReplacementBtn').disabled = !selectedExpertId || reason.length < 5;
+    document.getElementById('confirmReplacementBtn').disabled = reason.length < 5;
 }
 function confirmExpertReplacement() {
     const oldExpert = assignedExperts.find(item => item.id === pendingReplaceExpertId);
-    const selectedExpert = EXPERT_CANDIDATES.find(item => item.id === document.getElementById('replacementExpertInput').value);
     const reason = document.getElementById('replacementReasonInput').value.trim();
-    if (!oldExpert || !selectedExpert || reason.length < 5) return;
+    if (!oldExpert || reason.length < 5) return;
     const relatedIssues = getIssuesForExpert(oldExpert);
-    relatedIssues.forEach(issue => {
-        issue.followUpExpertId = selectedExpert.id;
-        issue.followUpExpertName = selectedExpert.name;
-        issue.transferFromExpert = oldExpert.name;
-        issue.transferReason = reason;
-    });
-    const replacedAt = new Date().toLocaleString('zh-CN', { hour12: false });
+    const revokedAt = new Date().toLocaleString('zh-CN', { hour12: false });
     assignedExperts = assignedExperts.filter(item => item.id !== oldExpert.id);
-    const existingExpert = assignedExperts.find(item => item.id === selectedExpert.id);
-    if (existingExpert) {
-        existingExpert.systems = Array.from(new Set([...existingExpert.systems, ...oldExpert.systems]));
-        existingExpert.replacedFrom = existingExpert.replacedFrom ? `${existingExpert.replacedFrom}、${oldExpert.name}` : oldExpert.name;
-        existingExpert.replacedAt = replacedAt;
-        existingExpert.reviewStatus = 'reviewing';
-    } else {
-        assignedExperts.push({
-            id: selectedExpert.id,
-            name: selectedExpert.name,
-            org: selectedExpert.org,
-            systems: oldExpert.systems,
-            assignedAt: replacedAt,
-            replacedAt,
-            replacedFrom: oldExpert.name,
-            reviewStatus: 'reviewing'
-        });
-    }
     expertAdjustmentLogs.push({
+        action: 'revoked',
         oldExpertId: oldExpert.id,
         oldExpertName: oldExpert.name,
-        newExpertId: selectedExpert.id,
-        newExpertName: selectedExpert.name,
         systems: oldExpert.systems,
         issueCount: relatedIssues.length,
         reason,
-        createdAt: replacedAt
+        createdAt: revokedAt
     });
     closeModal('replaceExpertModal');
-    showToast(`已将 ${oldExpert.name} 替换为 ${selectedExpert.name}，${relatedIssues.length} 项问题已保留并转交跟进。`);
+    showToast(`已撤销 ${oldExpert.name} 的指派，${relatedIssues.length} 项问题已保留。`);
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function getSelectedSystemsForCandidate(expertId) {
@@ -2319,46 +2569,62 @@ function getSelectedCandidateExperts() {
 function renderCoveragePreview() {
     const selected = getSelectedCandidateExperts();
     const coverage = collectCoverage(selected);
+    const missingText = coverage.missingSystems.map(system => `${system} ${SYSTEM_META[system].short}`).join('、');
     document.getElementById('coveragePreview').innerHTML = `
-        <div class="console-card" style="margin:0;">
-            <div class="console-card-header"><span>覆盖校验</span></div>
-            <div class="console-card-body">
-                ${PROJECT_SYSTEMS.map(system => `<div class="coverage-row"><span class="coverage-left"><span class="system-tag-mini ${system}">${system}</span>${SYSTEM_META[system].name}</span><span class="coverage-chip ${coverage.coveredSystems.has(system) ? 'covered' : 'missing'}">${coverage.coveredSystems.has(system) ? '已覆盖' : '缺专家'}</span></div>`).join('')}
-                <div class="task-next-step" style="border-color:${coverage.complete ? '#B8E8D7' : '#FFD5A8'};background:${coverage.complete ? '#E6F7F1' : '#FFF3E5'};color:${coverage.complete ? '#00875A' : '#C46000'};">${coverage.complete ? '已覆盖所有项目体系，可以确认指派。' : '仍有项目体系未覆盖，不能确认指派。'}</div>
+        <div class="expert-coverage-panel">
+            <div class="expert-coverage-title">覆盖校验</div>
+            <div class="expert-coverage-grid">
+                ${PROJECT_SYSTEMS.map(system => `
+                    <div class="expert-coverage-item">
+                        <span class="expert-system-name"><span class="system-tag-mini ${system}">${system}</span>${SYSTEM_META[system].name}</span>
+                        <span class="coverage-chip ${coverage.coveredSystems.has(system) ? 'covered' : 'missing'}">${coverage.coveredSystems.has(system) ? '已覆盖' : '缺专家'}</span>
+                    </div>
+                `).join('')}
             </div>
+            <div class="expert-coverage-note">${coverage.complete ? '已覆盖所有项目体系，可以确认指派。' : `当前为部分覆盖，可先确认已选择专家，未覆盖体系${missingText ? `（${missingText}）` : ''}后续继续补派。`}</div>
         </div>`;
-    document.getElementById('confirmExpertBtn').disabled = !coverage.complete || selected.length === 0;
+    document.getElementById('confirmExpertBtn').disabled = selected.length === 0;
+}
+function resetExpertFilters() {
+    document.getElementById('expertDomainFilter').value = '';
+    document.getElementById('expertNameFilter').value = '';
+    document.getElementById('expertOrgFilter').value = '';
+    renderExpertCandidates();
 }
 function renderExpertCandidates() {
     const domain = document.getElementById('expertDomainFilter').value;
     const name = document.getElementById('expertNameFilter').value.trim().toLowerCase();
     const org = document.getElementById('expertOrgFilter').value.trim().toLowerCase();
-    const rows = EXPERT_CANDIDATES.filter(expert => !assignedExperts.some(item => item.id === expert.id)).filter(expert => {
+    const candidates = EXPERT_CANDIDATES.filter(expert => !assignedExperts.some(item => item.id === expert.id)).filter(expert => {
         if (domain && !expert.systems.includes(domain)) return false;
         if (name && !expert.name.toLowerCase().includes(name)) return false;
         if (org && !expert.org.toLowerCase().includes(org)) return false;
         return true;
-    }).map(expert => {
+    });
+    const rows = candidates.map(expert => {
         const systemOptions = expert.systems.map(system => `
-            <label style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;cursor:pointer;">
+            <label class="expert-system-option">
                 <input type="checkbox" name="candidateSystems-${expert.id}" value="${system}" onchange="syncCandidateExpertCheck('${expert.id}')">
-                <span class="system-badge-table ${system}">${system}</span>
+                <span class="system-badge-table ${system}">${system}</span>${SYSTEM_META[system].name}
             </label>`).join('');
         return `
         <tr>
             <td><input type="checkbox" name="candidateExpert" value="${expert.id}" onchange="toggleCandidateSystems('${expert.id}', this.checked)"></td>
             <td>${escapeHtml(expert.name)}</td>
             <td>${escapeHtml(expert.org)}</td>
-            <td><div class="systems-cell">${renderSystemBadges(expert.systems, 'system-badge-table')}</div></td>
-            <td>${systemOptions}</td>
+            <td><div class="expert-systems-picker">${systemOptions}</div></td>
+            <td>${expert.activeProjects || 0}个</td>
+            <td>${escapeHtml(expert.dueDate || '-')}</td>
         </tr>`;
     }).join('');
-    document.getElementById('expertCandidateBody').innerHTML = rows || '<tr><td colspan="5"><div class="empty-state" style="padding:20px;">暂无符合条件的专家</div></td></tr>';
+    document.getElementById('expertCandidateBody').innerHTML = rows || '<tr><td colspan="6"><div class="empty-state" style="padding:20px;">暂无符合条件的专家</div></td></tr>';
+    const end = candidates.length ? candidates.length : 0;
+    document.getElementById('expertPaginationInfo').textContent = `共 ${candidates.length} 条，当前 ${candidates.length ? 1 : 0}-${end} 条，每页 10 条`;
     renderCoveragePreview();
 }
 function confirmExpertSelection() {
     const selected = getSelectedCandidateExperts();
-    if (!selected.length || !collectCoverage(selected).complete) return;
+    if (!selected.length) return;
     const assignedAt = new Date().toLocaleString('zh-CN', { hour12: false });
     selected.forEach(expert => assignedExperts.push({
         id: expert.id,

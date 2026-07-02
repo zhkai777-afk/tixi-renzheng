@@ -520,6 +520,17 @@
             background: #fff;
             overflow: hidden;
         }
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #d4dae5;
+            border-radius: 999px;
+        }
         .material-table-header, .panel-card-header {
             min-height: 56px;
             padding: 0 16px;
@@ -546,6 +557,9 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+        }
+        .material-data-table.issue-table {
+            min-width: 1120px;
         }
         .material-data-table th {
             height: 42px;
@@ -598,6 +612,25 @@
         }
         .source-tag.expert { background: #E8F1FF; color: var(--qms-color); }
         .source-tag.coordinator { background: #F2F3F5; color: rgba(0,0,0,.64); }
+        .return-status-tag {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            margin-top: 6px;
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .return-status-tag.pending { background: #FFF3E5; color: #C46000; }
+        .return-status-tag.returned { background: #FFEBED; color: var(--reject-color); }
+        .row-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
         .issue-type-tag {
             display: inline-flex;
             height: 22px;
@@ -780,6 +813,10 @@
             display: flex;
             justify-content: flex-end;
             gap: 8px;
+        }
+        .expert-list-toggle {
+            width: 100%;
+            margin-top: 12px;
         }
         .transfer-summary {
             border: 1px solid #FFD5A8;
@@ -970,7 +1007,6 @@
             </div>
             <div class="header-actions">
                 <button class="t-button btn-outline" onclick="openExpertModal()">指派专家</button>
-                <button class="t-button btn-danger" id="headerRejectBtn" onclick="openDecisionModal('reject')" disabled>退回任务</button>
                 <button class="t-button btn-success" id="headerPassBtn" onclick="openDecisionModal('pass')" disabled>通过初评</button>
             </div>
         </div>
@@ -1159,25 +1195,23 @@
 <div class="modal-mask" id="replaceExpertModal">
     <div class="modal">
         <div class="modal-header">
-            <span>替换专家并转交问题</span>
+            <span>撤销专家指派</span>
             <button class="t-button btn-text" onclick="closeModal('replaceExpertModal')">关闭</button>
         </div>
         <div class="modal-body">
             <div class="transfer-summary" id="replaceExpertSummary"></div>
             <div class="transfer-policy">
-                默认规则：保留原专家已提出的有效问题，问题来源仍显示原专家；后续跟进责任转交给新专家，并记录专家调整日志。
+                撤销后该专家已提出的有效问题会继续保留，问题来源仍显示原专家；任务会重新计算专家覆盖，缺失体系需另行补齐。
             </div>
-            <label class="form-label">接替专家</label>
-            <select id="replacementExpertInput" onchange="validateReplacementModal()"></select>
             <div style="margin-top:14px;">
-                <label class="form-label">调整原因（至少5字）</label>
-                <textarea class="form-textarea" id="replacementReasonInput" placeholder="请填写替换原因，例如专家无法继续评定、授权范围调整、误派需更正等" oninput="validateReplacementModal()"></textarea>
+                <label class="form-label">撤销原因（至少5字）</label>
+                <textarea class="form-textarea" id="replacementReasonInput" placeholder="请填写撤销原因，例如专家无法继续评定、授权范围调整、误派需更正等" oninput="validateReplacementModal()"></textarea>
                 <div class="char-count" id="replacementReasonCount">0字</div>
             </div>
         </div>
         <div class="modal-footer">
             <button class="t-button btn-outline" onclick="closeModal('replaceExpertModal')">取消</button>
-            <button class="t-button btn-primary" id="confirmReplacementBtn" onclick="confirmExpertReplacement()" disabled>确认替换并转交</button>
+            <button class="t-button btn-danger" id="confirmReplacementBtn" onclick="confirmExpertReplacement()" disabled>确认撤销指派</button>
         </div>
     </div>
 </div>
@@ -1238,6 +1272,7 @@ let pendingDecision = null;
 let pendingReplaceExpertId = null;
 let taskDecisionStatus = 'active';
 let toastTimer = null;
+let expertCoverageExpanded = false;
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1330,9 +1365,9 @@ function initData() {
     expertReviewStarted = true;
     expertReviewCompleted = false;
     issues = [
-        { id: 1, type: '材料问题', description: '认证范围描述不够具体，需补充详细业务流程说明。', systems: ['Q','E'], submitter: '刘建国', source: '专家提出', materialId: 'MSF11-20-003', status: 'active', createdAt: '2026-04-02 10:30:15' },
-        { id: 2, type: '补充材料', description: '营业执照地址与审核计划中的场所描述不一致，需补充场所划分或租赁证明。', systems: ['E','S'], submitter: '张明', source: '专家提出', materialId: 'MSF11-20-009', status: 'active', createdAt: '2026-04-02 14:15:22' },
-        { id: 3, type: '补充审核', description: '食品安全检测报告对应批次与审核报告描述不一致，需补充核查记录说明。', systems: ['F'], submitter: '协调员', source: '协调员登记', materialId: 'MSF11-20-031', status: 'active', createdAt: '2026-04-02 16:20:00' }
+        { id: 1, type: '材料问题', description: '认证范围描述不够具体，需补充详细业务流程说明。', systems: ['Q','E'], submitter: '刘建国', source: '专家提出', materialId: 'MSF11-20-003', status: 'active', returnStatus: 'pending', createdAt: '2026-04-02 10:30:15' },
+        { id: 2, type: '补充材料', description: '营业执照地址与审核计划中的场所描述不一致，需补充场所划分或租赁证明。', systems: ['E','S'], submitter: '张明', source: '专家提出', materialId: 'MSF11-20-009', status: 'active', returnStatus: 'pending', createdAt: '2026-04-02 14:15:22' },
+        { id: 3, type: '补充审核', description: '食品安全检测报告对应批次与审核报告描述不一致，需补充核查记录说明。', systems: ['F'], submitter: '协调员', source: '协调员登记', materialId: 'MSF11-20-031', status: 'active', returnStatus: 'pending', createdAt: '2026-04-02 16:20:00' }
     ];
 }
 function getMaterialById(id) {
@@ -1438,7 +1473,6 @@ function renderMaterialNav() {
         <div class="material-group">
             <div class="material-item ${currentMaterialId === 'all' ? 'active' : ''}" onclick="showAllMaterials()">
                 <div class="item-name" style="font-weight:700;">全部材料跨体系视图</div>
-                <div class="item-systems">${renderSystemBadges(PROJECT_SYSTEMS)}</div>
                 <div class="material-summary-meta">
                     <span>${summaryText}</span>
                     <span class="file-count-pill ${currentStatusFilter === 'missing' ? 'empty' : ''}">${summaryFileText}</span>
@@ -1463,7 +1497,6 @@ function renderMaterialNav() {
                         return `
                             <div class="material-item ${currentMaterialId === item.id ? 'active' : ''}" onclick="switchMaterial('${item.id}')">
                                 <div class="item-name">${escapeHtml(item.materialName)}</div>
-                                <div class="item-systems">${renderSystemBadges(item.applicableSystems)}</div>
                                 <div class="item-meta">
                                     <span>${escapeHtml(tag || CATEGORY_LABELS[item.category] || item.category)}</span>
                                     <span class="material-item-status">
@@ -1578,6 +1611,7 @@ function renderIssuesTable(scopeMaterialId = null) {
     const rows = scopedIssues.map((issue, index) => {
         const material = getMaterialById(issue.materialId);
         const typeClass = issue.type === '补充材料' ? 'supplement' : issue.type === '补充审核' ? 'audit' : 'material';
+        const hasReturned = issue.returnStatus === 'returned';
         return `
             <tr>
                 <td>${index + 1}</td>
@@ -1588,9 +1622,15 @@ function renderIssuesTable(scopeMaterialId = null) {
                 <td>
                     <span class="source-tag ${issue.source === '专家提出' ? 'expert' : 'coordinator'}">${escapeHtml(issue.source)}</span>
                     <div class="file-parent-text">${escapeHtml(issue.submitter)} · ${escapeHtml(issue.createdAt || '-')}</div>
+                    <span class="return-status-tag ${hasReturned ? 'returned' : 'pending'}">${hasReturned ? '已退回' : '待退回'}</span>
                     ${issue.followUpExpertName ? `<div class="file-parent-text">当前跟进：${escapeHtml(issue.followUpExpertName)}</div>` : ''}
                 </td>
-                <td><button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id})">删除</button></td>
+                <td>
+                    <div class="row-actions">
+                        <button class="t-button btn-danger btn-small" onclick="requestReturnIssue(${issue.id})" ${hasReturned ? 'disabled' : ''}>退回</button>
+                        <button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id})" ${hasReturned ? 'disabled' : ''}>删除</button>
+                    </div>
+                </td>
             </tr>`;
     }).join('');
     const title = scopeMaterialId ? '当前材料问题清单' : `问题清单 ${currentSystemFilter !== 'all' ? '(' + currentSystemFilter + ')' : '(全部)'}`;
@@ -1600,10 +1640,12 @@ function renderIssuesTable(scopeMaterialId = null) {
                 <div><span>${title}</span><span class="header-meta" style="margin-left:8px;">当前有效 ${scopedIssues.length} 项</span></div>
                 <div class="issue-toolbar-actions"><button class="t-button btn-primary btn-small" onclick="openIssueModal('${scopeMaterialId || currentMaterialId}')">登记问题</button></div>
             </div>
-            <table class="material-data-table">
-                <thead><tr><th style="width:6%;">序号</th><th style="width:11%;">问题类型</th><th style="width:28%;">问题描述</th><th style="width:17%;">所属材料</th><th style="width:12%;">涉及体系</th><th style="width:16%;">来源/提交人</th><th style="width:10%;">操作</th></tr></thead>
-                <tbody>${rows || '<tr><td colspan="7"><div class="empty-state">暂无有效问题。专家提出或协调员登记后会显示在这里。</div></td></tr>'}</tbody>
-            </table>
+            <div class="table-scroll">
+                <table class="material-data-table issue-table">
+                    <thead><tr><th style="width:6%;">序号</th><th style="width:11%;">问题类型</th><th style="width:25%;">问题描述</th><th style="width:16%;">所属材料</th><th style="width:11%;">涉及体系</th><th style="width:17%;">来源/提交人</th><th style="width:14%;">操作</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="7"><div class="empty-state">暂无有效问题。专家提出或协调员登记后会显示在这里。</div></td></tr>'}</tbody>
+                </table>
+            </div>
         </div>`;
 }
 function renderFilesTable(materialList, scopedMaterial = null) {
@@ -1685,7 +1727,6 @@ function renderRightConsole() {
         </div>`).join('');
     const expertCards = assignedExperts.map(expert => {
         const expertIssues = getIssuesForExpert(expert);
-        const replacementCandidates = getReplacementCandidates(expert);
         const reviewStatus = expert.reviewStatus === 'submitted'
             ? { key: 'submitted', text: '已提交评审结果' }
             : { key: 'reviewing', text: '评审中' };
@@ -1704,15 +1745,18 @@ function renderRightConsole() {
                 关联有效问题：${expertIssues.length}项${expert.replacedFrom ? ` · 接替 ${escapeHtml(expert.replacedFrom)}` : ''}
             </div>
             <div class="expert-actions">
-                <button class="t-button btn-outline btn-small" onclick="openReplaceExpertModal('${expert.id}')" ${replacementCandidates.length ? '' : 'disabled'}>${expertIssues.length ? '替换并转交' : '替换专家'}</button>
+                <button class="t-button btn-outline btn-small" onclick="openReplaceExpertModal('${expert.id}')">撤销指派</button>
             </div>
         </div>`;
     }).join('');
+    const expertList = expertCoverageExpanded
+        ? `<div style="margin-top:12px;">${expertCards || '<div class="empty-state" style="padding:18px;">暂未指派专家</div>'}</div>`
+        : '';
     const deleteLogs = deletedIssueLogs.slice(-3).reverse().map(log => `<div class="blocker-item">已删除：${escapeHtml(log.type)} · ${escapeHtml(log.deleteReason)}</div>`).join('');
     const adjustmentLogs = expertAdjustmentLogs.slice(-3).reverse().map(log => `
         <div class="blocker-item">
-            ${escapeHtml(log.oldExpertName)} → ${escapeHtml(log.newExpertName)} · 负责体系：${log.systems.join('、')} · 转交 ${log.issueCount} 项问题<br>
-            <span style="color:#64748B;">替换时间：${escapeHtml(log.createdAt)} · ${escapeHtml(log.reason)}</span>
+            ${escapeHtml(log.oldExpertName)} · 已撤销指派 · 负责体系：${log.systems.join('、')} · 保留 ${log.issueCount} 项问题<br>
+            <span style="color:#64748B;">撤销时间：${escapeHtml(log.createdAt)} · ${escapeHtml(log.reason)}</span>
         </div>`).join('');
     document.getElementById('rightConsole').innerHTML = `
         <div class="console-card">
@@ -1725,7 +1769,11 @@ function renderRightConsole() {
         </div>
         <div class="console-card">
             <div class="console-card-header"><span>专家覆盖</span><button class="t-button btn-outline btn-small" onclick="openExpertModal()">调整</button></div>
-            <div class="console-card-body">${coverageRows}<div style="margin-top:12px;">${expertCards || '<div class="empty-state" style="padding:18px;">暂未指派专家</div>'}</div></div>
+            <div class="console-card-body">
+                ${coverageRows}
+                <button class="t-button btn-outline btn-small expert-list-toggle" onclick="toggleExpertCoverageDetail()">${expertCoverageExpanded ? '收起具体专家' : '展开具体专家'}</button>
+                ${expertList}
+            </div>
         </div>
         <div class="console-card">
             <div class="console-card-header"><span>初评判断</span></div>
@@ -1748,18 +1796,20 @@ function renderRightConsole() {
         ${deletedIssueLogs.length ? `<div class="console-card"><div class="console-card-header"><span>删除日志</span></div><div class="console-card-body">${deleteLogs}</div></div>` : ''}
     `;
 }
+function toggleExpertCoverageDetail() {
+    expertCoverageExpanded = !expertCoverageExpanded;
+    renderRightConsole();
+}
 function updateHeaderState() {
     const taskState = getTaskState();
     const coverage = collectCoverage();
     const activeIssues = getActiveIssues();
     const isTaskClosed = taskDecisionStatus !== 'active';
     const canPass = !isTaskClosed && coverage.complete && expertReviewCompleted && activeIssues.length === 0;
-    const canReject = !isTaskClosed && activeIssues.length > 0;
     const headerPill = document.getElementById('headerStatePill');
     headerPill.textContent = taskState.text;
     headerPill.className = `status-pill ${taskState.key}`;
     document.getElementById('headerPassBtn').disabled = !canPass;
-    document.getElementById('headerRejectBtn').disabled = !canReject;
     document.getElementById('projectTip').textContent = taskState.next;
     renderGlobalStatsStrip();
     renderMaterialNav();
@@ -1805,6 +1855,7 @@ function confirmIssueRegistration() {
         source: '协调员登记',
         materialId,
         status: 'active',
+        returnStatus: 'pending',
         createdAt: new Date().toLocaleString('zh-CN', { hour12: false }),
         attachment: document.getElementById('issueAttachmentInput').value.trim()
     });
@@ -1813,10 +1864,28 @@ function confirmIssueRegistration() {
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function requestDeleteIssue(issueId) {
+    const issue = issues.find(item => item.id === issueId);
+    if (issue && issue.returnStatus === 'returned') {
+        showToast('该问题已退回，不能删除。');
+        return;
+    }
     pendingDeleteIssueId = issueId;
     document.getElementById('deleteReasonInput').value = '';
     validateDeleteReason();
     document.getElementById('deleteModal').classList.add('active');
+}
+function requestReturnIssue(issueId) {
+    const issue = issues.find(item => item.id === issueId);
+    if (!issue) return;
+    if (issue.returnStatus === 'returned') {
+        showToast('该问题已退回，无需重复退回。');
+        return;
+    }
+    issue.returnStatus = 'returned';
+    issue.returnedBy = '初评管理员';
+    issue.returnedAt = new Date().toLocaleString('zh-CN', { hour12: false });
+    showToast('该问题已标记为已退回，删除操作已锁定。');
+    currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function validateDeleteReason() {
     const reason = document.getElementById('deleteReasonInput').value.trim();
@@ -1827,6 +1896,11 @@ function confirmDeleteIssue() {
     const reason = document.getElementById('deleteReasonInput').value.trim();
     const issue = issues.find(item => item.id === pendingDeleteIssueId);
     if (!issue || reason.length < 5) return;
+    if (issue.returnStatus === 'returned') {
+        closeModal('deleteModal');
+        showToast('该问题已退回，不能删除。');
+        return;
+    }
     issue.status = 'deleted';
     deletedIssueLogs.push({ ...issue, deletedBy: '协调员', deletedAt: new Date().toLocaleString('zh-CN', { hour12: false }), deleteReason: reason });
     pendingDeleteIssueId = null;
@@ -1843,7 +1917,6 @@ function openReplaceExpertModal(expertId) {
     if (!expert) return;
     pendingReplaceExpertId = expertId;
     const relatedIssues = getIssuesForExpert(expert);
-    const candidates = getReplacementCandidates(expert);
     const issueMaterials = Array.from(new Set(relatedIssues.map(issue => {
         const material = getMaterialById(issue.materialId);
         return material ? material.materialName : '未知材料';
@@ -1851,14 +1924,8 @@ function openReplaceExpertModal(expertId) {
     document.getElementById('replaceExpertSummary').innerHTML = `
         <div><strong>原专家：</strong>${escapeHtml(expert.name)}（${escapeHtml(expert.org)}）</div>
         <div><strong>负责体系：</strong>${expert.systems.join('、')}</div>
-        <div><strong>已提出/跟进问题：</strong>${relatedIssues.length} 项${issueMaterials.length ? `，涉及 ${escapeHtml(issueMaterials.slice(0, 3).join('、'))}${issueMaterials.length > 3 ? '等材料' : ''}` : ''}</div>
+        <div><strong>已提出问题：</strong>${relatedIssues.length} 项${issueMaterials.length ? `，涉及 ${escapeHtml(issueMaterials.slice(0, 3).join('、'))}${issueMaterials.length > 3 ? '等材料' : ''}` : ''}</div>
     `;
-    document.getElementById('replacementExpertInput').innerHTML = candidates.length
-        ? '<option value="">请选择接替专家</option>' + candidates.map(candidate => {
-            const assignedTag = assignedExperts.some(item => item.id === candidate.id) ? '｜已在本任务' : '';
-            return `<option value="${candidate.id}">${escapeHtml(candidate.name)}｜${escapeHtml(candidate.org)}｜${candidate.systems.join('/')}${assignedTag}</option>`;
-        }).join('')
-        : '<option value="">暂无可覆盖原专家全部体系的候选专家</option>';
     document.getElementById('replacementReasonInput').value = '';
     document.getElementById('replacementReasonCount').textContent = '0字';
     document.getElementById('replaceExpertModal').classList.add('active');
@@ -1866,54 +1933,27 @@ function openReplaceExpertModal(expertId) {
 }
 function validateReplacementModal() {
     const reason = document.getElementById('replacementReasonInput').value.trim();
-    const selectedExpertId = document.getElementById('replacementExpertInput').value;
     document.getElementById('replacementReasonCount').textContent = `${reason.length}字`;
-    document.getElementById('confirmReplacementBtn').disabled = !selectedExpertId || reason.length < 5;
+    document.getElementById('confirmReplacementBtn').disabled = reason.length < 5;
 }
 function confirmExpertReplacement() {
     const oldExpert = assignedExperts.find(item => item.id === pendingReplaceExpertId);
-    const selectedExpert = EXPERT_CANDIDATES.find(item => item.id === document.getElementById('replacementExpertInput').value);
     const reason = document.getElementById('replacementReasonInput').value.trim();
-    if (!oldExpert || !selectedExpert || reason.length < 5) return;
+    if (!oldExpert || reason.length < 5) return;
     const relatedIssues = getIssuesForExpert(oldExpert);
-    relatedIssues.forEach(issue => {
-        issue.followUpExpertId = selectedExpert.id;
-        issue.followUpExpertName = selectedExpert.name;
-        issue.transferFromExpert = oldExpert.name;
-        issue.transferReason = reason;
-    });
-    const replacedAt = new Date().toLocaleString('zh-CN', { hour12: false });
+    const revokedAt = new Date().toLocaleString('zh-CN', { hour12: false });
     assignedExperts = assignedExperts.filter(item => item.id !== oldExpert.id);
-    const existingExpert = assignedExperts.find(item => item.id === selectedExpert.id);
-    if (existingExpert) {
-        existingExpert.systems = Array.from(new Set([...existingExpert.systems, ...oldExpert.systems]));
-        existingExpert.replacedFrom = existingExpert.replacedFrom ? `${existingExpert.replacedFrom}、${oldExpert.name}` : oldExpert.name;
-        existingExpert.replacedAt = replacedAt;
-        existingExpert.reviewStatus = 'reviewing';
-    } else {
-        assignedExperts.push({
-            id: selectedExpert.id,
-            name: selectedExpert.name,
-            org: selectedExpert.org,
-            systems: oldExpert.systems,
-            assignedAt: replacedAt,
-            replacedAt,
-            replacedFrom: oldExpert.name,
-            reviewStatus: 'reviewing'
-        });
-    }
     expertAdjustmentLogs.push({
+        action: 'revoked',
         oldExpertId: oldExpert.id,
         oldExpertName: oldExpert.name,
-        newExpertId: selectedExpert.id,
-        newExpertName: selectedExpert.name,
         systems: oldExpert.systems,
         issueCount: relatedIssues.length,
         reason,
-        createdAt: replacedAt
+        createdAt: revokedAt
     });
     closeModal('replaceExpertModal');
-    showToast(`已将 ${oldExpert.name} 替换为 ${selectedExpert.name}，${relatedIssues.length} 项问题已保留并转交跟进。`);
+    showToast(`已撤销 ${oldExpert.name} 的指派，${relatedIssues.length} 项问题已保留。`);
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function getSelectedSystemsForCandidate(expertId) {
@@ -2012,6 +2052,7 @@ function simulateExpertIssue() {
         source: '专家提出',
         materialId: 'MSF11-20-046',
         status: 'active',
+        returnStatus: 'pending',
         createdAt: new Date().toLocaleString('zh-CN', { hour12: false })
     });
     showToast('已模拟专家提出一项问题。');
