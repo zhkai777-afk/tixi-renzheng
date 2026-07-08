@@ -1,10 +1,6 @@
 (function () {
     const scriptUrl = document.currentScript && document.currentScript.src ? document.currentScript.src : "";
     const PDF_BASE = scriptUrl ? new URL("output/pdf/", scriptUrl).href : "output/pdf/";
-    const PDF_MAPPING_URL = scriptUrl ? new URL("pdf-url-mapping.csv", scriptUrl).href : "pdf-url-mapping.csv";
-    const PDF_URL_MAP = new Map();
-    let pdfUrlMappingLoaded = false;
-    let pdfUrlMappingPromise = null;
     const PDF_FILES = [
         "MSF11-13 核查记录表（2015版）最新勘误.pdf",
         "MSF11-04 管理体系过程清单（2019.9.5修订）.pdf",
@@ -94,91 +90,6 @@
         return matched ? matched[1] : "MSF11-20+审核材料归档上报清单（2025.12.31修订）.pdf";
     }
 
-    function parseCsvLine(line) {
-        const cells = [];
-        let current = "";
-        let quoted = false;
-        for (let i = 0; i < line.length; i += 1) {
-            const char = line[i];
-            const next = line[i + 1];
-            if (char === '"' && quoted && next === '"') {
-                current += '"';
-                i += 1;
-            } else if (char === '"') {
-                quoted = !quoted;
-            } else if (char === "," && !quoted) {
-                cells.push(current);
-                current = "";
-            } else {
-                current += char;
-            }
-        }
-        cells.push(current);
-        return cells.map(cell => cell.trim());
-    }
-
-    function stripBom(value) {
-        return String(value || "").replace(/^\uFEFF/, "");
-    }
-
-    function normalizeFileKey(value) {
-        return stripBom(value)
-            .trim()
-            .replace(/\\/g, "/")
-            .split("/")
-            .pop()
-            .replace(/\.pdf$/i, "")
-            .replace(/\s+/g, "")
-            .toLowerCase();
-    }
-
-    function registerPdfUrl(fileName, url) {
-        const cleanName = stripBom(fileName).trim();
-        const cleanUrl = String(url || "").trim();
-        if (!cleanName || !cleanUrl) return;
-        PDF_URL_MAP.set(cleanName, cleanUrl);
-        PDF_URL_MAP.set(normalizeFileKey(cleanName), cleanUrl);
-    }
-
-    function findColumnIndex(headers, candidates, fallbackIndex) {
-        const normalizedHeaders = headers.map(header => stripBom(header).trim());
-        const index = normalizedHeaders.findIndex(header => candidates.includes(header));
-        return index >= 0 ? index : fallbackIndex;
-    }
-
-    function loadPdfUrlMapping() {
-        if (pdfUrlMappingPromise) return pdfUrlMappingPromise;
-        pdfUrlMappingPromise = fetch(PDF_MAPPING_URL, { cache: "no-store" })
-            .then(response => {
-                if (!response.ok) throw new Error(`PDF mapping not found: ${response.status}`);
-                return response.text();
-            })
-            .then(text => {
-                let nameIndex = 1;
-                let urlIndex = 2;
-                text.split(/\r?\n/).forEach((line, index) => {
-                    if (!line.trim()) return;
-                    const cells = parseCsvLine(line);
-                    if (index === 0 && stripBom(cells[0]) === "序号") {
-                        nameIndex = findColumnIndex(cells, ["文件名", "PDF文件名", "pdf文件名"], 1);
-                        urlIndex = findColumnIndex(cells, ["访问地址", "URL", "url", "链接", "预览地址"], 2);
-                        return;
-                    }
-                    registerPdfUrl(cells[nameIndex], cells[urlIndex]);
-                });
-                pdfUrlMappingLoaded = true;
-            })
-            .catch(error => {
-                console.warn("[pdf-preview] 使用本地 PDF 兜底，远程映射未加载：", error);
-                pdfUrlMappingLoaded = true;
-            });
-        return pdfUrlMappingPromise;
-    }
-
-    function resolveRemotePdfUrl(pdfFile) {
-        return PDF_URL_MAP.get(pdfFile) || PDF_URL_MAP.get(normalizeFileKey(pdfFile)) || "";
-    }
-
     function withPdfViewerParams(url) {
         if (!url) return "";
         if (url.includes("#")) return url;
@@ -186,19 +97,11 @@
     }
 
     function resolvePdfUrl(pdfFile) {
-        const remoteUrl = resolveRemotePdfUrl(pdfFile);
-        if (remoteUrl) {
-            return {
-                url: withPdfViewerParams(remoteUrl),
-                displayUrl: remoteUrl,
-                sourceLabel: "远程访问链接"
-            };
-        }
         const localUrl = `${PDF_BASE}${encodeURIComponent(pdfFile)}`;
         return {
             url: withPdfViewerParams(localUrl),
             displayUrl: `${PDF_BASE}${pdfFile}`,
-            sourceLabel: "本地兜底路径"
+            sourceLabel: "项目本地 PDF"
         };
     }
 
@@ -245,8 +148,7 @@
         return mask;
     }
 
-    async function openProjectPdfPreview(fileName, options = {}) {
-        await loadPdfUrlMapping();
+    function openProjectPdfPreview(fileName, options = {}) {
         const businessName = normalizeName(fileName);
         const pdfFile = resolvePdfFile(options.pdfName || businessName);
         const pdfTarget = resolvePdfUrl(pdfFile);
@@ -285,12 +187,8 @@
     });
 
     window.PROJECT_PDF_FILES = PDF_FILES.slice();
-    window.PROJECT_PDF_URL_MAP = PDF_URL_MAP;
-    window.loadProjectPdfUrlMapping = loadPdfUrlMapping;
     window.resolveProjectPdfFile = resolvePdfFile;
     window.openProjectPdfPreview = openProjectPdfPreview;
     window.closeProjectPdfPreview = closeProjectPdfPreview;
     window.renderProjectPdfInline = renderProjectPdfInline;
-
-    loadPdfUrlMapping();
 }());
