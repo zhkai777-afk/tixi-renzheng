@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>归档材料提交 - 自适应工作台</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1017,7 +1018,7 @@ function confirmSubmit() {
     showToast("已提交初次评定，任务状态已更新为“初次评定”。");
 }
 function previewFile(name) {
-    showToast(`已打开预览：${name}`);
+    openProjectPdfPreview(name);
 }
 function firstMissingMaterial() {
     return stats().missing[0];
@@ -1064,5 +1065,6 @@ async function boot() {
 }
 boot();
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

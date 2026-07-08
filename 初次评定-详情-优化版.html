@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>初次评定任务详情 - 审核材料归档系统</title>
+    <link rel="stylesheet" href="pdf-preview.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
@@ -2055,7 +2056,7 @@ function confirmDecision() {
     currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
 }
 function previewFile(fileName) {
-    showToast(`正在打开文件预览：${fileName}`);
+    openProjectPdfPreview(fileName);
 }
 async function bootstrap() {
     try {
@@ -2077,5 +2078,6 @@ document.addEventListener('click', event => {
     dropdown.querySelector('.multi-select-trigger').setAttribute('aria-expanded', 'false');
 });
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

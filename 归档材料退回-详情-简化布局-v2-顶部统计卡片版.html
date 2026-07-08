@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>归档材料退回处理（简化布局 v2） - 审核材料归档系统</title>
     
     <style>
@@ -2496,7 +2497,7 @@
     let confirmResolver = null;
     let reasonResolver = null;
     let rectificationResolver = null;
-    let currentMaterialType = 'recommendation';
+    let currentMaterialType = 'all';
     let currentHistoryRecords = [];
 
     const PROJECT_SYSTEMS = ['Q', 'E', 'S', 'F'];
@@ -2762,8 +2763,7 @@
     }
 
     function getInitialReturnDetailId() {
-        const firstMaterialId = Object.keys(ISSUE_MATERIALS)[0];
-        return firstMaterialId ? ISSUE_MATERIALS[firstMaterialId].detailId : 'recommendation';
+        return 'all';
     }
 
     function showReasonModal() {
@@ -2942,6 +2942,73 @@
         const issue = ISSUE_MATERIALS[item.id];
         if (issue) return issue.fileCount;
         return item.id === 'MSF11-20-009' ? 3 : 1;
+    }
+
+    function createMockFilesForCatalogItem(item) {
+        const fileCount = getMaterialFileCount(item);
+        if (fileCount <= 0) return [];
+
+        if (item.id === 'MSF11-20-009') {
+            return [
+                {
+                    id: `${item.id}-business-license`,
+                    name: '营业执照复印件.pdf',
+                    type: 'PDF',
+                    stage: '前序环节',
+                    uploadDate: '2026-03-30 09:35',
+                    systems: item.systems,
+                    size: '1.3MB',
+                    materialName: item.name
+                },
+                {
+                    id: `${item.id}-legal-person`,
+                    name: '法人身份证明文件.pdf',
+                    type: 'PDF',
+                    stage: '前序环节',
+                    uploadDate: '2026-03-30 09:42',
+                    systems: item.systems,
+                    size: '740KB',
+                    materialName: item.name
+                },
+                {
+                    id: `${item.id}-license-copy`,
+                    name: '统一社会信用代码证照附件.pdf',
+                    type: 'PDF',
+                    stage: '前序环节',
+                    uploadDate: '2026-03-30 09:48',
+                    systems: item.systems,
+                    size: '968KB',
+                    materialName: item.name
+                }
+            ];
+        }
+
+        return [{
+            id: `${item.id}-file`,
+            name: `${item.name}.pdf`,
+            type: 'PDF',
+            stage: '前序环节',
+            uploadDate: '2026-03-30 10:20',
+            systems: item.systems,
+            size: '模拟文件',
+            materialName: item.name
+        }];
+    }
+
+    function getFilesForCatalogItem(item) {
+        const detailId = ISSUE_MATERIALS[item.id]?.detailId || item.id;
+        const section = document.getElementById('content-' + detailId);
+        if (section) {
+            return JSON.parse(section.getAttribute('data-files') || '[]').map(file => ({
+                ...file,
+                materialName: file.materialName || item.name
+            }));
+        }
+        return createMockFilesForCatalogItem(item);
+    }
+
+    function getAllMaterialFiles() {
+        return MATERIAL_CATALOG.flatMap(item => getFilesForCatalogItem(item));
     }
 
     function getCatalogItemByDetailId(detailId) {
@@ -3187,17 +3254,14 @@
         document.getElementById('contentScopeMeta').textContent = '当前汇总展示所有退回问题和已带入文件';
 
         const allProblems = [];
-        const allFiles = [];
         const allHistoryRecords = [];
+        const allFiles = getAllMaterialFiles();
         document.querySelectorAll('.material-detail-section').forEach(section => {
             const detailId = section.id.replace('content-', '');
             const material = getCatalogItemByDetailId(detailId);
             const materialName = material?.name || '归档材料';
             JSON.parse(section.getAttribute('data-problems') || '[]').forEach(problem => {
                 allProblems.push({ ...problem, materialName });
-            });
-            JSON.parse(section.getAttribute('data-files') || '[]').forEach(file => {
-                allFiles.push({ ...file, materialName });
             });
             getHistoryRecordsByDetailId(detailId).forEach(record => {
                 allHistoryRecords.push({ ...record, materialName: record.materialName || materialName });
@@ -3211,22 +3275,18 @@
     
     // 加载材料数据并渲染表格
     function loadMaterialData(materialType) {
+        if (materialType === 'all') {
+            const allItem = document.querySelector('.material-item[data-id="all"]');
+            showAllMaterials(allItem);
+            return;
+        }
+
         const section = document.getElementById('content-' + materialType);
         if (!section) {
             const catalogItem = getCatalogItemByDetailId(materialType);
-            const systems = catalogItem?.systems || ['Q','E','S','F'];
-            const fileName = `${catalogItem?.name || '归档材料'}.pdf`;
             renderProblemTable([]);
             renderHistoryTable([]);
-            renderFileTable([{
-                id: `${materialType}-file`,
-                name: fileName,
-                type: 'PDF',
-                stage: '前序环节',
-                uploadDate: '2026-03-30',
-                systems,
-                size: '1.1MB'
-            }]);
+            renderFileTable(catalogItem ? getFilesForCatalogItem(catalogItem) : []);
             return;
         }
         
@@ -3674,7 +3734,17 @@
     
     // 预览文件
     function previewFile(fileId) {
-        showToast('正在打开文件预览：' + fileId);
+        const sections = Array.from(document.querySelectorAll('.material-detail-section[data-files]'));
+        let fileName = fileId;
+        for (const section of sections) {
+            const files = JSON.parse(section.getAttribute('data-files') || '[]');
+            const file = files.find(item => item.id === fileId);
+            if (file) {
+                fileName = file.name;
+                break;
+            }
+        }
+        openProjectPdfPreview(fileName);
     }
     
     // 本地上传（行内）
@@ -3952,7 +4022,11 @@
         updateTagHighlights();
         const initialItem = Array.from(document.querySelectorAll('.material-item')).find(item => item.getAttribute('data-id') === currentMaterialType);
         if (initialItem) {
-            switchMaterial(currentMaterialType, initialItem);
+            if (currentMaterialType === 'all') {
+                showAllMaterials(initialItem);
+            } else {
+                switchMaterial(currentMaterialType, initialItem);
+            }
         } else {
             loadMaterialData(currentMaterialType);
         }
@@ -3976,6 +4050,6 @@
     `;
     document.head.appendChild(style);
 </script>
-
+<script src="pdf-preview.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>专家评审详情 - 审核材料归档系统</title>
     <style>
         * {
@@ -1328,9 +1329,9 @@
         }
 
         .preview-modal {
-            width: 1320px;
-            max-width: calc(100vw - 96px);
-            height: 88vh;
+            width: min(1680px, calc(100vw - 48px));
+            max-width: calc(100vw - 48px);
+            height: calc(100vh - 48px);
         }
 
         .preview-body {
@@ -1338,7 +1339,7 @@
             min-height: 0;
             padding: 0;
             display: grid;
-            grid-template-columns: 360px minmax(0, 1fr);
+            grid-template-columns: clamp(280px, 20vw, 340px) minmax(0, 1fr);
             overflow: hidden;
         }
 
@@ -1432,13 +1433,18 @@
         .preview-pane {
             flex: 1 1 auto;
             min-height: 0;
-            overflow-y: auto;
-            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 10px;
             background: #f5f5f5;
         }
 
         .preview-document {
-            min-height: 440px;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
             border: 1px solid #dfe7f2;
             border-radius: 8px;
             background: #fff;
@@ -1457,7 +1463,256 @@
         }
 
         .preview-document-content {
-            padding: 22px;
+            flex: 1 1 auto;
+            min-height: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-reader {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: #eef3f8;
+        }
+
+        .pdf-preview-frame {
+            width: 100%;
+            height: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: block;
+            border: 0;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .pdf-preview-fallback {
+            padding: 8px 12px;
+            flex: 0 0 auto;
+            border-top: 1px solid #dfe7f2;
+            border-right: 0;
+            border-bottom: 0;
+            border-left: 0;
+            border-radius: 0;
+            background: #f8fbff;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .pdf-preview-fallback a {
+            color: var(--q-color);
+            text-decoration: none;
+        }
+
+        .preview-issues {
+            flex: 0 0 auto;
+            max-height: 156px;
+            border-top: 1px solid #dfe7f2;
+            background: #fff;
+            overflow: auto;
+        }
+
+        .preview-issues summary {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 8px 12px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+            color: rgba(0,0,0,.85);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .preview-issues table {
+            margin: 0;
+            border: 0;
+        }
+
+        .preview-issues td {
+            padding: 9px 12px;
+            font-size: 12px;
+        }
+
+        .online-form-preview {
+            padding: 18px;
+            overflow: auto;
+            background: #fff;
+        }
+
+        .license-preview {
+            flex: 1 1 auto;
+            min-height: 0;
+            padding: 24px;
+            overflow: auto;
+            background:
+                linear-gradient(90deg, rgba(0,0,0,.025) 0 1px, transparent 1px 100%),
+                linear-gradient(#edf2f7, #e6edf5);
+            background-size: 18px 18px, auto;
+        }
+
+        .license-paper {
+            position: relative;
+            width: min(820px, 100%);
+            min-height: 1080px;
+            margin: 0 auto;
+            padding: 58px 62px 54px;
+            border: 1px solid #d8d1c4;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.92), rgba(250,247,239,.96)),
+                repeating-linear-gradient(0deg, rgba(170,150,110,.05) 0 1px, transparent 1px 18px);
+            box-shadow: 0 12px 32px rgba(31,42,61,.18);
+            color: #34302a;
+            font-family: "SimSun", "Songti SC", "Microsoft YaHei", serif;
+        }
+
+        .license-paper::before {
+            content: "模拟件";
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: rgba(185, 28, 28, .1);
+            font-size: 96px;
+            font-weight: 700;
+            letter-spacing: 18px;
+            transform: rotate(-24deg);
+            pointer-events: none;
+        }
+
+        .license-copy-mark {
+            position: absolute;
+            top: 22px;
+            right: 28px;
+            padding: 4px 10px;
+            border: 1px solid #c9bda8;
+            color: #8b7355;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .license-title {
+            text-align: center;
+            color: #8b1d1d;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: 12px;
+            line-height: 1.2;
+        }
+
+        .license-subtitle {
+            margin-top: 10px;
+            text-align: center;
+            color: #7c6a56;
+            font-size: 14px;
+            letter-spacing: 4px;
+        }
+
+        .license-code-row {
+            margin-top: 34px;
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            color: #4b4036;
+            font-size: 15px;
+        }
+
+        .license-code-row strong {
+            margin-left: 10px;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .license-grid {
+            margin-top: 26px;
+            border: 2px solid #b69b74;
+            border-bottom: 0;
+        }
+
+        .license-row {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr);
+            min-height: 52px;
+            border-bottom: 1px solid #cdb894;
+        }
+
+        .license-label {
+            padding: 14px 16px;
+            border-right: 1px solid #cdb894;
+            background: rgba(141, 92, 38, .07);
+            color: #6f5c44;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .license-value {
+            padding: 13px 18px;
+            color: #30261f;
+            font-size: 16px;
+            line-height: 1.75;
+        }
+
+        .license-value.strong {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .license-footer {
+            margin-top: 34px;
+            display: grid;
+            grid-template-columns: 150px 1fr 190px;
+            gap: 22px;
+            align-items: end;
+        }
+
+        .license-qr {
+            width: 118px;
+            height: 118px;
+            border: 1px solid #b9aa92;
+            background:
+                linear-gradient(90deg, #333 8px, transparent 8px 14px, #333 14px 22px, transparent 22px),
+                linear-gradient(#333 8px, transparent 8px 14px, #333 14px 22px, transparent 22px),
+                #fff;
+            background-size: 28px 28px;
+            opacity: .72;
+        }
+
+        .license-note {
+            color: #7a6a58;
+            font-size: 13px;
+            line-height: 1.75;
+        }
+
+        .license-stamp {
+            width: 154px;
+            height: 154px;
+            display: grid;
+            place-items: center;
+            border: 4px solid rgba(185, 28, 28, .58);
+            border-radius: 50%;
+            color: rgba(185, 28, 28, .66);
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            transform: rotate(-12deg);
+        }
+
+        .license-preview-tip {
+            margin: 12px auto 0;
+            width: min(820px, 100%);
+            padding: 8px 12px;
+            border: 1px solid #dfe7f2;
+            background: #f8fbff;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.6;
         }
 
         .preview-actions {
@@ -1842,6 +2097,31 @@ const SYSTEM_NAMES = { Q: "质量管理体系", E: "环境管理体系", S: "职
 const SYSTEM_ORDER = ["Q", "E", "S", "F"];
 const authorizedSystems = ["Q"];
 const EMPTY_FILE_MATERIAL_IDS = new Set(["MSF11-20-001", "MSF11-20-005", "MSF11-20-006", "MSF11-20-007", "MSF11-20-039"]);
+const PDF_ASSETS = [
+    { fileName: "MSF11-13 核查记录表（2015版）最新勘误.pdf", path: "output/pdf/MSF11-13 核查记录表（2015版）最新勘误.pdf", keywords: ["核查记录表"] },
+    { fileName: "MSF11-04 管理体系过程清单（2019.9.5修订）.pdf", path: "output/pdf/MSF11-04 管理体系过程清单（2019.9.5修订）.pdf", keywords: ["管理体系过程清单"] },
+    { fileName: "MSF11-03 审核项目推进表（2018.12.7修订）.pdf", path: "output/pdf/MSF11-03 审核项目推进表（2018.12.7修订）.pdf", keywords: ["审核项目推进表"] },
+    { fileName: "MSF11-27+食品安全认证申请组织自我声明（2022.1.13修订）.pdf", path: "output/pdf/MSF11-27+食品安全认证申请组织自我声明（2022.1.13修订）.pdf", keywords: ["食品安全认证申请组织自我声明"] },
+    { fileName: "MSF11-08+第一阶段不实施现场审核的申请（2022.1.13修订）.pdf", path: "output/pdf/MSF11-08+第一阶段不实施现场审核的申请（2022.1.13修订）.pdf", keywords: ["一阶段不实施现场审核的申请", "第一阶段不实施现场审核的申请"] },
+    { fileName: "MSF11-02+认证申请评审表（2025.12.31修订）.pdf", path: "output/pdf/MSF11-02+认证申请评审表（2025.12.31修订）.pdf", keywords: ["认证申请评审表"] },
+    { fileName: "MSF11-17+审核报告（2022.1.13修订）.pdf", path: "output/pdf/MSF11-17+审核报告（2022.1.13修订）.pdf", keywords: ["审核报告"] },
+    { fileName: "MSF11-18 证书内容确认件（2024.12.6修订）.pdf", path: "output/pdf/MSF11-18 证书内容确认件（2024.12.6修订）.pdf", keywords: ["证书内容确认件"] },
+    { fileName: "MSF11-19+认证发证推荐表（2022.1.13修订）.pdf", path: "output/pdf/MSF11-19+认证发证推荐表（2022.1.13修订）.pdf", keywords: ["认证发证推荐表"] },
+    { fileName: "MSF11-21+文件评审报告（2022.1.13修订）.pdf", path: "output/pdf/MSF11-21+文件评审报告（2022.1.13修订）.pdf", keywords: ["文件评审报告"] },
+    { fileName: "MSF11-14+首末次会议签到表（2025.12.31修订）.pdf", path: "output/pdf/MSF11-14+首末次会议签到表（2025.12.31修订）.pdf", keywords: ["首末次会议签到表"] },
+    { fileName: "MSF11-01-认证申请表-演示预览版.pdf", path: "output/pdf/MSF11-01-认证申请表-演示预览版.pdf", keywords: ["认证申请表"] },
+    { fileName: "MSF11-07+审核任务书（2025.12.31修订）.pdf", path: "output/pdf/MSF11-07+审核任务书（2025.12.31修订）.pdf", keywords: ["审核任务书"] },
+    { fileName: "MSF11-25+证书变更申请表（2025.12.31修订）.pdf", path: "output/pdf/MSF11-25+证书变更申请表（2025.12.31修订）.pdf", keywords: ["证书变更申请表"] },
+    { fileName: "MSF11-15+不符合项报告（2025.12.31修订）.pdf", path: "output/pdf/MSF11-15+不符合项报告（2025.12.31修订）.pdf", keywords: ["不符合项报告", "不符合项报告及纠正措施见证材料"] },
+    { fileName: "MSF11-09+第一阶段审核报告（2023.3.30修订）.pdf", path: "output/pdf/MSF11-09+第一阶段审核报告（2023.3.30修订）.pdf", keywords: ["第一阶段审核报告"] },
+    { fileName: "MSF11-12 审核准备会记录（2015版）.pdf", path: "output/pdf/MSF11-12 审核准备会记录（2015版）.pdf", keywords: ["审核准备会记录"] },
+    { fileName: "MSF11-05 认证场所清单（2024.7.12修订）.pdf", path: "output/pdf/MSF11-05 认证场所清单（2024.7.12修订）.pdf", keywords: ["认证场所清单"] },
+    { fileName: "MSF11-11+审核计划（2025.12.31修订）.pdf", path: "output/pdf/MSF11-11+审核计划（2025.12.31修订）.pdf", keywords: ["审核计划"] },
+    { fileName: "MSF11-23+获证方情况调查表（2025.12.31修订）.pdf", path: "output/pdf/MSF11-23+获证方情况调查表（2025.12.31修订）.pdf", keywords: ["获证方情况调查表"] },
+    { fileName: "MSF11-20+审核材料归档上报清单（2025.12.31修订）.pdf", path: "output/pdf/MSF11-20+审核材料归档上报清单（2025.12.31修订）.pdf", keywords: ["审核材料归档上报清单"] },
+    { fileName: "MSF11-16+认证周期绩效评价表（2025.12.31修订）.pdf", path: "output/pdf/MSF11-16+认证周期绩效评价表（2025.12.31修订）.pdf", keywords: ["认证周期绩效评价表"] },
+    { fileName: "MSF11-10 第一阶段审核问题清单（2015版）.pdf", path: "output/pdf/MSF11-10 第一阶段审核问题清单（2015版）.pdf", keywords: ["第一阶段审核问题清单"] }
+];
 let activeReviewSystems = [...authorizedSystems];
 let currentMaterialId = "all";
 let quickFilter = "all";
@@ -1930,6 +2210,31 @@ function systemTags(systems, mutedOthers = false) {
 
 function getMaterial(id) {
     return MATERIALS.find(item => item.id === id);
+}
+
+function normalizeFileName(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/第/g, "")
+        .replace(/[+_\-\s（）()、/／，,。.:：;；《》<>[\]【】]/g, "");
+}
+
+function findPdfAssetForMaterial(material, fileName = "") {
+    const materialKey = normalizeFileName(material.name);
+    const fileKey = normalizeFileName(fileName);
+    const candidates = PDF_ASSETS.map(asset => {
+        const matchedKeyword = asset.keywords
+            .map(keyword => normalizeFileName(keyword))
+            .filter(keyword => keyword && (
+                materialKey.includes(keyword) ||
+                keyword.includes(materialKey) ||
+                fileKey.includes(keyword) ||
+                normalizeFileName(asset.fileName).includes(materialKey)
+            ))
+            .sort((a, b) => b.length - a.length)[0];
+        return matchedKeyword ? { asset, score: matchedKeyword.length } : null;
+    }).filter(Boolean).sort((a, b) => b.score - a.score);
+    return candidates.length ? candidates[0].asset : null;
 }
 
 function issueStatusBadge(status) {
@@ -2180,14 +2485,19 @@ function fileRowsFor(material) {
     const baseDate = String(10 + (material.sort % 18)).padStart(2, "0");
     const source = material.sort < 33 ? "归档材料提交" : (material.sort < 40 ? "一阶段审核" : "二阶段审核");
     const uploadedAt = `2026-03-${baseDate} 09:30`;
+    const generatedName = `${material.name.replace(/[（）()、/]/g, "_")}.pdf`;
+    const pdfAsset = findPdfAssetForMaterial(material, generatedName);
+    const displayName = material.id === "MSF11-20-009" ? "营业执照扫描件.pdf" : (pdfAsset ? pdfAsset.fileName : generatedName);
     const files = [
         {
             id: `${material.id}-file-1`,
-            name: `${material.name.replace(/[（）()、/]/g, "_")}.pdf`,
+            name: displayName,
             type: "附件",
             source,
             date: uploadedAt,
-            systems: material.systems
+            systems: material.systems,
+            pdfUrl: pdfAsset ? encodeURI(pdfAsset.path) : "",
+            pdfAsset
         }
     ];
     if (material.required && material.systems.includes("Q") && material.sort % 4 === 0) {
@@ -2678,15 +2988,14 @@ function renderPreview() {
             </div>
             <div class="preview-pane">
                 <div class="preview-document">
-                    <div class="preview-document-head">
-                        <h3>${escapeHtml(file.name)}</h3>
-                        <div class="helper-text">${file.material.id} / ${file.material.category} / 问题登记对象为当前材料项，不对单个文件下结论。</div>
-                    </div>
                     <div class="preview-document-content">
-                        ${file.type === "在线表单" ? renderOnlineFormPreview(file) : renderAttachmentPreview(file)}
-                        <div style="margin-top:18px;">
-                            <div class="panel-header" style="border:1px solid #e7e7e7;border-bottom:none;border-radius:8px 8px 0 0;">当前材料问题</div>
-                            <table>
+                        <div class="preview-reader">
+                            ${file.type === "在线表单" ? renderOnlineFormPreview(file) : renderAttachmentPreview(file)}
+                        </div>
+                        <details class="preview-issues" ${materialIssues.length ? "open" : ""}>
+                            <summary>当前材料问题（${materialIssues.length}）</summary>
+                            <div class="preview-issue-table">
+                                <table>
                                 <tbody>
                                     ${materialIssues.length ? materialIssues.map(issue => `
                                         <tr>
@@ -2698,8 +3007,9 @@ function renderPreview() {
                                         </tr>
                                     `).join("") : `<tr><td><div class="empty-state">当前材料项暂无问题。发现不符合项时，可在本窗口直接登记。</div></td></tr>`}
                                 </tbody>
-                            </table>
-                        </div>
+                                </table>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
@@ -2710,7 +3020,6 @@ function renderPreview() {
                     <span class="helper-text">第 ${currentPreviewIndex + 1} / ${previewScopeFiles.length} 个文件</span>
                 </div>
                 <div class="button-row">
-                    <button class="btn" onclick="switchMaterialFromPreview('${file.material.id}')">切换到该材料项</button>
                     <button class="btn btn-primary" onclick="openPreviewIssue()" ${isExpertDraftStage() ? "" : "disabled"}>${isExpertDraftStage() ? "登记当前文件问题" : "问题已锁定"}</button>
                 </div>
             </div>
@@ -2719,8 +3028,22 @@ function renderPreview() {
 }
 
 function renderAttachmentPreview(file) {
+    if (file.material.id === "MSF11-20-009") return renderBusinessLicensePreview(file);
+    if (file.pdfUrl) {
+        const url = escapeHtml(file.pdfUrl);
+        return `
+            <iframe class="pdf-preview-frame" src="${url}#toolbar=1&navpanes=1&zoom=page-width" title="${escapeHtml(file.name)}"></iframe>
+            <div class="pdf-preview-fallback">
+                已按材料名称匹配项目文件：${escapeHtml(file.name)}。如浏览器未直接显示 PDF，可
+                <a href="${url}" target="_blank" rel="noopener">打开原始文件</a>。
+            </div>
+        `;
+    }
     return `
-        <table>
+        <div class="pdf-preview-fallback">
+            未在项目 PDF 目录中找到与“${escapeHtml(file.material.name)}”同名或近似命名的 PDF，暂显示材料摘要。
+        </div>
+        <table style="margin-top:12px;">
             <tr><th style="width:150px;">项目</th><td>TASK-2026-001 / 客户A</td></tr>
             <tr><th>认证领域</th><td>Q/E/S/F 四体系整合审核</td></tr>
             <tr><th>文件类型</th><td>${file.type}</td></tr>
@@ -2730,16 +3053,87 @@ function renderAttachmentPreview(file) {
     `;
 }
 
+function renderBusinessLicensePreview(file) {
+    return `
+        <div class="license-preview">
+            <div class="license-paper">
+                <div class="license-copy-mark">复印件 / 扫描件</div>
+                <div class="license-title">营业执照</div>
+                <div class="license-subtitle">BUSINESS LICENSE</div>
+                <div class="license-code-row">
+                    <span>统一社会信用代码 <strong>91310000MA1A26Q8X6</strong></span>
+                    <span>编号 00000026</span>
+                </div>
+                <div class="license-grid">
+                    <div class="license-row">
+                        <div class="license-label">名称</div>
+                        <div class="license-value strong">客户A食品科技有限公司</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">类型</div>
+                        <div class="license-value">有限责任公司（自然人投资或控股）</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">法定代表人</div>
+                        <div class="license-value">张明</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">注册资本</div>
+                        <div class="license-value">人民币 1,000 万元整</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">成立日期</div>
+                        <div class="license-value">2018 年 06 月 18 日</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">营业期限</div>
+                        <div class="license-value">2018 年 06 月 18 日 至 长期</div>
+                    </div>
+                    <div class="license-row">
+                        <div class="license-label">住所</div>
+                        <div class="license-value">上海市浦东新区示范路 168 号 3 幢 2 层</div>
+                    </div>
+                    <div class="license-row" style="min-height:180px;">
+                        <div class="license-label">经营范围</div>
+                        <div class="license-value">
+                            食品生产技术研发；预包装食品、农副产品、食品添加剂销售；企业管理咨询；
+                            货物进出口、技术进出口；从事食品科技领域内的技术开发、技术咨询、技术服务。
+                            依法须经批准的项目，经相关部门批准后方可开展经营活动。
+                        </div>
+                    </div>
+                </div>
+                <div class="license-footer">
+                    <div>
+                        <div class="license-qr"></div>
+                        <div class="license-note" style="margin-top:8px;">登记信息二维码</div>
+                    </div>
+                    <div class="license-note">
+                        登记机关：上海市市场监督管理局<br>
+                        发照日期：2025 年 12 月 20 日<br>
+                        年报状态：已公示；主体状态：存续。
+                    </div>
+                    <div class="license-stamp">模拟章<br>仅供演示</div>
+                </div>
+            </div>
+            <div class="license-preview-tip">
+                当前展示为接近真实业务资料的模拟营业执照扫描件，用于专家判断法律地位证明文件是否清晰、有效；问题仍登记到“${escapeHtml(file.material.name)}”材料项。
+            </div>
+        </div>
+    `;
+}
+
 function renderOnlineFormPreview(file) {
     return `
-        <table>
-            <tr><th style="width:150px;">表单名称</th><td>${escapeHtml(file.name)}</td></tr>
-            <tr><th>系统来源</th><td>${file.source}</td></tr>
-            <tr><th>客户名称</th><td>客户A</td></tr>
-            <tr><th>审核阶段</th><td>初次评定专家评审</td></tr>
-            <tr><th>表单摘要</th><td>模拟展示系统内在线表单字段，包括审核范围、审核结论、问题记录和补充材料说明。</td></tr>
-            <tr><th>评审提示</th><td>在线表单视同归档材料附件，问题仍登记在所属 MSF11-20 材料项下。</td></tr>
-        </table>
+        <div class="online-form-preview">
+            <table>
+                <tr><th style="width:150px;">表单名称</th><td>${escapeHtml(file.name)}</td></tr>
+                <tr><th>系统来源</th><td>${file.source}</td></tr>
+                <tr><th>客户名称</th><td>客户A</td></tr>
+                <tr><th>审核阶段</th><td>初次评定专家评审</td></tr>
+                <tr><th>表单摘要</th><td>模拟展示系统内在线表单字段，包括审核范围、审核结论、问题记录和补充材料说明。</td></tr>
+                <tr><th>评审提示</th><td>在线表单视同归档材料附件，问题仍登记在所属 MSF11-20 材料项下。</td></tr>
+            </table>
+        </div>
     `;
 }
 
@@ -2759,11 +3153,6 @@ function movePreview(step) {
     const nextIndex = currentPreviewIndex + step;
     if (nextIndex < 0 || nextIndex >= previewScopeFiles.length) return;
     jumpPreview(nextIndex);
-}
-
-function switchMaterialFromPreview(materialId) {
-    switchMaterial(materialId);
-    showToast("已切换到对应材料项");
 }
 
 function openPreviewIssue() {
@@ -2870,5 +3259,6 @@ renderIssues();
 renderConsole();
 restoreDraft();
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

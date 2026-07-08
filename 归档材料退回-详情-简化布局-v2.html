@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>归档材料退回处理（简化布局 v2） - 审核材料归档系统</title>
+    <link rel="stylesheet" href="pdf-preview.css">
     
     <style>
         * {
@@ -2762,7 +2763,17 @@
     
     // 预览文件
     function previewFile(fileId) {
-        showToast('正在打开文件预览：' + fileId);
+        const sections = Array.from(document.querySelectorAll('.material-detail-section[data-files]'));
+        let fileName = fileId;
+        for (const section of sections) {
+            const files = JSON.parse(section.getAttribute('data-files') || '[]');
+            const file = files.find(item => item.id === fileId);
+            if (file) {
+                fileName = file.name;
+                break;
+            }
+        }
+        openProjectPdfPreview(fileName);
     }
     
     // 本地上传（行内）
@@ -3034,6 +3045,6 @@
     `;
     document.head.appendChild(style);
 </script>
-
+<script src="pdf-preview.js"></script>
 </body>
 </html>

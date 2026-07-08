@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>归档材料提交 - 审核材料归档系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1619,7 +1620,9 @@ function confirmDeleteFile() {
     }
     pendingDelete = null;
 }
-function previewFile(name) { showToast(`预览文件：${name}`); }
+function previewFile(name) {
+    openProjectPdfPreview(name);
+}
 function openSubmitModal() { document.getElementById('submitModal').classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 function confirmSubmit() {
@@ -1642,5 +1645,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAllMaterialsView();
 });
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>专家评审详情 - 审核材料归档系统</title>
+    <link rel="stylesheet" href="pdf-preview.css">
     <style>
         * {
             box-sizing: border-box;
@@ -2049,15 +2050,7 @@ function renderPreview() {
 }
 
 function renderAttachmentPreview(file) {
-    return `
-        <table>
-            <tr><th style="width:150px;">项目</th><td>TASK-2026-001 / 客户A</td></tr>
-            <tr><th>认证领域</th><td>Q/E/S/F 四体系整合审核</td></tr>
-            <tr><th>文件类型</th><td>${file.type}</td></tr>
-            <tr><th>文件来源</th><td>${file.source}</td></tr>
-            <tr><th>评审提示</th><td>请检查文件内容是否满足 ${file.material.name} 的归档要求，发现不符合项后登记到该材料项。</td></tr>
-        </table>
-    `;
+    return renderProjectPdfInline(file.name);
 }
 
 function renderOnlineFormPreview(file) {
@@ -2179,5 +2172,6 @@ renderIssues();
 renderConsole();
 restoreDraft();
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

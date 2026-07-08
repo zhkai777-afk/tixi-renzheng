@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>二次评定任务详情（协调员视角）V4.0 - 审核材料归档系统</title>
 
     <style>
@@ -4710,7 +4711,7 @@ let pendingConfirmAction = null;
 // 选择通过（可重新修改，仅改变按钮状态，不显示已通过提示）
     // 旧版审核功能已整合到问题清单中\n\n    // 预览文件
     function previewFile(fileName) {
-        showToast(`正在打开文件预览：${fileName}（模拟PDF预览组件）`);
+        openProjectPdfPreview(fileName);
     }
 
     function showToast(message) {
@@ -6264,6 +6265,6 @@ let pendingConfirmAction = null;
         renderExpertList();
     });
 </script>
-
+<script src="pdf-preview.js"></script>
 </body>
 </html>

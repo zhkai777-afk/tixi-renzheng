@@ -21,12 +21,6 @@
             --ems-color: #00A870;
             --ohsms-color: #FF7D00;
             --fsms-color: #7B4DFE;
-            --system-h-color: #0F766E;
-            --system-is-color: #4F46E5;
-            --system-en-color: #0E7490;
-            --system-sc-color: #64748B;
-            --system-pr-color: #9333EA;
-            --system-as-color: #BE5A00;
             --pass-color: #00A870;
             --reject-color: #E34D59;
             --pending-color: #ED7B2F;
@@ -47,12 +41,12 @@
             gap: 16px;
         }
         .top-header {
-            min-height: 214px;
+            min-height: 126px;
             flex-shrink: 0;
             background: #fff;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 18px 22px 20px;
+            padding: 14px 18px 16px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -112,8 +106,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            min-height: 34px;
-            padding: 7px 12px;
+            min-height: 30px;
+            padding: 6px 10px;
             border: 1px solid #B7D3FF;
             border-radius: 6px;
             background: #F4F8FF;
@@ -134,19 +128,46 @@
             text-align: center;
             flex-shrink: 0;
         }
-        .system-overview {
+        .project-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+            grid-template-columns: repeat(5, minmax(120px, 1fr));
             gap: 10px;
+        }
+        .project-summary-card {
+            min-height: 58px;
+            border: 1px solid #e5eaf3;
+            border-radius: 8px;
+            background: #fff;
+            padding: 9px 12px;
+        }
+        .project-summary-label {
+            color: rgba(0,0,0,.5);
+            font-size: 12px;
+            line-height: 18px;
+        }
+        .project-summary-value {
+            margin-top: 3px;
+            color: rgba(0,0,0,.88);
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 24px;
+        }
+        .project-summary-value.success { color: var(--pass-color); }
+        .project-summary-value.warning { color: var(--pending-color); }
+        .project-summary-value.danger { color: var(--reject-color); }
+        .system-overview {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+            gap: 8px;
             align-items: stretch;
         }
         .system-overview-card {
-            min-height: 82px;
+            min-height: 64px;
             border: 1px solid #e5eaf3;
             border-left: 3px solid var(--system-soft-border, #DCDDE1);
             border-radius: 8px;
             background: #fff;
-            padding: 11px 12px 10px;
+            padding: 9px 10px;
             cursor: pointer;
             transition: all .2s;
             overflow: hidden;
@@ -198,7 +219,7 @@
             white-space: nowrap;
         }
         .system-card-meta {
-            margin-top: 10px;
+            margin-top: 7px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -208,8 +229,8 @@
             white-space: nowrap;
         }
         .system-card-progress {
-            margin-top: 9px;
-            height: 6px;
+            margin-top: 7px;
+            height: 5px;
             border-radius: 999px;
             background: #EEF0F3;
             overflow: hidden;
@@ -231,7 +252,7 @@
             flex: 1 1 auto;
             min-height: 0;
             display: grid;
-            grid-template-columns: clamp(292px, 22vw, 334px) minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr) clamp(330px, 23vw, 380px);
             gap: 16px;
             overflow: hidden;
         }
@@ -431,6 +452,153 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
         }
+        .right-console {
+            min-width: 0;
+            min-height: 0;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+        .console-section {
+            padding: 16px;
+            border-bottom: 8px solid #f5f5f5;
+        }
+        .console-section:last-child {
+            border-bottom: none;
+        }
+        .console-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .console-desc {
+            color: rgba(0,0,0,0.55);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .decision-state {
+            border: 1px solid #FDE68A;
+            background: #FFFBEB;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .decision-state.ready {
+            border-color: #B5F5C8;
+            background: #F0FFF4;
+        }
+        .decision-title {
+            color: #8A4B00;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .decision-state.ready .decision-title {
+            color: #087443;
+        }
+        .decision-reason {
+            margin-top: 6px;
+            color: rgba(0,0,0,0.62);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .console-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .console-stat {
+            border: 1px solid #e5eaf3;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            background: #fff;
+        }
+        .console-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .console-stat-label {
+            margin-top: 4px;
+            color: rgba(0,0,0,0.5);
+            font-size: 12px;
+        }
+        .console-progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .console-progress-item {
+            border: 1px solid #eef0f3;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+        .console-progress-head,
+        .console-progress-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .console-progress-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            font-weight: 600;
+        }
+        .console-progress-name span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .console-progress-bar {
+            height: 6px;
+            margin: 8px 0 7px;
+            border-radius: 999px;
+            background: #EEF0F3;
+            overflow: hidden;
+        }
+        .console-progress-bar span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+        }
+        .blocker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .blocker-item {
+            border: 1px solid #FFCCC7;
+            border-radius: 8px;
+            background: #FFF7F6;
+            padding: 10px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .blocker-item strong {
+            display: block;
+            margin-bottom: 3px;
+            color: rgba(0,0,0,0.82);
+            font-size: 13px;
+        }
+        .console-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .console-actions .t-button {
+            width: 100%;
+        }
         .content-header {
             padding: 16px 20px;
             background: #fff;
@@ -542,6 +710,199 @@
         .file-parent-text { color: #64748B; font-size: 12px; }
         .systems-cell { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .empty-state { padding: 28px; text-align: center; color: var(--weak-color); font-size: 13px; }
+        .view-switch {
+            display: inline-flex;
+            height: 34px;
+            padding: 2px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #F7F8FA;
+            gap: 2px;
+        }
+        .view-switch button {
+            height: 28px;
+            padding: 0 12px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            color: rgba(0,0,0,.62);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .view-switch button.active {
+            background: #fff;
+            color: var(--qms-color);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(15,35,75,.08);
+        }
+        .ledger-filter-tags {
+            padding-left: 12px;
+            border-left: 1px solid var(--border-color);
+            flex-wrap: nowrap;
+        }
+        .system-filter-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding-left: 12px;
+            border-left: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .system-filter-label {
+            color: rgba(0,0,0,.48);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .system-filter-dropdown {
+            position: relative;
+        }
+        .system-filter-button {
+            min-width: 118px;
+            justify-content: space-between;
+            color: rgba(0,0,0,.75);
+        }
+        .system-filter-menu {
+            display: none;
+            position: absolute;
+            top: 38px;
+            left: 0;
+            z-index: 300;
+            width: 196px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        }
+        .system-filter-menu.active { display: block; }
+        .system-filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 32px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .system-filter-option:hover { background: #F7F8FA; }
+        .system-filter-option input {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--qms-color);
+        }
+        .material-ledger-table {
+            width: 100%;
+            min-width: 1040px;
+            border-collapse: collapse;
+        }
+        .material-ledger-table th {
+            background: #fafafa;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            color: rgba(0,0,0,0.6);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .material-ledger-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        .material-ledger-row:hover { background: #fafafa; }
+        .material-ledger-row.active {
+            background: #F4F8FF;
+            box-shadow: inset 3px 0 0 var(--qms-color);
+        }
+        .ledger-material-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+        }
+        .ledger-material-name {
+            color: rgba(0,0,0,.9);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+        .ledger-material-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            color: rgba(0,0,0,.45);
+            font-size: 12px;
+        }
+        .coverage-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .coverage-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .coverage-label {
+            min-width: 44px;
+            color: rgba(0,0,0,.45);
+            font-size: 12px;
+        }
+        .ledger-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .ledger-files-row td {
+            padding: 0;
+            background: #F6F9FE;
+        }
+        .ledger-file-panel {
+            margin: 0 14px 14px 62px;
+            padding: 12px 14px 14px;
+            border-top: 1px solid #edf1f5;
+            border-left: 3px solid #B7D3FF;
+            border-right: 1px solid #DCE8FA;
+            border-bottom: 1px solid #DCE8FA;
+            border-radius: 0 0 8px 8px;
+            background: #F8FBFF;
+        }
+        .ledger-file-panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #0B3B88;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .compact-file-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #e5eaf3;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .compact-file-table th {
+            padding: 9px 12px;
+            background: #fafafa;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 12px;
+        }
+        .compact-file-table td {
+            height: 62px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fff;
+        }
+        .compact-file-table tr:last-child td { border-bottom: none; }
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -1006,7 +1367,7 @@
                 gap: 12px;
             }
             .main-layout {
-                grid-template-columns: clamp(280px, 27vw, 318px) minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr) 330px;
                 gap: 12px;
             }
             .content-header,
@@ -1051,11 +1412,12 @@
                 grid-template-columns: minmax(0, 1fr);
                 overflow: visible;
             }
-            .sidebar-left {
-                max-height: 42vh;
-            }
             .content-main {
                 min-height: 58vh;
+            }
+            .right-console {
+                max-height: none;
+                overflow: visible;
             }
             .system-overview {
                 display: flex;
@@ -1106,10 +1468,10 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     返回
                 </button>
-                <span class="project-title">项目基础信息</span>
+                <span class="project-title">归档材料提交</span>
                 <span class="project-task">任务号：TASK-2026-001</span>
-                <span class="header-meta">客户A · 10体系整合审核</span>
-                <span class="project-current" id="currentMaterialName">当前材料：全部材料</span>
+                <span class="header-meta">客户A · Q/E/S/F 四体系整合审核</span>
+                <span class="project-current" id="currentMaterialName">当前视图：材料清单台账</span>
             </div>
             <div class="header-right">
                 <button class="t-button btn-outline" onclick="simulateAllUploaded()">模拟全部资料补齐</button>
@@ -1117,52 +1479,58 @@
                 <button class="t-button btn-primary" id="submitBtn" disabled onclick="openSubmitModal()">提交初次评定</button>
             </div>
         </div>
-        <div class="project-tip">系统已自动带出前序业务环节产生的归档文件。请补充缺失材料，全部体系达到 100% 后提交初次评定。</div>
-        <div class="system-overview" id="systemOverview"></div>
+        <div class="project-tip" id="projectTip">系统已自动带出前序业务环节产生的归档文件。请补充缺失材料，全部体系达到 100% 后提交初次评定。</div>
+        <div class="project-summary" id="projectSummary"></div>
     </header>
 
     <div class="main-layout">
-        <aside class="sidebar-left">
-            <div class="sidebar-header">
-                <div class="sidebar-title">材料清单</div>
-                <div class="sidebar-stats" id="globalStats">总计: 48项 | 已完成: 0 | 缺失: 0</div>
-                <div class="filter-tags">
-                    <span class="filter-tag active" data-status-filter="all" onclick="filterByStatus('all', this)">全部</span>
-                    <span class="filter-tag" data-status-filter="missing" onclick="filterByStatus('missing', this)">缺失</span>
-                    <span class="filter-tag" data-status-filter="ready" onclick="filterByStatus('ready', this)">已带入</span>
-                </div>
-            </div>
-            <div class="material-nav" id="materialNav"></div>
-        </aside>
-
         <main class="content-main">
             <div class="content-header">
                 <div class="content-title-row">
-                    <div class="title-text" id="contentTitle">具体文件列表</div>
+                    <div class="title-text" id="contentTitle">材料清单台账</div>
+                    <div class="view-switch">
+                        <button type="button" id="ledgerViewBtn" class="active" onclick="switchView('ledger')">材料清单视图</button>
+                        <button type="button" id="fileViewBtn" onclick="switchView('files')">全部文件视图</button>
+                    </div>
+                    <div class="filter-tags ledger-filter-tags">
+                        <span class="filter-tag active" data-status-filter="all" onclick="filterByStatus('all', this)">全部</span>
+                        <span class="filter-tag" data-status-filter="missing" onclick="filterByStatus('missing', this)">缺失</span>
+                        <span class="filter-tag" data-status-filter="ready" onclick="filterByStatus('ready', this)">已带入</span>
+                    </div>
+                    <div class="system-filter-group" id="systemFilterGroup">
+                        <span class="system-filter-label">体系范围</span>
+                        <div class="system-filter-dropdown">
+                            <button type="button" class="t-button btn-outline system-filter-button" onclick="toggleSystemFilterMenu(event)">
+                                <span id="systemFilterText">全部体系</span>
+                                <span>▾</span>
+                            </button>
+                            <div class="system-filter-menu" id="systemFilterMenu">
+                                <label class="system-filter-option"><input type="checkbox" id="systemFilterAll" checked onchange="resetSystemFilter()"> 全部体系</label>
+                                <label class="system-filter-option"><input type="checkbox" data-system-filter="Q" onchange="toggleSystemFilter('Q')"> Q 质量管理</label>
+                                <label class="system-filter-option"><input type="checkbox" data-system-filter="E" onchange="toggleSystemFilter('E')"> E 环境管理</label>
+                                <label class="system-filter-option"><input type="checkbox" data-system-filter="S" onchange="toggleSystemFilter('S')"> S 职业健康安全</label>
+                                <label class="system-filter-option"><input type="checkbox" data-system-filter="F" onchange="toggleSystemFilter('F')"> F 食品安全</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="inline-search">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                        <input class="search-input" id="materialSearch" placeholder="关键词搜索" oninput="filterMaterials(this.value)">
+                        <input class="search-input" id="materialSearch" placeholder="搜索材料、文件、来源" oninput="filterMaterials(this.value)">
                     </div>
                     <div class="action-spacer"></div>
                     <div class="header-right">
-                        <button class="t-button btn-outline" onclick="triggerLocalUpload()">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            上传文件
-                        </button>
+                        <button class="t-button btn-outline" onclick="showFirstMissingMaterial()">定位缺失材料</button>
                         <input type="file" id="fileUpload" multiple style="display:none" onchange="handleLocalUpload(event)">
-                        <button class="t-button btn-outline" onclick="openLibraryModal()">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            从资料库选择
-                        </button>
                     </div>
                 </div>
                 <div id="uploadPanel" class="upload-panel">
-                    <div style="font-size:13px;color:rgba(0,0,0,0.65);font-weight:600;">待补充文件</div>
+                    <div style="font-size:13px;color:rgba(0,0,0,0.65);font-weight:600;">待补充文件 · <span id="uploadMaterialName">请选择材料</span></div>
                     <div id="uploadFileList" class="upload-file-list"></div>
                     <div class="upload-options">
                         <span style="font-weight:600;color:rgba(0,0,0,0.6);">覆盖体系：</span>
                         <span id="uploadSystemChecks"></span>
                     </div>
+                    <div class="console-desc" id="uploadCoverageHint" style="margin-top:8px;">系统会默认选中当前材料尚未覆盖的体系。</div>
                     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
                         <button class="t-button btn-outline btn-small" onclick="clearUploadPreview()">取消</button>
                         <button class="t-button btn-primary btn-small" onclick="confirmUpload()">确认补充</button>
@@ -1171,6 +1539,27 @@
             </div>
             <div class="content-body" id="contentBody"></div>
         </main>
+
+        <aside class="right-console">
+            <section class="console-section">
+                <div class="console-title">
+                    <span>提交控制台</span>
+                    <span class="t-tag tag-warning" id="taskStateTag">草稿</span>
+                </div>
+                <div class="decision-state" id="decisionState">
+                    <div class="decision-title" id="decisionTitle">暂不可提交</div>
+                    <div class="decision-reason" id="decisionReason">仍有体系存在缺失材料，请先补齐阻断项。</div>
+                </div>
+                <div class="console-stat-grid" id="consoleStats"></div>
+            </section>
+            <section class="console-section">
+                <div class="console-title">
+                    <span>体系完整性</span>
+                    <span class="console-desc" id="systemScopeText">4 个体系</span>
+                </div>
+                <div class="console-progress-list" id="consoleProgressList"></div>
+            </section>
+        </aside>
     </div>
 </div>
 
@@ -1181,7 +1570,7 @@
             <button class="t-button btn-text" onclick="closeModal('submitModal')">关闭</button>
         </div>
         <div class="modal-body">
-            当前项目 10 个体系必备材料均已补齐。确认提交后，任务状态将流转为“初次评定”，项目管理人员不可继续编辑材料。
+            当前项目 Q/E/S/F 四体系必备归档材料均已补齐。确认提交后，任务状态将流转为“初次评定”，项目管理人员不可继续编辑材料。
         </div>
         <div class="modal-footer">
             <button class="t-button btn-outline" onclick="closeModal('submitModal')">取消</button>
@@ -1220,12 +1609,6 @@
                             <option value="E">环境管理体系(E)</option>
                             <option value="S">职业健康安全(S)</option>
                             <option value="F">食品安全体系(F)</option>
-                            <option value="H">HACCP体系(H)</option>
-                            <option value="IS">信息安全体系(IS)</option>
-                            <option value="EN">能源管理体系(EN)</option>
-                            <option value="SC">供应链安全(SC)</option>
-                            <option value="PR">隐私信息管理(PR)</option>
-                            <option value="AS">售后服务体系(AS)</option>
                         </select>
                         <select id="libraryFileTypeFilter" onchange="updateLibraryFilter('fileType', this.value)">
                             <option value="all">全部类型</option>
@@ -1285,18 +1668,12 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const PROJECT_SYSTEMS = ['Q', 'E', 'S', 'F', 'H', 'IS', 'EN', 'SC', 'PR', 'AS'];
+const PROJECT_SYSTEMS = ['Q', 'E', 'S', 'F'];
 const SYSTEM_META = {
     Q: { name: '质量管理体系', short: '质量管理', color: 'var(--qms-color)', softBg: '#E8F1FF', softBorder: '#B7D3FF' },
     E: { name: '环境管理体系', short: '环境管理', color: 'var(--ems-color)', softBg: '#E6F7F1', softBorder: '#B8E8D7' },
     S: { name: '职业健康安全', short: '职业健康安全', color: 'var(--ohsms-color)', softBg: '#FFF3E5', softBorder: '#FFD5A8' },
-    F: { name: '食品安全体系', short: '食品安全', color: 'var(--fsms-color)', softBg: '#F1EDFF', softBorder: '#D6CAFF' },
-    H: { name: 'HACCP体系', short: 'HACCP', color: 'var(--system-h-color)', softBg: '#E6F7F5', softBorder: '#A7E1DA' },
-    IS: { name: '信息安全体系', short: '信息安全', color: 'var(--system-is-color)', softBg: '#EEF2FF', softBorder: '#C7D2FE' },
-    EN: { name: '能源管理体系', short: '能源管理', color: 'var(--system-en-color)', softBg: '#E6F6FA', softBorder: '#A9DDEA' },
-    SC: { name: '供应链安全', short: '供应链', color: 'var(--system-sc-color)', softBg: '#F1F5F9', softBorder: '#CBD5E1' },
-    PR: { name: '隐私信息管理', short: '隐私管理', color: 'var(--system-pr-color)', softBg: '#FAF0FF', softBorder: '#E9C8FF' },
-    AS: { name: '售后服务体系', short: '售后服务', color: 'var(--system-as-color)', softBg: '#FFF4E8', softBorder: '#FFD8AA' }
+    F: { name: '食品安全体系', short: '食品安全', color: 'var(--fsms-color)', softBg: '#F1EDFF', softBorder: '#D6CAFF' }
 };
 const LIBRARY_FILES = [
     { id: 'LIB-001', name: 'ISO9001认证申请表.pdf', size: '1.5MB', category: '通用材料', systems: ['Q'], fileType: '认证申请表', type: '表单', uploadTime: '2026-03-01 09:23', step: '认证申请', uploader: '张晓' },
@@ -1323,12 +1700,14 @@ const FALLBACK_CATALOG = [{"id":"MSF11-20-001","category":"通用材料","materi
 
 let catalog = [];
 let materials = [];
-let currentMaterialId = 'all';
+let currentMaterialId = null;
+let activeView = 'ledger';
 let selectedSystems = new Set();
 let currentStatusFilter = 'all';
 let searchKeyword = '';
 let pendingFiles = [];
 let pendingDelete = null;
+let expandedMaterialIds = new Set();
 let selectedLibraryFiles = new Set();
 let libraryFilters = { category: 'all', keyword: '', system: 'all', fileType: 'all', step: 'all' };
 
@@ -1424,9 +1803,6 @@ function initMaterials() {
             files: createMockFiles(item)
         }));
 }
-function getMaterialStatus(material) {
-    return material.files.length > 0 ? 'ready' : 'missing';
-}
 function renderSystemBadges(systems, className = 'sys-badge', maxVisible = 4) {
     const normalized = normalizeBadgeSystems(systems);
     const visible = normalized.slice(0, maxVisible);
@@ -1446,35 +1822,41 @@ function renderPageTags(systems = PROJECT_SYSTEMS) {
         pageTags.innerHTML = renderSystemBadges(systems, 'system-tag-mini', 10);
     }
 }
+function getMaterialCoverage(material) {
+    const applicable = normalizeBadgeSystems(material.applicableSystems);
+    const covered = Array.from(new Set(material.files.flatMap(file => normalizeBadgeSystems(file.systems))))
+        .filter(system => applicable.includes(system));
+    const missing = applicable.filter(system => !covered.includes(system));
+    const status = !material.files.length ? 'missing' : (missing.length ? 'partial' : 'ready');
+    return { applicable, covered, missing, status };
+}
+function getMaterialStatus(material) {
+    return getMaterialCoverage(material).status;
+}
 function getFilteredMaterials() {
+    const keyword = searchKeyword.toLowerCase();
     return materials.filter(material => {
-        const systems = material.applicableSystems;
-        const systemMatch = selectedSystems.size === 0 || systems.some(system => selectedSystems.has(system));
-        const searchMatch = !searchKeyword || material.materialName.includes(searchKeyword);
-        const status = getMaterialStatus(material);
-        const statusMatch = currentStatusFilter === 'all' || status === currentStatusFilter;
+        const coverage = getMaterialCoverage(material);
+        const systemMatch = selectedSystems.size === 0 || coverage.applicable.some(system => selectedSystems.has(system));
+        const text = [
+            material.materialName,
+            material.category,
+            material.tag,
+            ...material.files.flatMap(file => [file.name, file.source, file.type, file.uploadTime])
+        ].join(' ').toLowerCase();
+        const searchMatch = !keyword || text.includes(keyword);
+        const statusMatch = currentStatusFilter === 'all'
+            || (currentStatusFilter === 'ready' && material.files.length > 0)
+            || (currentStatusFilter === 'missing' && coverage.status !== 'ready');
         return systemMatch && searchMatch && statusMatch;
     });
 }
 function renderMaterialNav() {
     const nav = document.getElementById('materialNav');
+    if (!nav) return;
     const filtered = getFilteredMaterials();
     const categoryOrder = ['通用材料', '一阶段材料', '二阶段及其他审核材料'];
-    const allFileCount = materials.reduce((sum, item) => sum + item.files.length, 0);
-    const requiredCount = filtered.filter(isRequiredForCurrentScope).length;
-    let html = `
-        <div class="material-group">
-            <div class="material-item ${currentMaterialId === 'all' ? 'active' : ''}" onclick="showAllMaterials()">
-                <div class="item-header">
-                    <div class="item-name" style="font-weight:700;">全部材料跨体系视图</div>
-                </div>
-                <div class="item-system-row">${renderSystemBadges(PROJECT_SYSTEMS, 'system-tag-mini', 4)}</div>
-                <div class="material-summary-meta">
-                    <span>${materials.length}项材料 · 当前必交${requiredCount}项</span>
-                    <span class="file-count-pill">${allFileCount}个文件</span>
-                </div>
-            </div>
-        </div>`;
+    let html = '';
     categoryOrder.forEach(category => {
         const items = filtered.filter(item => item.category === category);
         if (!items.length) return;
@@ -1490,7 +1872,8 @@ function renderMaterialNav() {
                 </div>
                 <div class="group-items">
                     ${items.map(item => {
-                        const status = getMaterialStatus(item);
+                        const coverage = getMaterialCoverage(item);
+                        const status = coverage.status;
                         const required = isRequiredForCurrentScope(item);
                         return `
                             <div class="material-item ${currentMaterialId === item.id ? 'active' : ''} ${status === 'missing' ? 'empty-files' : ''}" onclick="switchMaterial('${item.id}')">
@@ -1514,56 +1897,58 @@ function renderMaterialNav() {
     const filteredCount = document.getElementById('filteredCount');
     if (filteredCount) filteredCount.textContent = filtered.length;
 }
-function renderSummaryCards(filteredMaterials = materials) {
-    return `<div class="summary-grid">${PROJECT_SYSTEMS.map(system => {
-        const scoped = materials.filter(item => item.applicableSystems.includes(system));
-        const ready = scoped.filter(item => item.files.length > 0).length;
-        const missing = scoped.length - ready;
-        const percent = Math.round(ready / Math.max(scoped.length, 1) * 100);
-        return `
-            <div class="summary-card-large" onclick="toggleSystemFilter('${system}')">
-                <div class="summary-card-head">
-                    <div class="summary-title"><span class="sys-dot" style="background:${getSystemMeta(system).color};"></span>${getSystemMeta(system).name}(${getSystemMeta(system).short})</div>
-                    <span class="summary-status">${percent === 100 ? '可提交' : '待补充'}</span>
-                </div>
-                <div class="summary-stats">
-                    <div class="stat-item"><span class="stat-value" style="color:${getSystemMeta(system).color};">${percent}%</span><span class="stat-label">完整度</span></div>
-                    <div class="stat-item"><span class="stat-value" style="color:var(--pass-color);">${ready}</span><span class="stat-label">已完成</span></div>
-                    <div class="stat-item"><span class="stat-value" style="color:var(--reject-color);">${missing}</span><span class="stat-label">缺失项</span></div>
-                </div>
-            </div>`;
-    }).join('')}</div>`;
+function getCoverageText(material) {
+    const coverage = getMaterialCoverage(material);
+    if (coverage.status === 'ready') return `已覆盖 ${coverage.covered.join('/')}`;
+    if (!coverage.covered.length) return `未覆盖 ${coverage.missing.join('/')}`;
+    return `已覆盖 ${coverage.covered.join('/')}，仍缺 ${coverage.missing.join('/')}`;
+}
+function getStatusBadge(status) {
+    if (status === 'ready') return '<span class="status-badge ready">已齐全</span>';
+    if (status === 'partial') return '<span class="status-badge pending">部分覆盖</span>';
+    return '<span class="status-badge missing">缺失</span>';
 }
 function renderAllMaterialsView() {
-    currentMaterialId = 'all';
-    document.getElementById('currentMaterialName').textContent = '当前材料：全部材料';
-    document.getElementById('contentTitle').textContent = '具体文件列表';
+    currentMaterialId = null;
+    activeView = 'ledger';
+    document.getElementById('currentMaterialName').textContent = '当前视图：材料清单台账';
+    document.getElementById('contentTitle').textContent = '材料清单台账';
+    updateViewSwitch();
     renderPageTags(PROJECT_SYSTEMS);
-    const filtered = getFilteredMaterials();
-    if (currentStatusFilter === 'all' || currentStatusFilter === 'ready' || currentStatusFilter === 'missing') {
-        renderCurrentFileListView(filtered);
-        return;
-    }
+    renderLedgerView();
 }
-function renderCurrentFileListView(filteredMaterials) {
+function getVisibleFilesForCurrentSystems(material) {
+    if (!selectedSystems.size) return material.files;
+    return material.files.filter(file => normalizeBadgeSystems(file.systems).some(system => selectedSystems.has(system)));
+}
+function renderFileRows(filteredMaterials) {
     const fileRows = filteredMaterials.flatMap(material => {
-        return material.files.map(file => `
+        return getVisibleFilesForCurrentSystems(material).map(file => `
             <tr>
-                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
+                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)} · 覆盖 ${normalizeBadgeSystems(file.systems).join('/')}</div></div></td>
                 <td><div class="systems-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
                 <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
             </tr>`);
     }).join('');
-    const fileCount = filteredMaterials.reduce((sum, material) => sum + material.files.length, 0);
+    return fileRows;
+}
+function renderCurrentFileListView(filteredMaterials = getFilteredMaterials()) {
+    activeView = 'files';
+    currentMaterialId = null;
+    document.getElementById('currentMaterialName').textContent = '当前视图：全部文件';
+    document.getElementById('contentTitle').textContent = '全部文件视图';
+    updateViewSwitch();
+    const fileRows = renderFileRows(filteredMaterials);
+    const fileCount = filteredMaterials.reduce((sum, material) => sum + getVisibleFilesForCurrentSystems(material).length, 0);
+    const materialCount = filteredMaterials.filter(material => getVisibleFilesForCurrentSystems(material).length > 0).length;
     const emptyText = currentStatusFilter === 'missing'
-        ? '当前筛选范围暂无已带入文件。请在左侧选择缺失材料后，通过本地上传或资料库选择进行补充。'
-        : '当前筛选范围暂无已带入文件。';
+        ? '当前筛选范围内暂无可展示文件。请切回材料清单视图，在缺失材料行上传或从资料库选择。'
+        : '当前筛选范围暂无已带入或上传的具体文件。';
     document.getElementById('contentBody').innerHTML = `
-        ${renderSummaryCards(filteredMaterials)}
         <div class="material-table-container">
             <div class="material-table-header">
                 <span>材料明细表</span>
-                <span class="header-meta">当前显示 ${fileCount} 个具体文件，来自 ${filteredMaterials.length} 项材料</span>
+                <span class="header-meta">当前显示 ${fileCount} 个具体文件，来自 ${materialCount} 项材料</span>
             </div>
             <table class="material-data-table">
                 <thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead>
@@ -1573,102 +1958,241 @@ function renderCurrentFileListView(filteredMaterials) {
     renderMaterialNav();
     updatePanels();
 }
-function switchMaterial(materialId) {
-    currentMaterialId = materialId;
-    const material = materials.find(item => item.id === materialId);
-    if (!material) return;
-    document.getElementById('currentMaterialName').textContent = `当前材料：${material.materialName}`;
-    document.getElementById('contentTitle').textContent = '具体文件列表';
-    renderPageTags(material.applicableSystems);
-    renderUploadSystemChecks(material);
-    const fileRows = material.files.map(file => `
-        <tr>
-            <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
-            <td><div class="systems-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
-            <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
-        </tr>`).join('');
+function renderLedgerView() {
+    activeView = 'ledger';
+    updateViewSwitch();
+    const filtered = getFilteredMaterials();
+    const rows = filtered.map((material, index) => {
+        const coverage = getMaterialCoverage(material);
+        const expanded = expandedMaterialIds.has(material.id);
+        const required = isRequiredForCurrentScope(material);
+        const visibleFileCount = getVisibleFilesForCurrentSystems(material).length;
+        const fileRows = renderFileRows([material]) || `<tr><td colspan="3"><div class="empty-state">该材料暂无文件。请在本行点击“上传文件”或“资料库选择”补充。</div></td></tr>`;
+        return `
+            <tr class="material-ledger-row ${currentMaterialId === material.id ? 'active' : ''}" onclick="toggleMaterialFiles('${material.id}')">
+                <td style="width:42px;color:rgba(0,0,0,.45);">${index + 1}</td>
+                <td style="width:34%;">
+                    <div class="ledger-material-cell">
+                        <div class="ledger-material-name">${escapeHtml(material.materialName)}</div>
+                        <div class="ledger-material-meta">
+                            <span>${escapeHtml(material.category === '二阶段及其他审核材料' ? '二阶段材料' : material.category)}</span>
+                            <span>${escapeHtml(material.tag || material.category)}</span>
+                            ${required ? '<span class="required-pill must">必交</span>' : ''}
+                        </div>
+                    </div>
+                </td>
+                <td style="width:14%;"><div class="systems-cell">${renderSystemBadges(material.applicableSystems, 'system-badge-table')}</div></td>
+                <td style="width:11%;"><span class="file-count-pill">${material.files.length ? material.files.length + ' 个文件' : '未上传'}</span></td>
+                <td style="width:23%;">
+                    <div class="coverage-cell">
+                        <div class="coverage-row"><span class="coverage-label">已覆盖</span>${coverage.covered.length ? renderSystemBadges(coverage.covered, 'system-tag-mini') : '<span class="header-meta">暂无</span>'}</div>
+                        <div class="coverage-row"><span class="coverage-label">仍缺</span>${coverage.missing.length ? renderSystemBadges(coverage.missing, 'system-tag-mini') : '<span class="done-text">无缺口</span>'}</div>
+                    </div>
+                </td>
+                <td style="width:9%;">${getStatusBadge(coverage.status)}</td>
+                <td style="width:19%;">
+                    <div class="ledger-actions" onclick="event.stopPropagation()">
+                        <button class="t-button btn-outline btn-small" onclick="triggerLocalUpload('${material.id}')">上传文件</button>
+                        <button class="t-button btn-outline btn-small" onclick="openLibraryModal('${material.id}')">资料库选择</button>
+                        <button class="t-button btn-text btn-small" onclick="toggleMaterialFiles('${material.id}')">${expanded ? '收起文件' : '查看文件'}</button>
+                    </div>
+                </td>
+            </tr>
+            ${expanded ? `<tr class="ledger-files-row"><td colspan="7"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
+    }).join('');
+    document.getElementById('currentMaterialName').textContent = currentMaterialId
+        ? `当前材料：${materials.find(item => item.id === currentMaterialId)?.materialName || ''}`
+        : '当前视图：材料清单台账';
+    document.getElementById('contentTitle').textContent = '材料清单台账';
     document.getElementById('contentBody').innerHTML = `
         <div class="material-table-container">
             <div class="material-table-header">
-                <span>材料明细表</span>
-                <span class="header-meta">${escapeHtml(material.materialName)} · ${material.files.length ? material.files.length + ' 个具体文件' : '该材料当前缺失'}</span>
+                <span>MSF11-20 材料清单台账</span>
+                <span class="header-meta">当前显示 ${filtered.length} 项材料，按材料项补充文件并维护覆盖范围</span>
             </div>
-            <table class="material-data-table">
-                <thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead>
-                <tbody>${fileRows || `<tr><td colspan="3"><div class="empty-state">该材料暂无上传文件。请点击右上角“上传文件”或“从资料库选择”进行补充。</div></td></tr>`}</tbody>
+            <table class="material-ledger-table">
+                <thead><tr><th>#</th><th>材料清单项</th><th>适用体系</th><th>文件数量</th><th>覆盖范围</th><th>状态</th><th>操作</th></tr></thead>
+                <tbody>${rows || `<tr><td colspan="7"><div class="empty-state">当前筛选条件下暂无材料项。请调整筛选或搜索条件。</div></td></tr>`}</tbody>
             </table>
         </div>`;
     renderMaterialNav();
     updatePanels();
 }
+function switchMaterial(materialId) {
+    return selectMaterial(materialId, true);
+}
+function selectMaterial(materialId, expand = true) {
+    currentMaterialId = materialId;
+    const material = materials.find(item => item.id === materialId);
+    if (!material) return;
+    document.getElementById('currentMaterialName').textContent = `当前材料：${material.materialName}`;
+    renderPageTags(material.applicableSystems);
+    renderUploadSystemChecks(material);
+    if (expand) expandedMaterialIds.add(material.id);
+    if (activeView === 'files') renderCurrentFileListView(getFilteredMaterials());
+    else renderLedgerView();
+}
 function toggleGroup(title) {
     title.closest('.material-group').classList.toggle('collapsed');
 }
 function showAllMaterials() { renderAllMaterialsView(); }
+function switchView(view) {
+    clearUploadPreview();
+    if (view === 'files') renderCurrentFileListView(getFilteredMaterials());
+    else renderAllMaterialsView();
+}
+function updateViewSwitch() {
+    const ledgerBtn = document.getElementById('ledgerViewBtn');
+    const fileBtn = document.getElementById('fileViewBtn');
+    if (ledgerBtn) ledgerBtn.classList.toggle('active', activeView === 'ledger');
+    if (fileBtn) fileBtn.classList.toggle('active', activeView === 'files');
+}
+function toggleMaterialFiles(materialId) {
+    if (expandedMaterialIds.has(materialId)) expandedMaterialIds.delete(materialId);
+    else expandedMaterialIds.add(materialId);
+    currentMaterialId = materialId;
+    renderLedgerView();
+}
 function toggleSystemFilter(system) {
     if (selectedSystems.has(system)) selectedSystems.delete(system);
     else selectedSystems.add(system);
-    updateFilterStats();
-    renderAllMaterialsView();
+    updateSystemFilterTags();
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
 }
-function updateFilterStats() {
-    const systemFilterStats = document.getElementById('systemFilterStats');
-    if (systemFilterStats) systemFilterStats.textContent = selectedSystems.size ? `已选：${Array.from(selectedSystems).join('+')}` : '已选：全部';
+function resetSystemFilter() {
+    selectedSystems.clear();
+    updateSystemFilterTags();
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
+}
+function updateSystemFilterTags() {
+    const allInput = document.getElementById('systemFilterAll');
+    if (allInput) allInput.checked = selectedSystems.size === 0;
+    document.querySelectorAll('input[data-system-filter]').forEach(input => {
+        input.checked = selectedSystems.has(input.dataset.systemFilter);
+    });
+    const text = document.getElementById('systemFilterText');
+    if (text) text.textContent = selectedSystems.size ? Array.from(selectedSystems).join('/') : '全部体系';
+}
+function toggleSystemFilterMenu(event) {
+    event.stopPropagation();
+    document.getElementById('systemFilterMenu')?.classList.toggle('active');
 }
 function filterByStatus(type, element) {
     currentStatusFilter = type;
     document.querySelectorAll('[data-status-filter]').forEach(tag => tag.classList.remove('active'));
     element.classList.add('active');
-    renderAllMaterialsView();
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
 }
 function filterMaterials(value) {
     searchKeyword = value.trim();
-    renderAllMaterialsView();
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
+}
+function getSystemCompletionStats() {
+    return PROJECT_SYSTEMS.map(system => {
+        const scoped = materials.filter(item => item.applicableSystems.includes(system));
+        const done = scoped.filter(item => getMaterialCoverage(item).covered.includes(system)).length;
+        const lack = scoped.length - done;
+        const percent = Math.round(done / Math.max(scoped.length, 1) * 100);
+        return { system, scoped, done, lack, percent, meta: getSystemMeta(system) };
+    });
+}
+function renderRightConsole(systemStats, total, ready, missing) {
+    const isReady = missing === 0;
+    const decisionState = document.getElementById('decisionState');
+    if (!decisionState) return;
+    decisionState.classList.toggle('ready', isReady);
+    document.getElementById('taskStateTag').textContent = isReady ? '待提交' : '草稿';
+    document.getElementById('taskStateTag').className = `t-tag ${isReady ? 'tag-primary' : 'tag-warning'}`;
+    document.getElementById('decisionTitle').textContent = isReady ? '可提交初次评定' : '暂不可提交';
+    const lackSystems = systemStats.filter(item => item.lack > 0);
+    document.getElementById('decisionReason').textContent = isReady
+        ? 'Q/E/S/F 四体系必备归档材料均已补齐，提交后进入初次评定。'
+        : `仍有 ${lackSystems.length} 个体系存在缺失材料，合计 ${missing} 项材料未补齐。`;
+    document.getElementById('consoleStats').innerHTML = `
+        <div class="console-stat"><div class="console-stat-value">${total}</div><div class="console-stat-label">材料总项</div></div>
+        <div class="console-stat"><div class="console-stat-value" style="color:var(--pass-color);">${ready}</div><div class="console-stat-label">已补齐</div></div>
+        <div class="console-stat"><div class="console-stat-value" style="color:var(--reject-color);">${missing}</div><div class="console-stat-label">缺失项</div></div>`;
+    document.getElementById('systemScopeText').textContent = `${PROJECT_SYSTEMS.length} 个体系`;
+    document.getElementById('consoleProgressList').innerHTML = [...systemStats]
+        .sort((a, b) => b.lack - a.lack || a.percent - b.percent)
+        .map(item => `
+            <div class="console-progress-item">
+                <div class="console-progress-head">
+                    <div class="console-progress-name">
+                        <span class="system-tag-mini" style="${getSystemBadgeStyle(item.system)}">${item.system}</span>
+                        <span title="${escapeHtml(item.meta.name)}">${escapeHtml(item.meta.short)}</span>
+                    </div>
+                    <strong style="color:${item.meta.color};">${item.percent}%</strong>
+                </div>
+                <div class="console-progress-bar"><span style="width:${item.percent}%;background:${item.meta.color};"></span></div>
+                <div class="console-progress-foot">
+                    <span>已完成 ${item.done}/${item.scoped.length}</span>
+                    <span class="${item.lack === 0 ? 'done-text' : 'missing-text'}">${item.lack === 0 ? '已齐全' : '缺失 ' + item.lack + ' 项'}</span>
+                </div>
+            </div>`).join('');
 }
 function updatePanels() {
     const total = materials.length;
-    const ready = materials.filter(item => item.files.length > 0).length;
+    const ready = materials.filter(item => getMaterialCoverage(item).status === 'ready').length;
     const missing = total - ready;
-    document.getElementById('globalStats').textContent = `总计: ${total}项 | 已完成: ${ready} | 缺失: ${missing}`;
-    const totalCount = document.getElementById('totalCount');
-    if (totalCount) totalCount.textContent = total;
-    document.getElementById('submitBtn').disabled = missing !== 0;
-    document.getElementById('systemOverview').innerHTML = PROJECT_SYSTEMS.map(system => {
-        const meta = getSystemMeta(system);
-        const scoped = materials.filter(item => item.applicableSystems.includes(system));
-        const done = scoped.filter(item => item.files.length > 0).length;
-        const lack = scoped.length - done;
-        const percent = Math.round(done / Math.max(scoped.length, 1) * 100);
-        const active = selectedSystems.has(system) ? ' active' : '';
-        return `
-            <div class="system-overview-card${active}" style="--system-color:${meta.color};--system-soft-bg:${meta.softBg};--system-soft-border:${meta.softBorder};" onclick="toggleSystemFilter('${system}')" title="${escapeHtml(meta.name)}">
-                <div class="system-card-head">
-                    <div style="display:flex;align-items:center;min-width:0;">
-                        <div class="system-card-letter" style="color:${meta.color};">${system}</div>
-                        <div class="system-card-name">${meta.short}</div>
-                    </div>
-                    <div class="system-card-percent">${percent}%</div>
-                </div>
-                <div class="system-card-meta">
-                    <span class="${lack === 0 ? 'system-card-done' : ''}">已完成 ${done}/${scoped.length}</span>
-                    <span class="${lack === 0 ? 'system-card-done' : 'system-card-missing'}">缺失 ${lack} 项</span>
-                </div>
-                <div class="system-card-progress"><span style="width:${percent}%;background:${meta.color};"></span></div>
-            </div>`;
-    }).join('');
+    const fileCount = materials.reduce((sum, item) => sum + item.files.length, 0);
+    const percent = Math.round(ready / Math.max(total, 1) * 100);
+    const isReady = missing === 0;
+    const globalStats = document.getElementById('globalStats');
+    if (globalStats) globalStats.textContent = `总计: ${total}项 | 已补齐: ${ready} | 缺失: ${missing}`;
+    document.getElementById('submitBtn').disabled = !isReady;
+    const projectTip = document.getElementById('projectTip');
+    if (projectTip) {
+        projectTip.textContent = isReady
+            ? '48 项归档材料均已补齐，可提交初次评定。'
+            : `仍有 ${missing} 项必备归档材料未补齐，补齐后可提交初次评定。`;
+    }
+    const projectSummary = document.getElementById('projectSummary');
+    if (projectSummary) {
+        projectSummary.innerHTML = `
+            <div class="project-summary-card"><div class="project-summary-label">材料总项数</div><div class="project-summary-value">${total}</div></div>
+            <div class="project-summary-card"><div class="project-summary-label">已带入/已上传文件</div><div class="project-summary-value success">${fileCount}</div></div>
+            <div class="project-summary-card"><div class="project-summary-label">已补齐材料项</div><div class="project-summary-value success">${ready}</div></div>
+            <div class="project-summary-card"><div class="project-summary-label">缺失材料项</div><div class="project-summary-value ${missing ? 'danger' : 'success'}">${missing}</div></div>
+            <div class="project-summary-card"><div class="project-summary-label">整体完成率</div><div class="project-summary-value ${isReady ? 'success' : 'warning'}">${percent}%</div></div>`;
+    }
+    const systemStats = getSystemCompletionStats();
+    renderRightConsole(systemStats, total, ready, missing);
     renderUploadSystemChecks(materials.find(item => item.id === currentMaterialId));
+}
+function filterMissingFromConsole() {
+    currentStatusFilter = 'missing';
+    document.querySelectorAll('[data-status-filter]').forEach(tag => tag.classList.toggle('active', tag.dataset.statusFilter === 'missing'));
+    renderLedgerView();
 }
 function renderUploadSystemChecks(material) {
     const wrap = document.getElementById('uploadSystemChecks');
     if (!wrap) return;
-    const systems = material && material.id !== 'all' ? material.applicableSystems : (selectedSystems.size ? Array.from(selectedSystems) : PROJECT_SYSTEMS);
-    wrap.innerHTML = systems.map(system => `<label><input type="checkbox" value="${system}" class="upload-sys-check" checked> ${system}</label>`).join('');
-}
-function triggerLocalUpload() {
-    if (currentMaterialId === 'all') {
-        const firstMissing = materials.find(item => item.files.length === 0);
-        if (firstMissing) switchMaterial(firstMissing.id);
+    const hint = document.getElementById('uploadCoverageHint');
+    const name = document.getElementById('uploadMaterialName');
+    const systems = material ? getMaterialCoverage(material).applicable : PROJECT_SYSTEMS;
+    const missing = material ? getMaterialCoverage(material).missing : systems;
+    const defaults = missing.length ? missing : systems;
+    if (name) name.textContent = material ? material.materialName : '请选择材料';
+    if (hint) {
+        hint.textContent = material
+            ? (missing.length
+                ? `默认选中未覆盖范围：${missing.join('/')}。如需全部覆盖，可手动勾选 ${systems.join('/')}。`
+                : `该材料当前已覆盖 ${systems.join('/')}，再次上传将作为补充文件关联到所选范围。`)
+            : '系统会默认选中当前材料尚未覆盖的体系。';
     }
+    wrap.innerHTML = systems.map(system => `<label><input type="checkbox" value="${system}" class="upload-sys-check" ${defaults.includes(system) ? 'checked' : ''}> ${system}</label>`).join('');
+}
+function triggerLocalUpload(materialId) {
+    const target = materialId ? materials.find(item => item.id === materialId) : materials.find(item => item.id === currentMaterialId);
+    if (!target) {
+        showFirstMissingMaterial();
+        return;
+    }
+    currentMaterialId = target.id;
+    expandedMaterialIds.add(target.id);
+    renderUploadSystemChecks(target);
+    renderLedgerView();
     document.getElementById('fileUpload').click();
 }
 function handleLocalUpload(event) {
@@ -1697,13 +2221,13 @@ function createAutoSupplementFile(material) {
 function simulateAllUploaded() {
     let added = 0;
     materials.forEach(material => {
-        if (material.files.length === 0) {
+        const coverage = getMaterialCoverage(material);
+        if (coverage.status !== 'ready') {
             material.files.push(createAutoSupplementFile(material));
             added++;
         }
     });
-    if (currentMaterialId === 'all') renderAllMaterialsView();
-    else switchMaterial(currentMaterialId);
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
     showToast(added > 0 ? `已模拟补齐 ${added} 项缺失材料，可以提交初次评定。` : '全部材料已补齐，无需重复补充。');
 }
 function confirmUpload() {
@@ -1712,6 +2236,7 @@ function confirmUpload() {
     const selected = Array.from(document.querySelectorAll('.upload-sys-check:checked')).map(input => input.value);
     if (!selected.length) { showToast('请至少选择一个覆盖体系'); return; }
     if (!pendingFiles.length) { showToast('请先选择文件'); return; }
+    const uploadCount = pendingFiles.length;
     pendingFiles.forEach((file, index) => {
         material.files.push({
             id: `${material.id}-manual-${Date.now()}-${index}`,
@@ -1723,9 +2248,11 @@ function confirmUpload() {
             systems: selected
         });
     });
+    expandedMaterialIds.add(material.id);
     clearUploadPreview();
-    switchMaterial(material.id);
-    showToast('材料已补充，完整性已重新计算');
+    const coverage = getMaterialCoverage(material);
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
+    showToast(`已上传 ${uploadCount} 个文件，覆盖 ${selected.join('/')}，${coverage.missing.length ? '仍缺 ' + coverage.missing.join('/') : '该材料已补齐'}`);
 }
 function getLibraryCategories() {
     const categories = [
@@ -1808,11 +2335,29 @@ function toggleLibrarySelectAll(checked) {
     });
     renderLibraryTable();
 }
-function openLibraryModal() {
-    if (currentMaterialId === 'all') {
-        const firstMissing = materials.find(item => item.files.length === 0);
-        if (firstMissing) switchMaterial(firstMissing.id);
+function showFirstMissingMaterial() {
+    const firstMissing = materials.find(item => getMaterialCoverage(item).status !== 'ready');
+    if (!firstMissing) {
+        showToast('暂无缺失材料，当前项目满足提交初次评定条件。');
+        return;
     }
+    currentStatusFilter = 'all';
+    document.querySelectorAll('[data-status-filter]').forEach(tag => tag.classList.toggle('active', tag.dataset.statusFilter === 'all'));
+    currentMaterialId = firstMissing.id;
+    expandedMaterialIds.add(firstMissing.id);
+    activeView = 'ledger';
+    renderLedgerView();
+    showToast(`已定位缺失材料：${firstMissing.materialName}`);
+}
+function openLibraryModal(materialId) {
+    const target = materialId ? materials.find(item => item.id === materialId) : materials.find(item => item.id === currentMaterialId);
+    if (!target) {
+        showFirstMissingMaterial();
+        return;
+    }
+    currentMaterialId = target.id;
+    expandedMaterialIds.add(target.id);
+    renderLedgerView();
     selectedLibraryFiles = new Set();
     libraryFilters = { category: 'all', keyword: '', system: 'all', fileType: 'all', step: 'all' };
     document.getElementById('librarySearch').value = '';
@@ -1844,8 +2389,10 @@ function selectFromLibrary() {
         });
     });
     closeModal('libraryModal');
-    switchMaterial(material.id);
-    showToast(`已从资料库关联 ${selectedFiles.length} 份资料`);
+    expandedMaterialIds.add(material.id);
+    const coverage = getMaterialCoverage(material);
+    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
+    showToast(`已从资料库关联 ${selectedFiles.length} 份资料，${coverage.missing.length ? '仍缺 ' + coverage.missing.join('/') : '该材料已补齐'}`);
 }
 function deleteFile(materialId, fileId) {
     const material = materials.find(item => item.id === materialId);
@@ -1887,6 +2434,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCatalog();
     initMaterials();
     renderPageTags(PROJECT_SYSTEMS);
+    document.addEventListener('click', event => {
+        if (!event.target.closest('.system-filter-dropdown')) {
+            document.getElementById('systemFilterMenu')?.classList.remove('active');
+        }
+    });
     renderAllMaterialsView();
 });
 </script>

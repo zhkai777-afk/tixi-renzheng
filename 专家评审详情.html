@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>专家评审详情 - 审核材料归档系统</title>
+    <link rel="stylesheet" href="pdf-preview.css">
     <style>
         * {
             box-sizing: border-box;
@@ -1520,17 +1521,7 @@ function deleteIssue(id) {
 function previewFile(encodedName) {
     const name = decodeURIComponent(encodedName);
     document.getElementById("previewTitle").textContent = `预览：${name}`;
-    document.getElementById("previewBody").innerHTML = `
-        <div style="border:1px solid #e7e7e7;border-radius:8px;padding:28px;background:#fff;">
-            <h3 style="font-size:18px;margin-bottom:12px;">${escapeHtml(name)}</h3>
-            <table>
-                <tr><th>项目</th><td>TASK-2026-001 / 客户A</td></tr>
-                <tr><th>认证领域</th><td>Q/E/S/F 四体系整合审核</td></tr>
-                <tr><th>文件说明</th><td>此处为原型预览区域，模拟展示前序环节自动带入的归档材料。</td></tr>
-                <tr><th>评审提示</th><td>专家可依据材料内容登记问题、要求补充材料或补充审核。</td></tr>
-            </table>
-        </div>
-    `;
+    document.getElementById("previewBody").innerHTML = renderProjectPdfInline(name);
     document.getElementById("previewModal").classList.add("show");
 }
 
@@ -1574,5 +1565,6 @@ renderIssues();
 renderConsole();
 restoreDraft();
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>

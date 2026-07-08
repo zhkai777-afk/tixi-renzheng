@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pdf-preview.css">
     <title>归档材料提交 - 审核材料归档系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -859,25 +860,24 @@
             flex-wrap: wrap;
         }
         .ledger-files-row td {
-            padding: 0;
-            background: #F6F9FE;
+            padding: 10px 14px 16px 56px;
+            background: #F7F9FC;
+            border-bottom: 1px solid #edf1f5;
         }
         .ledger-file-panel {
-            margin: 0 14px 14px 62px;
+            width: 100%;
             padding: 12px 14px 14px;
-            border-top: 1px solid #edf1f5;
-            border-left: 3px solid #B7D3FF;
-            border-right: 1px solid #DCE8FA;
-            border-bottom: 1px solid #DCE8FA;
-            border-radius: 0 0 8px 8px;
-            background: #F8FBFF;
+            border: 1px solid #DCE8FA;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(15, 35, 75, .04);
         }
         .ledger-file-panel-title {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 10px;
-            color: #0B3B88;
+            color: rgba(0,0,0,.78);
             font-size: 13px;
             font-weight: 600;
         }
@@ -885,13 +885,13 @@
             width: 100%;
             border-collapse: collapse;
             background: #fff;
-            border: 1px solid #e5eaf3;
+            border: 1px solid #edf1f5;
             border-radius: 8px;
             overflow: hidden;
         }
         .compact-file-table th {
             padding: 9px 12px;
-            background: #fafafa;
+            background: #F8FAFD;
             border-bottom: 1px solid #edf1f5;
             font-size: 12px;
         }
@@ -2411,7 +2411,9 @@ function confirmDeleteFile() {
     }
     pendingDelete = null;
 }
-function previewFile(name) { showToast(`预览文件：${name}`); }
+function previewFile(name) {
+    openProjectPdfPreview(name);
+}
 function openSubmitModal() { document.getElementById('submitModal').classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 function confirmSubmit() {
@@ -2439,5 +2441,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAllMaterialsView();
 });
 </script>
+<script src="pdf-preview.js"></script>
 </body>
 </html>
