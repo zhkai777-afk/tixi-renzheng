@@ -1,6 +1,9 @@
 (function () {
     const scriptUrl = document.currentScript && document.currentScript.src ? document.currentScript.src : "";
     const PDF_BASE = scriptUrl ? new URL("output/pdf/", scriptUrl).href : "output/pdf/";
+    const PDF_MAPPING_URL = scriptUrl ? new URL("pdf-url-mapping.csv", scriptUrl).href : "pdf-url-mapping.csv";
+    const PDF_URL_MAP = new Map();
+    let pdfUrlMappingPromise = null;
     const PDF_FILES = [
         "MSF11-13 核查记录表（2015版）最新勘误.pdf",
         "MSF11-04 管理体系过程清单（2019.9.5修订）.pdf",
@@ -90,6 +93,89 @@
         return matched ? matched[1] : "MSF11-20+审核材料归档上报清单（2025.12.31修订）.pdf";
     }
 
+    function parseCsvLine(line) {
+        const cells = [];
+        let current = "";
+        let quoted = false;
+        for (let i = 0; i < line.length; i += 1) {
+            const char = line[i];
+            const next = line[i + 1];
+            if (char === '"' && quoted && next === '"') {
+                current += '"';
+                i += 1;
+            } else if (char === '"') {
+                quoted = !quoted;
+            } else if (char === "," && !quoted) {
+                cells.push(current);
+                current = "";
+            } else {
+                current += char;
+            }
+        }
+        cells.push(current);
+        return cells.map(cell => cell.trim());
+    }
+
+    function stripBom(value) {
+        return String(value || "").replace(/^\uFEFF/, "");
+    }
+
+    function normalizeFileKey(value) {
+        return stripBom(value)
+            .trim()
+            .replace(/\\/g, "/")
+            .split("/")
+            .pop()
+            .replace(/\.pdf$/i, "")
+            .replace(/\s+/g, "")
+            .toLowerCase();
+    }
+
+    function findColumnIndex(headers, candidates, fallbackIndex) {
+        const normalizedHeaders = headers.map(header => stripBom(header).trim());
+        const index = normalizedHeaders.findIndex(header => candidates.includes(header));
+        return index >= 0 ? index : fallbackIndex;
+    }
+
+    function registerPdfUrl(fileName, url) {
+        const cleanName = stripBom(fileName).trim();
+        const cleanUrl = String(url || "").trim();
+        if (!cleanName || !cleanUrl) return;
+        PDF_URL_MAP.set(cleanName, cleanUrl);
+        PDF_URL_MAP.set(normalizeFileKey(cleanName), cleanUrl);
+    }
+
+    function loadPdfUrlMapping() {
+        if (pdfUrlMappingPromise) return pdfUrlMappingPromise;
+        pdfUrlMappingPromise = fetch(PDF_MAPPING_URL, { cache: "no-store" })
+            .then(response => {
+                if (!response.ok) throw new Error(`PDF mapping not found: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                let nameIndex = 1;
+                let urlIndex = 2;
+                text.split(/\r?\n/).forEach((line, index) => {
+                    if (!line.trim()) return;
+                    const cells = parseCsvLine(line);
+                    if (index === 0 && stripBom(cells[0]) === "序号") {
+                        nameIndex = findColumnIndex(cells, ["文件名", "PDF文件名", "pdf文件名"], 1);
+                        urlIndex = findColumnIndex(cells, ["访问地址", "URL", "url", "链接", "预览地址"], 2);
+                        return;
+                    }
+                    registerPdfUrl(cells[nameIndex], cells[urlIndex]);
+                });
+            })
+            .catch(error => {
+                console.warn("[pdf-preview] 腾讯云 PDF 映射未加载，使用项目本地 PDF 兜底：", error);
+            });
+        return pdfUrlMappingPromise;
+    }
+
+    function resolveRemotePdfUrl(pdfFile) {
+        return PDF_URL_MAP.get(pdfFile) || PDF_URL_MAP.get(normalizeFileKey(pdfFile)) || "";
+    }
+
     function withPdfViewerParams(url) {
         if (!url) return "";
         if (url.includes("#")) return url;
@@ -97,9 +183,19 @@
     }
 
     function resolvePdfUrl(pdfFile) {
+        const remoteUrl = resolveRemotePdfUrl(pdfFile);
+        if (remoteUrl) {
+            return {
+                url: withPdfViewerParams(remoteUrl),
+                fallbackUrl: withPdfViewerParams(`${PDF_BASE}${encodeURIComponent(pdfFile)}`),
+                displayUrl: remoteUrl,
+                sourceLabel: "腾讯云 PDF"
+            };
+        }
         const localUrl = `${PDF_BASE}${encodeURIComponent(pdfFile)}`;
         return {
             url: withPdfViewerParams(localUrl),
+            fallbackUrl: "",
             displayUrl: `${PDF_BASE}${pdfFile}`,
             sourceLabel: "项目本地 PDF"
         };
@@ -119,6 +215,7 @@
                         <div class="project-pdf-preview-meta" id="projectPdfPreviewMeta"></div>
                     </div>
                     <div class="project-pdf-preview-actions">
+                        <button class="project-pdf-preview-btn" id="projectPdfPreviewFallback" type="button" onclick="useProjectPdfLocalFallback()">使用本地兜底</button>
                         <a class="project-pdf-preview-btn" id="projectPdfPreviewOpen" href="#" target="_blank" rel="noopener">新窗口打开</a>
                         <button class="project-pdf-preview-btn project-pdf-preview-close" type="button" aria-label="关闭预览" onclick="closeProjectPdfPreview()">×</button>
                     </div>
@@ -148,7 +245,8 @@
         return mask;
     }
 
-    function openProjectPdfPreview(fileName, options = {}) {
+    async function openProjectPdfPreview(fileName, options = {}) {
+        await loadPdfUrlMapping();
         const businessName = normalizeName(fileName);
         const pdfFile = resolvePdfFile(options.pdfName || businessName);
         const pdfTarget = resolvePdfUrl(pdfFile);
@@ -158,8 +256,29 @@
         document.getElementById("projectPdfPreviewSourceTitle").textContent = pdfTarget.sourceLabel;
         document.getElementById("projectPdfPreviewPath").textContent = pdfTarget.displayUrl;
         document.getElementById("projectPdfPreviewOpen").href = pdfTarget.url;
-        document.getElementById("projectPdfPreviewFrame").src = pdfTarget.url;
+        const fallbackBtn = document.getElementById("projectPdfPreviewFallback");
+        fallbackBtn.style.display = pdfTarget.fallbackUrl ? "inline-flex" : "none";
+        fallbackBtn.dataset.fallbackUrl = pdfTarget.fallbackUrl || "";
+        fallbackBtn.dataset.pdfFile = pdfFile;
+        const frame = document.getElementById("projectPdfPreviewFrame");
+        frame.dataset.fallbackUrl = pdfTarget.fallbackUrl || "";
+        frame.dataset.pdfFile = pdfFile;
+        frame.src = pdfTarget.url;
         mask.classList.add("active");
+    }
+
+    function useProjectPdfLocalFallback() {
+        const frame = document.getElementById("projectPdfPreviewFrame");
+        if (!frame || !frame.dataset.fallbackUrl) return;
+        const pdfFile = frame.dataset.pdfFile || "";
+        const localDisplayUrl = `${PDF_BASE}${pdfFile}`;
+        frame.src = frame.dataset.fallbackUrl;
+        document.getElementById("projectPdfPreviewMeta").textContent = `项目本地 PDF：${localDisplayUrl}`;
+        document.getElementById("projectPdfPreviewSourceTitle").textContent = "项目本地 PDF";
+        document.getElementById("projectPdfPreviewPath").textContent = localDisplayUrl;
+        document.getElementById("projectPdfPreviewOpen").href = frame.dataset.fallbackUrl;
+        const fallbackBtn = document.getElementById("projectPdfPreviewFallback");
+        if (fallbackBtn) fallbackBtn.style.display = "none";
     }
 
     function closeProjectPdfPreview() {
@@ -187,8 +306,13 @@
     });
 
     window.PROJECT_PDF_FILES = PDF_FILES.slice();
+    window.PROJECT_PDF_URL_MAP = PDF_URL_MAP;
+    window.loadProjectPdfUrlMapping = loadPdfUrlMapping;
     window.resolveProjectPdfFile = resolvePdfFile;
     window.openProjectPdfPreview = openProjectPdfPreview;
+    window.useProjectPdfLocalFallback = useProjectPdfLocalFallback;
     window.closeProjectPdfPreview = closeProjectPdfPreview;
     window.renderProjectPdfInline = renderProjectPdfInline;
+
+    loadPdfUrlMapping();
 }());
