@@ -2,3 +2,6 @@
 node_modules/
 **/node_modules/
 *.log
+
+# Local preview files for demos; keep out of GitHub.
+output/pdf/
