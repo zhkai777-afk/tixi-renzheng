@@ -5,3 +5,4 @@ node_modules/
 
 # Local preview files for demos; keep out of GitHub.
 output/pdf/
+tmp/
