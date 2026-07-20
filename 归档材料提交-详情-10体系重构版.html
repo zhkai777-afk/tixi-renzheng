@@ -794,7 +794,7 @@
         }
         .material-ledger-table {
             width: 100%;
-            min-width: 1040px;
+            min-width: 900px;
             border-collapse: collapse;
         }
         .material-ledger-table th {
@@ -837,21 +837,17 @@
             color: rgba(0,0,0,.45);
             font-size: 12px;
         }
-        .coverage-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .coverage-row {
-            display: flex;
+        .common-system-pill {
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .coverage-label {
-            min-width: 44px;
-            color: rgba(0,0,0,.45);
+            height: 24px;
+            padding: 0 10px;
+            border: 1px solid #DCDDE1;
+            border-radius: 4px;
+            background: #F7F8FA;
+            color: rgba(0,0,0,.62);
             font-size: 12px;
+            font-weight: 600;
         }
         .ledger-actions {
             display: flex;
@@ -1456,6 +1452,69 @@
                 flex-direction: column;
             }
         }
+        .guide-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            background: transparent;
+        }
+        .guide-overlay.active { display: block; }
+        .guide-highlight {
+            position: fixed;
+            z-index: 3001;
+            border: 2px solid #0052D9;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, .52), 0 0 0 6px rgba(0, 82, 217, .14);
+            pointer-events: none;
+            transition: all .18s ease;
+        }
+        .guide-popover {
+            position: fixed;
+            z-index: 3002;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, .2);
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .guide-popover-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+        }
+        .guide-popover-title { font-size: 15px; font-weight: 700; }
+        .guide-popover-count { color: #64748b; font-size: 12px; white-space: nowrap; }
+        .guide-popover-body { padding: 14px; color: #334155; font-size: 13px; line-height: 1.7; }
+        .guide-popover-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid #edf1f5;
+        }
+        .guide-actions { display: flex; gap: 8px; }
+        .guide-btn {
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .guide-btn.primary { border-color: #0052D9; background: #0052D9; color: #fff; }
+        .guide-btn:disabled { opacity: .45; cursor: not-allowed; }
+
     </style>
 </head>
 <body>
@@ -1473,6 +1532,7 @@
                 <span class="project-current" id="currentMaterialName">当前视图：材料清单台账</span>
             </div>
             <div class="header-right">
+                <button class="t-button btn-outline" onclick="startPageGuide()">操作指引</button>
                 <button class="t-button btn-outline" onclick="simulateAllUploaded()">模拟全部资料补齐</button>
                 <button class="t-button btn-outline" onclick="showToast('已保存草稿（模拟）')">保存草稿</button>
                 <button class="t-button btn-primary" id="submitBtn" disabled onclick="openSubmitModal()">提交初次评定</button>
@@ -1481,6 +1541,23 @@
         <div class="project-tip" id="projectTip">系统已自动带出前序业务环节产生的归档文件。请补充缺失材料，全部体系达到 100% 后提交初次评定。</div>
         <div class="project-summary" id="projectSummary"></div>
     </header>
+    <div class="guide-overlay" id="pageGuideOverlay" aria-hidden="true">
+        <div class="guide-highlight" id="pageGuideHighlight"></div>
+        <div class="guide-popover" id="pageGuidePopover" role="dialog" aria-modal="true" aria-label="操作指引">
+            <div class="guide-popover-head">
+                <div class="guide-popover-title" id="pageGuideTitle">操作指引</div>
+                <div class="guide-popover-count" id="pageGuideCount">1 / 4</div>
+            </div>
+            <div class="guide-popover-body" id="pageGuideBody"></div>
+            <div class="guide-popover-foot">
+                <button class="guide-btn" type="button" onclick="closePageGuide()">结束指引</button>
+                <div class="guide-actions">
+                    <button class="guide-btn" type="button" id="pageGuidePrev" onclick="movePageGuide(-1)">上一步</button>
+                    <button class="guide-btn primary" type="button" id="pageGuideNext" onclick="movePageGuide(1)">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="main-layout">
         <main class="content-main">
@@ -1815,6 +1892,14 @@ function renderSystemBadges(systems, className = 'sys-badge', maxVisible = 4) {
     const hiddenTitle = hidden.map(system => `${system} ${getSystemMeta(system).name}`).join(' / ');
     return `${badges}<span class="${className} more-system-badge" title="${escapeHtml(hiddenTitle)}">+${hidden.length}</span>`;
 }
+function renderApplicableSystemsCell(systems) {
+    const normalized = normalizeBadgeSystems(systems);
+    const coversAllProjectSystems = PROJECT_SYSTEMS.every(system => normalized.includes(system));
+    if (coversAllProjectSystems && normalized.length === PROJECT_SYSTEMS.length) {
+        return '<span class="common-system-pill">通用</span>';
+    }
+    return renderSystemBadges(systems, 'system-badge-table');
+}
 function renderPageTags(systems = PROJECT_SYSTEMS) {
     const pageTags = document.getElementById('pageTags');
     if (pageTags) {
@@ -1980,16 +2065,10 @@ function renderLedgerView() {
                         </div>
                     </div>
                 </td>
-                <td style="width:14%;"><div class="systems-cell">${renderSystemBadges(material.applicableSystems, 'system-badge-table')}</div></td>
-                <td style="width:11%;"><span class="file-count-pill">${material.files.length ? material.files.length + ' 个文件' : '未上传'}</span></td>
-                <td style="width:23%;">
-                    <div class="coverage-cell">
-                        <div class="coverage-row"><span class="coverage-label">已覆盖</span>${coverage.covered.length ? renderSystemBadges(coverage.covered, 'system-tag-mini') : '<span class="header-meta">暂无</span>'}</div>
-                        <div class="coverage-row"><span class="coverage-label">仍缺</span>${coverage.missing.length ? renderSystemBadges(coverage.missing, 'system-tag-mini') : '<span class="done-text">无缺口</span>'}</div>
-                    </div>
-                </td>
-                <td style="width:9%;">${getStatusBadge(coverage.status)}</td>
-                <td style="width:19%;">
+                <td style="width:16%;"><div class="systems-cell">${renderApplicableSystemsCell(material.applicableSystems)}</div></td>
+                <td style="width:12%;"><span class="file-count-pill">${material.files.length ? material.files.length + ' 个文件' : '未上传'}</span></td>
+                <td style="width:11%;">${getStatusBadge(coverage.status)}</td>
+                <td style="width:25%;">
                     <div class="ledger-actions" onclick="event.stopPropagation()">
                         <button class="t-button btn-outline btn-small" onclick="triggerLocalUpload('${material.id}')">上传文件</button>
                         <button class="t-button btn-outline btn-small" onclick="openLibraryModal('${material.id}')">资料库选择</button>
@@ -1997,7 +2076,7 @@ function renderLedgerView() {
                     </div>
                 </td>
             </tr>
-            ${expanded ? `<tr class="ledger-files-row"><td colspan="7"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
+            ${expanded ? `<tr class="ledger-files-row"><td colspan="6"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
     }).join('');
     document.getElementById('currentMaterialName').textContent = currentMaterialId
         ? `当前材料：${materials.find(item => item.id === currentMaterialId)?.materialName || ''}`
@@ -2007,11 +2086,11 @@ function renderLedgerView() {
         <div class="material-table-container">
             <div class="material-table-header">
                 <span>MSF11-20 材料清单台账</span>
-                <span class="header-meta">当前显示 ${filtered.length} 项材料，按材料项补充文件并维护覆盖范围</span>
+                <span class="header-meta">当前显示 ${filtered.length} 项材料，按材料项补充文件</span>
             </div>
             <table class="material-ledger-table">
-                <thead><tr><th>#</th><th>材料清单项</th><th>适用体系</th><th>文件数量</th><th>覆盖范围</th><th>状态</th><th>操作</th></tr></thead>
-                <tbody>${rows || `<tr><td colspan="7"><div class="empty-state">当前筛选条件下暂无材料项。请调整筛选或搜索条件。</div></td></tr>`}</tbody>
+                <thead><tr><th>#</th><th>材料清单项</th><th>适用体系</th><th>文件数量</th><th>状态</th><th>操作</th></tr></thead>
+                <tbody>${rows || `<tr><td colspan="6"><div class="empty-state">当前筛选条件下暂无材料项。请调整筛选或搜索条件。</div></td></tr>`}</tbody>
             </table>
         </div>`;
     renderMaterialNav();
@@ -2440,6 +2519,96 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     renderAllMaterialsView();
 });
+
+const PAGE_GUIDE_STEPS = [
+    {
+        "target": ".top-header",
+        "title": "确认任务信息",
+        "body": "先核对任务号、客户和当前材料视图，确认本次处理的是 TASK-2026-001 的 Q/E/S/F 四体系归档材料。"
+    },
+    {
+        "target": ".sidebar-left",
+        "title": "定位缺失材料",
+        "body": "在左侧材料清单中按体系、缺失状态和材料名称筛选，快速找到仍需补充的 MSF11-20 材料项。"
+    },
+    {
+        "target": ".content-main",
+        "title": "查看并补充文件",
+        "body": "中间工作区展示材料台账和具体文件，可进入单项材料后本地上传或从资料库选择补充材料。"
+    },
+    {
+        "target": "#submitBtn",
+        "title": "提交初次评定",
+        "body": "所有涉及体系必备材料齐全后，页头的提交初次评定按钮会启用，提交后进入初评。"
+    }
+];
+let pageGuideIndex = 0;
+let pageGuideTarget = null;
+function startPageGuide() {
+    pageGuideIndex = 0;
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    renderPageGuide();
+}
+function closePageGuide() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    pageGuideTarget = null;
+}
+function movePageGuide(delta) {
+    const next = pageGuideIndex + delta;
+    if (next < 0) return;
+    if (next >= PAGE_GUIDE_STEPS.length) {
+        closePageGuide();
+        return;
+    }
+    pageGuideIndex = next;
+    renderPageGuide();
+}
+function renderPageGuide() {
+    const step = PAGE_GUIDE_STEPS[pageGuideIndex];
+    if (!step) return;
+    pageGuideTarget = document.querySelector(step.target) || document.querySelector('.page-container') || document.body;
+    document.getElementById('pageGuideTitle').textContent = step.title;
+    document.getElementById('pageGuideBody').textContent = step.body;
+    document.getElementById('pageGuideCount').textContent = (pageGuideIndex + 1) + ' / ' + PAGE_GUIDE_STEPS.length;
+    document.getElementById('pageGuidePrev').disabled = pageGuideIndex === 0;
+    document.getElementById('pageGuideNext').textContent = pageGuideIndex === PAGE_GUIDE_STEPS.length - 1 ? '完成' : '下一步';
+    pageGuideTarget.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    window.setTimeout(updatePageGuidePosition, 220);
+}
+function updatePageGuidePosition() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay || !overlay.classList.contains('active') || !pageGuideTarget) return;
+    const rect = pageGuideTarget.getBoundingClientRect();
+    const pad = 6;
+    const highlight = document.getElementById('pageGuideHighlight');
+    const popover = document.getElementById('pageGuidePopover');
+    const left = Math.max(8, rect.left - pad);
+    const top = Math.max(8, rect.top - pad);
+    const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+    highlight.style.left = left + 'px';
+    highlight.style.top = top + 'px';
+    highlight.style.width = Math.max(40, width) + 'px';
+    highlight.style.height = Math.max(32, height) + 'px';
+    const popWidth = Math.min(340, window.innerWidth - 32);
+    let popLeft = left + width + 16;
+    if (popLeft + popWidth > window.innerWidth - 16) popLeft = Math.max(16, left - popWidth - 16);
+    let popTop = Math.min(Math.max(16, top), window.innerHeight - 260);
+    popover.style.left = popLeft + 'px';
+    popover.style.top = popTop + 'px';
+}
+window.addEventListener('resize', updatePageGuidePosition);
+document.addEventListener('scroll', updatePageGuidePosition, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePageGuide();
+});
+
 </script>
 <script src="pdf-preview.js"></script>
 </body>

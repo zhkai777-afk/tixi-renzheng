@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>证书决定管理 - 体系认证平台</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --primary: #0052d9;
+            --primary-hover: #003cab;
+            --page-bg: #f5f7fa;
+            --surface: #fff;
+            --surface-soft: #fafafa;
+            --border: #e5e7eb;
+            --border-strong: #d8dde6;
+            --text: rgba(0, 0, 0, 0.9);
+            --text-secondary: rgba(0, 0, 0, 0.62);
+            --text-muted: rgba(0, 0, 0, 0.42);
+            --success: #00875a;
+            --warning: #c46000;
+            --danger: #d54941;
+            --q-bg: #e8f1ff;
+            --q-border: #b7d3ff;
+            --q-text: #0052d9;
+            --e-bg: #e6f7f1;
+            --e-border: #b8e8d7;
+            --e-text: #00875a;
+            --s-bg: #fff3e5;
+            --s-border: #ffd5a8;
+            --s-text: #c46000;
+            --f-bg: #f1edff;
+            --f-border: #d6caff;
+            --f-text: #6339d8;
+            --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        html { min-width: 320px; background: var(--page-bg); }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            background: var(--page-bg);
+            font: 14px/1.5 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        button, input, select { font: inherit; }
+
+        button, [role="tab"], .type-chip, .page-button { cursor: pointer; }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        [role="tab"]:focus-visible,
+        .type-chip:focus-visible,
+        .page-button:focus-visible {
+            outline: 3px solid rgba(0, 82, 217, 0.18);
+            outline-offset: 2px;
+        }
+
+        .page-shell {
+            width: 100%;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            min-height: 44px;
+            padding: 0 8px 12px;
+        }
+
+        h1 { margin: 0; font-size: 20px; line-height: 1.4; font-weight: 700; }
+        .page-description { color: var(--text-muted); font-size: 13px; }
+
+        .workspace {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .status-tabs {
+            display: flex;
+            align-items: stretch;
+            min-height: 48px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .tab-button {
+            position: relative;
+            min-width: 92px;
+            min-height: 48px;
+            padding: 0 16px;
+            border: 0;
+            background: transparent;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .tab-button:hover { color: var(--primary); background: #f7faff; }
+        .tab-button[aria-selected="true"] { color: var(--primary); font-weight: 600; }
+        .tab-button[aria-selected="true"]::after {
+            content: "";
+            position: absolute;
+            right: 16px;
+            bottom: 0;
+            left: 16px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            margin-left: 4px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: #f2f3f5;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tab-button[aria-selected="true"] .tab-count { background: #e8f1ff; color: var(--primary); }
+        .tab-button[data-status="待评定"] .tab-count { background: #fff0d6; color: var(--warning); }
+
+        .content-area { padding: 16px 20px 20px; }
+
+        .filter-panel {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #f7f8fa;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) minmax(220px, 1.15fr) minmax(190px, 0.9fr) auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .field { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+        .field label { color: var(--text-secondary); font-size: 13px; font-weight: 500; }
+
+        .control {
+            width: 100%;
+            height: 36px;
+            padding: 0 11px;
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            background: var(--surface);
+            color: var(--text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .control::placeholder { color: rgba(0, 0, 0, 0.3); }
+        .control:hover { border-color: #9aa4b2; }
+        .control:focus { border-color: var(--primary); outline: 0; box-shadow: 0 0 0 3px rgba(0, 82, 217, 0.1); }
+
+        .filter-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 16px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: var(--surface);
+            transition: color 0.15s, border-color 0.15s, background 0.15s;
+        }
+
+        .button-primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .button-primary:hover { border-color: var(--primary-hover); background: var(--primary-hover); }
+        .button-secondary { border-color: var(--border-strong); color: var(--text-secondary); }
+        .button-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        .button-link { padding: 0 8px; border-color: transparent; background: transparent; color: var(--primary); }
+        .button-link:hover { background: #eaf2ff; }
+
+        .chevron { width: 14px; height: 14px; transition: transform 0.2s ease; }
+        .button-link[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+
+        .advanced-filters {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 0;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.2s ease, opacity 0.15s ease, margin-top 0.2s ease;
+        }
+
+        .advanced-filters.open { max-height: 100px; margin-top: 16px; opacity: 1; }
+
+        .type-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 0 12px;
+        }
+
+        .type-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .type-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            user-select: none;
+        }
+
+        .type-chip:hover { border-color: #9ebcff; color: var(--primary); }
+        .type-chip.active { border-color: var(--primary); background: #f2f6ff; color: var(--primary); font-weight: 600; }
+        .type-dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+        .type-chip[data-type="初次认证"] .type-dot { background: var(--q-text); }
+        .type-chip[data-type="监督审核"] .type-dot { background: var(--e-text); }
+        .type-chip[data-type="再认证"] .type-dot { background: #d97706; }
+
+        .result-summary { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+        .result-summary strong { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+        .table-frame { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .table-scroll { width: 100%; overflow-x: auto; }
+
+        table { width: 100%; min-width: 1135px; border-collapse: collapse; table-layout: fixed; }
+        th, td { border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+        th { height: 46px; padding: 0 14px; background: #f4f6f8; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+        td { height: 58px; padding: 9px 14px; color: var(--text-secondary); font-size: 13px; }
+        tbody tr:last-child td { border-bottom: 0; }
+        tbody tr:hover { background: #fafcff; }
+
+        .task-link, .detail-button {
+            border: 0;
+            background: transparent;
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .detail-button { white-space: nowrap; }
+
+        .task-link { padding: 6px 0; font-variant-numeric: tabular-nums; }
+        .task-link:hover, .detail-button:hover { color: var(--primary-hover); text-decoration: underline; }
+        .customer-name { color: var(--text); font-weight: 500; }
+        .systems { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        .system-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 20px;
+            padding: 0 6px;
+            border: 1px solid;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .system-Q { border-color: var(--q-border); background: var(--q-bg); color: var(--q-text); }
+        .system-E { border-color: var(--e-border); background: var(--e-bg); color: var(--e-text); }
+        .system-S { border-color: var(--s-border); background: var(--s-bg); color: var(--s-text); }
+        .system-F { border-color: var(--f-border); background: var(--f-bg); color: var(--f-text); }
+
+        .cert-type, .status-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 2px 9px;
+            border: 1px solid;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .cert-type.initial { border-color: #c8d8ff; background: #eef3ff; color: #2457c5; }
+        .cert-type.surveillance { border-color: #b8e8d7; background: #e6f7f1; color: #00875a; }
+        .cert-type.recertification { border-color: #d6caff; background: #f1edff; color: #6339d8; }
+        .status-pending { border-color: #ffe1b5; background: #fff3df; color: #ad5700; }
+        .status-progress { border-color: #c8d8ff; background: #eef3ff; color: #2457c5; }
+        .status-supplement { border-color: #ffd5a8; background: #fff3e5; color: #a84e00; }
+        .status-passed { border-color: #b8e8d7; background: #e6f7f1; color: #00875a; }
+        .status-rejected { border-color: #ffc7c3; background: #fff0ef; color: #c9352e; }
+        .date-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+        .empty-state { display: none; padding: 60px 20px; text-align: center; }
+        .empty-state.visible { display: block; }
+        .empty-icon { width: 44px; height: 44px; margin: 0 auto 12px; color: #94a3b8; }
+        .empty-title { margin-bottom: 6px; color: var(--text); font-weight: 600; }
+        .empty-description { margin-bottom: 16px; color: var(--text-muted); font-size: 13px; }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 16px;
+        }
+
+        .page-size, .jump-input { width: auto; height: 32px; }
+        .page-size { min-width: 94px; }
+        .page-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .page-button {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--text-secondary);
+        }
+        .page-button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+        .page-button.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .page-button:disabled { cursor: not-allowed; opacity: 0.4; }
+        .page-ellipsis { display: inline-flex; align-items: center; height: 32px; color: var(--text-muted); }
+        .jump-label { color: var(--text-secondary); font-size: 13px; }
+        .jump-input { width: 56px; text-align: center; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.48);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            width: min(680px, 100%);
+            max-height: calc(100vh - 40px);
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        }
+        .modal-header, .modal-footer { display: flex; align-items: center; padding: 16px 20px; }
+        .modal-header { justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .modal-title { margin: 0; font-size: 16px; font-weight: 700; }
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border: 0;
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .icon-button:hover { background: #f2f3f5; color: var(--text); }
+        .modal-body { padding: 20px; }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .detail-item { min-height: 70px; padding: 12px 14px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .detail-item:nth-child(2n) { border-right: 0; }
+        .detail-item:nth-last-child(-n + 2) { border-bottom: 0; }
+        .detail-label { margin-bottom: 5px; color: var(--text-muted); font-size: 12px; }
+        .detail-value { color: var(--text); font-weight: 500; }
+        .modal-note { margin-top: 16px; padding: 12px; border: 1px solid #b7d3ff; border-radius: 6px; background: #f2f6ff; color: #1f4f9c; font-size: 13px; }
+        .modal-footer { justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border); }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: calc(100vw - 32px);
+            padding: 10px 14px;
+            border: 1px solid #b8e8d7;
+            border-radius: 6px;
+            background: #f0fff9;
+            color: #006a47;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+            opacity: 0;
+            transform: translate(-50%, -12px);
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 1180px) {
+            .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .filter-actions { justify-content: flex-start; }
+            .advanced-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .advanced-filters.open { max-height: 180px; }
+        }
+
+        @media (max-width: 760px) {
+            .page-shell { padding: 8px; }
+            .page-heading { align-items: flex-start; flex-direction: column; gap: 2px; padding: 4px 4px 10px; }
+            h1 { font-size: 18px; }
+            .content-area { padding: 12px; }
+            .status-tabs { padding: 0; }
+            .tab-button { min-width: 84px; padding: 0 12px; }
+            .filter-grid, .advanced-filters { grid-template-columns: 1fr; }
+            .advanced-filters.open { max-height: 360px; }
+            .filter-actions { flex-wrap: wrap; }
+            .filter-actions .button-primary, .filter-actions .button-secondary { flex: 1; }
+            .type-toolbar { align-items: flex-start; flex-direction: column; }
+            .table-frame { border: 0; overflow: visible; }
+            .table-scroll { overflow: visible; }
+            table, thead, tbody, tr, td { display: block; width: 100%; min-width: 0; }
+            thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+            tbody { display: grid; gap: 10px; }
+            tbody tr { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+            td { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; height: auto; min-height: 38px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+            td:last-child { border-bottom: 0; }
+            td::before { content: attr(data-label); color: var(--text-muted); font-size: 12px; }
+            .task-link, .detail-button { justify-self: start; padding: 6px 0; }
+            .pagination { justify-content: flex-start; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .detail-item, .detail-item:nth-child(2n) { border-right: 0; border-bottom: 1px solid var(--border); }
+            .detail-item:last-child { border-bottom: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="page-heading">
+            <h1>认证决定管理</h1>
+            <div class="page-description">集中处理进入证书决定环节的认证任务，优先关注待评定与待补充事项</div>
+        </header>
+
+        <main class="workspace" aria-label="证书决定任务列表">
+            <nav class="status-tabs" role="tablist" aria-label="任务状态筛选" id="statusTabs"></nav>
+
+            <div class="content-area">
+                <section class="filter-panel" aria-label="任务查询条件">
+                    <div class="filter-grid">
+                        <div class="field">
+                            <label for="taskNo">任务号</label>
+                            <input class="control" id="taskNo" type="search" placeholder="输入任务号" autocomplete="off">
+                        </div>
+                        <div class="field">
+                            <label for="customerName">客户名称</label>
+                            <input class="control" id="customerName" type="search" placeholder="输入客户名称" autocomplete="off">
+                        </div>
+                        <div class="field">
+                            <label for="statusSelect">当前状态</label>
+                            <select class="control" id="statusSelect">
+                                <option value="">全部状态</option>
+                                <option>待评定</option>
+                                <option>进行中</option>
+                                <option>待补充材料</option>
+                                <option>已通过</option>
+                                <option>不予通过</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="button button-primary" id="searchButton" type="button">查询</button>
+                            <button class="button button-secondary" id="resetButton" type="button">重置</button>
+                            <button class="button button-link" id="expandButton" type="button" aria-expanded="false" aria-controls="advancedFilters">
+                                高级筛选
+                                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="advanced-filters" id="advancedFilters" aria-hidden="true">
+                        <div class="field">
+                            <label for="organization">归属机构</label>
+                            <select class="control" id="organization">
+                                <option value="">全部机构</option>
+                                <option>中国质量认证中心（CQC）</option>
+                                <option>中国检验认证集团北京有限公司</option>
+                                <option>华信技术检验认证有限公司</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="department">归属部门</label>
+                            <select class="control" id="department">
+                                <option value="">全部部门</option>
+                                <option>检验认证部</option>
+                                <option>食品认证部</option>
+                                <option>综合业务部</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dateFrom">提交开始日期</label>
+                            <input class="control" id="dateFrom" type="date">
+                        </div>
+                        <div class="field">
+                            <label for="dateTo">提交结束日期</label>
+                            <input class="control" id="dateTo" type="date">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="type-toolbar">
+                    <div class="type-filters" id="typeFilters" aria-label="认证类型筛选"></div>
+                    <div class="result-summary" id="resultSummary" aria-live="polite"></div>
+                </div>
+
+                <section class="table-frame" id="tableFrame" aria-label="证书决定任务查询结果">
+                    <div class="table-scroll">
+                        <table>
+                            <colgroup>
+                                <col style="width: 145px"><col style="width: 200px"><col style="width: 100px"><col style="width: 100px"><col style="width: 210px"><col style="width: 110px"><col style="width: 150px"><col style="width: 100px"><col style="width: 80px">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">任务号</th><th scope="col">客户名称</th><th scope="col">认证领域</th><th scope="col">认证类型</th><th scope="col">归属机构</th><th scope="col">归属部门</th><th scope="col">任务提交时间</th><th scope="col">当前状态</th><th scope="col">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div class="empty-state" id="emptyState">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v14H3z"/><path d="M3 9h18M8 13h3"/></svg>
+                    <div class="empty-title">未找到符合条件的证书决定任务</div>
+                    <div class="empty-description">请调整任务状态、认证类型或查询条件后重试。</div>
+                    <button class="button button-secondary" type="button" id="emptyResetButton">清空筛选条件</button>
+                </div>
+
+                <div class="pagination" id="pagination" aria-label="任务列表分页">
+                    <select class="control page-size" id="pageSize" aria-label="每页显示数量">
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                    <div class="page-list" id="pageList"></div>
+                    <label class="jump-label" for="jumpPage">跳至</label>
+                    <input class="control jump-input" id="jumpPage" type="number" min="1" value="1" aria-label="跳转页码">
+                    <button class="button button-secondary" id="jumpButton" type="button">跳转</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailTitle">证书决定任务详情</h2>
+                <button class="icon-button" id="closeModalButton" type="button" aria-label="关闭任务详情">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="detailBody"></div>
+            <div class="modal-footer">
+                <button class="button button-secondary" id="modalCancelButton" type="button">关闭</button>
+                <button class="button button-primary" id="enterDetailButton" type="button">进入证书决定详情</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="toastText"></span>
+    </div>
+
+    <script>
+        const tasks = [
+            { no: '1100-Q-2026-0001', customer: '华锐精密机械制造有限公司', system: 'Q', type: '初次认证', org: '中国质量认证中心（CQC）', dept: '检验认证部', submitted: '2026-03-30 10:30:30', status: '待评定' },
+            { no: '1100-EF-2026-0002', customer: '绿源生态食品科技股份有限公司', system: 'F', type: '监督审核', org: '中国检验认证集团北京有限公司', dept: '食品认证部', submitted: '2026-03-30 10:18:20', status: '进行中' },
+            { no: '1100-QE-2026-0003', customer: '恒信芯联电子元器件有限公司', system: 'Q', type: '再认证', org: '中国检验认证集团北京有限公司', dept: '检验认证部', submitted: '2026-03-30 09:52:13', status: '已通过' },
+            { no: '1100-ES-2026-0004', customer: '鑫泰筑邦建材实业有限公司', system: 'E', type: '监督审核', org: '中国检验认证集团北京有限公司', dept: '检验认证部', submitted: '2026-03-29 16:42:05', status: '已通过' },
+            { no: '1100-QS-2026-0005', customer: '安捷通运输仓储有限公司', system: 'S', type: '初次认证', org: '中国检验认证集团北京有限公司', dept: '综合业务部', submitted: '2026-03-29 15:30:48', status: '待补充材料' },
+            { no: '1100-QE-2026-0006', customer: '盛达新材料化工有限公司', system: 'E', type: '再认证', org: '华信技术检验认证有限公司', dept: '检验认证部', submitted: '2026-03-29 13:08:32', status: '不予通过' },
+            { no: '1100-QES-2026-0007', customer: '科瑞智联新能源科技有限公司', system: 'Q', type: '再认证', org: '中国质量认证中心（CQC）', dept: '检验认证部', submitted: '2026-03-29 11:23:51', status: '已通过' },
+            { no: '1100-Q-2026-0008', customer: '锦程织造服饰有限公司', system: 'Q', type: '初次认证', org: '中国检验认证集团北京有限公司', dept: '综合业务部', submitted: '2026-03-28 17:46:09', status: '已通过' },
+            { no: '1100-QF-2026-0009', customer: '康泰瑞康医疗器械有限公司', system: 'Q', type: '再认证', org: '中国检验认证集团北京有限公司', dept: '检验认证部', submitted: '2026-03-28 14:36:42', status: '已通过' },
+            { no: '1100-S-2026-0010', customer: '宏远精工五金制品有限公司', system: 'S', type: '再认证', org: '华信技术检验认证有限公司', dept: '检验认证部', submitted: '2026-03-28 10:22:17', status: '已通过' },
+            { no: '1100-QF-2026-0011', customer: '佳禾优品包装印刷有限公司', system: 'F', type: '初次认证', org: '中国质量认证中心（CQC）', dept: '食品认证部', submitted: '2026-03-27 16:10:08', status: '待评定' },
+            { no: '1100-QESF-2026-0012', customer: '博通智能自动化设备有限公司', system: 'Q', type: '再认证', org: '中国质量认证中心（CQC）', dept: '综合业务部', submitted: '2026-03-27 11:06:29', status: '已通过' },
+            { no: '1100-E-2026-0013', customer: '清源环境工程技术有限公司', system: 'E', type: '监督审核', org: '华信技术检验认证有限公司', dept: '检验认证部', submitted: '2026-03-26 15:43:10', status: '进行中' },
+            { no: '1100-F-2026-0014', customer: '禾谷食品供应链有限公司', system: 'F', type: '初次认证', org: '中国检验认证集团北京有限公司', dept: '食品认证部', submitted: '2026-03-26 10:22:45', status: '待补充材料' },
+            { no: '1100-QS-2026-0015', customer: '远航重工装备有限公司', system: 'S', type: '监督审核', org: '中国质量认证中心（CQC）', dept: '检验认证部', submitted: '2026-03-25 17:12:31', status: '已通过' },
+            { no: '1100-QE-2026-0016', customer: '智维信息技术服务有限公司', system: 'Q', type: '再认证', org: '华信技术检验认证有限公司', dept: '综合业务部', submitted: '2026-03-25 14:01:19', status: '不予通过' },
+            { no: '1100-ESF-2026-0017', customer: '悦生农产品加工有限公司', system: 'F', type: '初次认证', org: '中国检验认证集团北京有限公司', dept: '食品认证部', submitted: '2026-03-24 10:38:57', status: '待评定' },
+            { no: '1100-QES-2026-0018', customer: '启明城市服务管理有限公司', system: 'E', type: '监督审核', org: '中国质量认证中心（CQC）', dept: '综合业务部', submitted: '2026-03-23 09:18:33', status: '进行中' }
+        ];
+
+        const CERT_DECISION_FLOW_PREFIX = 'certificate-decision-rectification:';
+        tasks.forEach(task => {
+            try {
+                const flow = JSON.parse(localStorage.getItem(`${CERT_DECISION_FLOW_PREFIX}${task.no}`) || 'null');
+                if (flow?.taskStatus) task.status = flow.taskStatus;
+            } catch (error) {
+                console.warn('无法同步证书决定补材状态', error);
+            }
+        });
+
+        const state = { status: '全部', type: '全部类型', page: 1, pageSize: 10, filtered: tasks.slice(), currentTask: null };
+        const statusOptions = ['全部', '待评定', '待补充材料', '已通过', '不予通过'];
+        const typeOptions = ['全部类型', '初次认证', '监督审核', '再认证'];
+        const statusClass = { '待评定': 'status-pending', '进行中': 'status-progress', '待补充材料': 'status-supplement', '已通过': 'status-passed', '不予通过': 'status-rejected' };
+        const typeClass = { '初次认证': 'initial', '监督审核': 'surveillance', '再认证': 'recertification' };
+
+        const $ = selector => document.querySelector(selector);
+        const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+
+        function renderTabs() {
+            $('#statusTabs').innerHTML = statusOptions.map(status => {
+                const count = status === '全部' ? tasks.length : tasks.filter(task => task.status === status).length;
+                return `<button class="tab-button" type="button" role="tab" data-status="${status}" aria-selected="${state.status === status}">${status}<span class="tab-count">${count}</span></button>`;
+            }).join('');
+        }
+
+        function renderTypeFilters() {
+            $('#typeFilters').innerHTML = typeOptions.map(type => `<button class="type-chip ${state.type === type ? 'active' : ''}" type="button" data-type="${type}" aria-pressed="${state.type === type}">${type === '全部类型' ? '' : '<span class="type-dot" aria-hidden="true"></span>'}${type}</button>`).join('');
+        }
+
+        function systemBadge(system) {
+            const names = { Q: '质量管理体系', E: '环境管理体系', S: '职业健康安全', F: '食品安全体系' };
+            const labels = { Q: 'QMS', E: 'EMS', S: 'OHSMS', F: 'FSMS' };
+            return `<span class="system-badge system-${system}" title="${names[system]}">${labels[system]}</span>`;
+        }
+
+        function runFilter(resetPage = true) {
+            const taskNo = $('#taskNo').value.trim().toLowerCase();
+            const customer = $('#customerName').value.trim().toLowerCase();
+            const selectStatus = $('#statusSelect').value;
+            const organization = $('#organization').value;
+            const department = $('#department').value;
+            const dateFrom = $('#dateFrom').value;
+            const dateTo = $('#dateTo').value;
+            const effectiveStatus = selectStatus || (state.status === '全部' ? '' : state.status);
+
+            state.filtered = tasks.filter(task => {
+                const date = task.submitted.slice(0, 10);
+                return (!taskNo || task.no.toLowerCase().includes(taskNo))
+                    && (!customer || task.customer.toLowerCase().includes(customer))
+                    && (!effectiveStatus || task.status === effectiveStatus)
+                    && (state.type === '全部类型' || task.type === state.type)
+                    && (!organization || task.org === organization)
+                    && (!department || task.dept === department)
+                    && (!dateFrom || date >= dateFrom)
+                    && (!dateTo || date <= dateTo);
+            });
+
+            if (resetPage) state.page = 1;
+            const pageTotal = Math.max(1, Math.ceil(state.filtered.length / state.pageSize));
+            state.page = Math.min(state.page, pageTotal);
+            renderTable();
+            renderPagination();
+        }
+
+        function renderTable() {
+            const start = (state.page - 1) * state.pageSize;
+            const rows = state.filtered.slice(start, start + state.pageSize);
+            $('#taskTableBody').innerHTML = rows.map(task => `
+                <tr>
+                    <td data-label="任务号"><button class="task-link" type="button" data-detail="${task.no}">${escapeHtml(task.no)}</button></td>
+                    <td data-label="客户名称"><span class="customer-name">${escapeHtml(task.customer)}</span></td>
+                    <td data-label="认证领域"><div class="systems">${systemBadge(task.system)}</div></td>
+                    <td data-label="认证类型"><span class="cert-type ${typeClass[task.type]}">${task.type}</span></td>
+                    <td data-label="归属机构">${escapeHtml(task.org)}</td>
+                    <td data-label="归属部门">${escapeHtml(task.dept)}</td>
+                    <td data-label="提交时间"><span class="date-time">${task.submitted}</span></td>
+                    <td data-label="当前状态"><span class="status-tag ${statusClass[task.status]}">${task.status}</span></td>
+                    <td data-label="操作"><button class="detail-button" type="button" data-detail="${task.no}">查看详情</button></td>
+                </tr>`).join('');
+
+            const isEmpty = state.filtered.length === 0;
+            $('#tableFrame').style.display = isEmpty ? 'none' : '';
+            $('#emptyState').classList.toggle('visible', isEmpty);
+            $('#pagination').style.display = isEmpty ? 'none' : '';
+            const end = Math.min(start + rows.length, state.filtered.length);
+            $('#resultSummary').innerHTML = `共 <strong>${state.filtered.length}</strong> 条任务${isEmpty ? '' : `，当前显示 ${start + 1}-${end} 条`}`;
+        }
+
+        function renderPagination() {
+            const totalPages = Math.max(1, Math.ceil(state.filtered.length / state.pageSize));
+            const pages = [];
+            for (let page = 1; page <= totalPages; page++) {
+                if (totalPages <= 7 || page === 1 || page === totalPages || Math.abs(page - state.page) <= 1) pages.push(page);
+                else if (pages[pages.length - 1] !== '…') pages.push('…');
+            }
+            $('#pageList').innerHTML = `
+                <button class="page-button" type="button" data-page="prev" aria-label="上一页" ${state.page === 1 ? 'disabled' : ''}>‹</button>
+                ${pages.map(page => page === '…' ? '<span class="page-ellipsis">…</span>' : `<button class="page-button ${page === state.page ? 'active' : ''}" type="button" data-page="${page}" aria-current="${page === state.page ? 'page' : 'false'}">${page}</button>`).join('')}
+                <button class="page-button" type="button" data-page="next" aria-label="下一页" ${state.page === totalPages ? 'disabled' : ''}>›</button>`;
+            $('#jumpPage').max = totalPages;
+            $('#jumpPage').value = state.page;
+        }
+
+        function resetFilters() {
+            ['taskNo', 'customerName', 'statusSelect', 'organization', 'department', 'dateFrom', 'dateTo'].forEach(id => { $('#' + id).value = ''; });
+            state.status = '全部';
+            state.type = '全部类型';
+            state.page = 1;
+            renderTabs();
+            renderTypeFilters();
+            runFilter();
+        }
+
+        function openDetail(taskNo) {
+            const task = tasks.find(item => item.no === taskNo);
+            if (!task) return;
+            const params = new URLSearchParams({
+                taskNo: task.no,
+                status: task.status,
+                domain: task.system || 'Q',
+                source: 'certificate-decision-list',
+                stage: 'certificate-decision'
+            });
+            window.location.assign(`./证书认定4-10-03 2.html?${params.toString()}`);
+        }
+
+        function closeDetail() {
+            $('#detailModal').classList.remove('open');
+            const trigger = state.currentTask && document.querySelector(`[data-detail="${state.currentTask.no}"]`);
+            if (trigger) trigger.focus();
+        }
+
+        let toastTimer;
+        function showToast(message) {
+            clearTimeout(toastTimer);
+            $('#toastText').textContent = message;
+            $('#toast').classList.add('show');
+            toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 3500);
+        }
+
+        $('#statusTabs').addEventListener('click', event => {
+            const tab = event.target.closest('[data-status]');
+            if (!tab) return;
+            state.status = tab.dataset.status;
+            $('#statusSelect').value = state.status === '全部' ? '' : state.status;
+            renderTabs();
+            runFilter();
+        });
+
+        $('#typeFilters').addEventListener('click', event => {
+            const chip = event.target.closest('[data-type]');
+            if (!chip) return;
+            state.type = chip.dataset.type;
+            renderTypeFilters();
+            runFilter();
+        });
+
+        $('#searchButton').addEventListener('click', () => {
+            const selected = $('#statusSelect').value;
+            state.status = selected || '全部';
+            renderTabs();
+            runFilter();
+            showToast(`已更新查询结果，共 ${state.filtered.length} 条任务`);
+        });
+        $('#resetButton').addEventListener('click', resetFilters);
+        $('#emptyResetButton').addEventListener('click', resetFilters);
+        ['taskNo', 'customerName'].forEach(id => $('#' + id).addEventListener('keydown', event => { if (event.key === 'Enter') $('#searchButton').click(); }));
+
+        $('#expandButton').addEventListener('click', () => {
+            const expanded = $('#expandButton').getAttribute('aria-expanded') === 'true';
+            $('#expandButton').setAttribute('aria-expanded', String(!expanded));
+            $('#advancedFilters').setAttribute('aria-hidden', String(expanded));
+            $('#advancedFilters').classList.toggle('open', !expanded);
+        });
+
+        $('#pageSize').addEventListener('change', event => { state.pageSize = Number(event.target.value); runFilter(); });
+        $('#pageList').addEventListener('click', event => {
+            const button = event.target.closest('[data-page]');
+            if (!button || button.disabled) return;
+            const totalPages = Math.max(1, Math.ceil(state.filtered.length / state.pageSize));
+            state.page = button.dataset.page === 'prev' ? state.page - 1 : button.dataset.page === 'next' ? state.page + 1 : Number(button.dataset.page);
+            state.page = Math.max(1, Math.min(totalPages, state.page));
+            renderTable(); renderPagination();
+        });
+        $('#jumpButton').addEventListener('click', () => {
+            const totalPages = Math.max(1, Math.ceil(state.filtered.length / state.pageSize));
+            const requested = Number($('#jumpPage').value);
+            if (!Number.isInteger(requested) || requested < 1 || requested > totalPages) { showToast(`请输入 1-${totalPages} 之间的页码`); return; }
+            state.page = requested; renderTable(); renderPagination();
+        });
+
+        $('#taskTableBody').addEventListener('click', event => {
+            const button = event.target.closest('[data-detail]');
+            if (button) openDetail(button.dataset.detail);
+        });
+        $('#closeModalButton').addEventListener('click', closeDetail);
+        $('#modalCancelButton').addEventListener('click', closeDetail);
+        $('#detailModal').addEventListener('click', event => { if (event.target === $('#detailModal')) closeDetail(); });
+        $('#enterDetailButton').addEventListener('click', () => {
+            const taskNo = state.currentTask ? state.currentTask.no : '';
+            closeDetail();
+            showToast(`${taskNo} 的证书决定详情入口已就绪`);
+        });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('#detailModal').classList.contains('open')) closeDetail(); });
+
+        renderTabs();
+        renderTypeFilters();
+        runFilter(false);
+    </script>
+</body>
+</html>

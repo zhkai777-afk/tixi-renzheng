@@ -899,16 +899,60 @@
             background: #fff;
         }
 
+        .issue-table td.issue-action-col:has(.issue-more-wrap.open) {
+            z-index: 20;
+            overflow: visible;
+        }
+
         .issue-table tr:hover td.issue-status-col,
         .issue-table tr:hover td.issue-action-col {
             background: #fafafa;
         }
 
         .issue-table .issue-actions-cell {
+            position: relative;
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             align-items: flex-start;
+        }
+
+        .issue-more-wrap { position: relative; }
+
+        .issue-more-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 30;
+            display: none;
+            min-width: 128px;
+            padding: 6px;
+            border: 1px solid #dfe7f2;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, .14);
+        }
+
+        .issue-more-wrap.open .issue-more-menu {
+            display: grid;
+            gap: 4px;
+        }
+
+        .issue-more-menu .t-button {
+            width: 100%;
+            justify-content: flex-start;
+            background: #fff;
+            white-space: nowrap;
+        }
+
+        .issue-system-readonly {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid #dfe7f2;
+            border-radius: 6px;
+            background: #f8fafc;
         }
 
         .file-name-cell {
@@ -953,6 +997,7 @@
         .system-badge-table.E { background: var(--ems-color); }
         .system-badge-table.S { background: var(--ohsms-color); }
         .system-badge-table.F { background: var(--its-color); }
+        .system-badge-table.common { background: var(--common-color); }
 
         .opinion-summary-cell {
             display: flex;
@@ -2295,10 +2340,31 @@
         .history-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0;
+            padding-left: 12px;
         }
 
         .history-item {
+            position: relative;
+            padding: 0 0 16px 22px;
+            border-left: 1px solid #dfe7f2;
+        }
+
+        .history-item:last-child { padding-bottom: 0; }
+
+        .history-item::before {
+            content: "";
+            position: absolute;
+            left: -5px;
+            top: 3px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #0052D9;
+            box-shadow: 0 0 0 3px #E8F1FF;
+        }
+
+        .history-card {
             border: 1px solid #edf1f5;
             border-radius: 8px;
             background: #fff;
@@ -2522,6 +2588,13 @@
             color: #6339D8;
         }
 
+        .sys-badge.common,
+        .system-badge-table.common {
+            background: #F2F3F5;
+            border-color: #DCDDE1;
+            color: #5E5E5E;
+        }
+
         .sys-badge.dimmed,
         .system-badge-table.dimmed,
         .sys-badge-lg.dimmed {
@@ -2550,7 +2623,7 @@
 
         .top-header {
             height: auto;
-            min-height: 194px;
+            min-height: 176px;
             padding: 16px 18px;
             border: 1px solid var(--ui-border);
             border-radius: 8px;
@@ -2672,8 +2745,10 @@
         }
 
         .global-stat-card.system-top-card {
+            min-height: 104px;
+            padding: 10px 12px;
             justify-content: flex-start;
-            gap: 8px;
+            gap: 7px;
             cursor: pointer;
             transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
         }
@@ -2701,17 +2776,6 @@
         .system-card-metrics {
             font-size: 12px;
             color: var(--ui-muted);
-        }
-
-        .system-card-action {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .system-card-action .t-button {
-            height: 28px;
-            padding: 0 10px;
-            font-size: 12px;
         }
 
         .system-progress {
@@ -3142,8 +3206,70 @@
                 overflow: visible;
             }
         }
+        .guide-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            background: transparent;
+        }
+        .guide-overlay.active { display: block; }
+        .guide-highlight {
+            position: fixed;
+            z-index: 3001;
+            border: 2px solid #0052D9;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, .52), 0 0 0 6px rgba(0, 82, 217, .14);
+            pointer-events: none;
+            transition: all .18s ease;
+        }
+        .guide-popover {
+            position: fixed;
+            z-index: 3002;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, .2);
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .guide-popover-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+        }
+        .guide-popover-title { font-size: 15px; font-weight: 700; }
+        .guide-popover-count { color: #64748b; font-size: 12px; white-space: nowrap; }
+        .guide-popover-body { padding: 14px; color: #334155; font-size: 13px; line-height: 1.7; }
+        .guide-popover-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid #edf1f5;
+        }
+        .guide-actions { display: flex; gap: 8px; }
+        .guide-btn {
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .guide-btn.primary { border-color: #0052D9; background: #0052D9; color: #fff; }
+        .guide-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-</style>
+    </style>
 <base target="_blank">
 </head>
 <body>
@@ -3168,11 +3294,12 @@
                 </div>
             </div>
             <div class="header-right">
+                <button class="t-button btn-outline" onclick="startPageGuide()">操作指引</button>
                 <button class="t-button btn-outline" id="headerExpertAssignBtn" onclick="openExpertModal()">指派专家</button>
-                <button class="t-button btn-success" id="headerPassBtn" onclick="passTask()" disabled>通过复评</button>
+                <button class="t-button btn-success" id="headerPassBtn" onclick="passTask()" disabled>通过评定任务</button>
             </div>
         </div>
-        <div class="project-tip" id="projectTip">二次评定管理员按体系查看问题整改情况；全部问题整改后，可单体系通过，也可批量通过全部符合条件的体系。</div>
+        <div class="project-tip" id="projectTip">二次评定管理员按体系查看问题整改情况；全部问题整改后，可通过页头操作批量通过符合条件的体系。</div>
         <div class="global-stats-strip" id="globalStatsStrip">
             <div class="global-stat-card">
                 <div class="global-stat-label">材料清单</div>
@@ -3196,6 +3323,23 @@
             </div>
         </div>
     </header>
+    <div class="guide-overlay" id="pageGuideOverlay" aria-hidden="true">
+        <div class="guide-highlight" id="pageGuideHighlight"></div>
+        <div class="guide-popover" id="pageGuidePopover" role="dialog" aria-modal="true" aria-label="操作指引">
+            <div class="guide-popover-head">
+                <div class="guide-popover-title" id="pageGuideTitle">操作指引</div>
+                <div class="guide-popover-count" id="pageGuideCount">1 / 4</div>
+            </div>
+            <div class="guide-popover-body" id="pageGuideBody"></div>
+            <div class="guide-popover-foot">
+                <button class="guide-btn" type="button" onclick="closePageGuide()">结束指引</button>
+                <div class="guide-actions">
+                    <button class="guide-btn" type="button" id="pageGuidePrev" onclick="movePageGuide(-1)">上一步</button>
+                    <button class="guide-btn primary" type="button" id="pageGuideNext" onclick="movePageGuide(1)">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="main-layout">
         <aside class="sidebar-left">
@@ -3988,8 +4132,24 @@ let pendingConfirmAction = null;
         return MATERIALS_CATALOG.reduce((sum, item) => sum + getMaterialFileCountByCatalogItem(item), 0);
     }
 
+    function isCommonSystems(systems) {
+        if (!Array.isArray(systems)) return false;
+        const uniqueSystems = [...new Set(systems)];
+        return uniqueSystems.length === allSystems.length && allSystems.every(sys => uniqueSystems.includes(sys));
+    }
+
     function renderSystemBadges(systems) {
+        if (isCommonSystems(systems)) {
+            return '<span class="sys-badge common">通用</span>';
+        }
         return systems.map(s => `<span class="sys-badge ${escapeHtml(s)}">${escapeHtml(s)}</span>`).join('');
+    }
+
+    function renderTableSystemBadges(systems) {
+        if (isCommonSystems(systems)) {
+            return '<span class="system-badge-table common">通用</span>';
+        }
+        return systems.map(s => `<span class="system-badge-table ${escapeHtml(s)}">${escapeHtml(s)}</span>`).join('');
     }
 
     function renderMaterialNav() {
@@ -4363,9 +4523,7 @@ let pendingConfirmAction = null;
                 const isHighlighted = file.status === 'pending' || file.status === 'need_supplement';
 
                 // 适用体系标签
-                const systemsHtml = file.applicableSystems.map(s => 
-                    `<span class="system-badge-table ${s}">${s}</span>`
-                ).join('');
+                const systemsHtml = renderTableSystemBadges(file.applicableSystems);
 
                 tableRowsHtml += `
                     <tr class="${isHighlighted ? 'highlighted' : ''}" 
@@ -4468,9 +4626,7 @@ let pendingConfirmAction = null;
         if (materialIssues.length > 0 || true) { // 始终显示，方便添加
             const issueRowsHtml = materialIssues.map((issue, index) => {
                 const style = issueTypeStyles[issue.type] || { color: '#666', bg: '#f0f0f0' };
-                const systemsHtml = issue.systems.map(s => 
-                    `<span class="system-badge-table ${s}">${s}</span>`
-                ).join('');
+                const systemsHtml = renderTableSystemBadges(issue.systems);
 
                 return `
                     <tr>
@@ -4551,9 +4707,7 @@ let pendingConfirmAction = null;
         // 渲染文件清单部分（修改字段）
         let fileRowsHtml = data.files.map((file, index) => {
             const fileExt = file.name.split('.').pop().toUpperCase();
-            const systemsHtml = file.applicableSystems.map(s => 
-                `<span class="system-badge-table ${s}">${s}</span>`
-            ).join('');
+            const systemsHtml = renderTableSystemBadges(file.applicableSystems);
 
             return `
                 <tr>
@@ -4604,8 +4758,10 @@ let pendingConfirmAction = null;
 
     // 显示添加问题表单
     function showAddIssueForm(materialId, type) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const container = document.getElementById(`issue-form-container-${materialId}`);
         const style = issueTypeStyles[type] || { color: '#666', bg: '#f0f0f0' };
+        const materialSystems = materialsData[materialId]?.catalogSystems || getProjectSystems();
 
         container.innerHTML = `
             <div style="background: ${style.bg}; border: 1px solid ${style.color}; border-radius: 6px; padding: 16px; margin-top: 12px;">
@@ -4620,13 +4776,8 @@ let pendingConfirmAction = null;
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="font-size: 12px; color: #666; margin-bottom: 6px; display: block;">涉及领域</label>
-                    <div style="display: flex; gap: 8px;">
-                        ${['Q', 'E', 'S', 'F'].map(s => `
-                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
-                                <input type="checkbox" name="issue-system-${materialId}" value="${s}" checked>
-                                <span class="system-badge-table ${s}">${s}</span>
-                            </label>
-                        `).join('')}
+                    <div class="issue-system-readonly" id="inline-issue-systems-${materialId}" data-systems="${materialSystems.join(',')}">
+                        ${renderTableSystemBadges(materialSystems)}
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px;">
@@ -4667,6 +4818,7 @@ let pendingConfirmAction = null;
 
     // 确认添加问题
     function confirmAddIssue(materialId, type) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const desc = document.getElementById(`issue-desc-${materialId}`).value;
 
         if (!desc.trim() || desc.length < 10) {
@@ -4674,12 +4826,10 @@ let pendingConfirmAction = null;
             return;
         }
 
-        // 获取选中的体系
-        const checkedSystems = document.querySelectorAll(`input[name="issue-system-${materialId}"]:checked`);
-        const systems = Array.from(checkedSystems).map(cb => cb.value);
+        const systems = (document.getElementById(`inline-issue-systems-${materialId}`)?.dataset.systems || '').split(',').filter(Boolean);
 
         if (systems.length === 0) {
-            showToast('请至少选择一个涉及领域。');
+            showToast('当前材料没有可登记的涉及领域。');
             return;
         }
 
@@ -4736,6 +4886,7 @@ let pendingConfirmAction = null;
     }
 
     function confirmPendingAction() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); closeConfirmActionModal(); return; }
         if (typeof pendingConfirmAction === 'function') pendingConfirmAction();
         closeConfirmActionModal();
     }
@@ -4987,6 +5138,7 @@ let pendingConfirmAction = null;
     let expertsExpanded = false;
     let expertReviewStarted = false;
     let expertReviewCompleted = false;
+    let taskCompleted = false;
     const MODAL_EXPERT_PAGE_SIZE = 10;
     let modalExpertPage = 1;
     let modalExpertSelection = {};
@@ -5011,6 +5163,7 @@ let pendingConfirmAction = null;
         pendingUndoAction = null;
         expertReviewStarted = false;
         expertReviewCompleted = false;
+        taskCompleted = false;
         Object.keys(issuesData).forEach(key => { issuesData[key] = []; });
         issueTypeStyles['材料问题'] = { color: '#DC2626', bg: '#FEF2F2' };
         delete issueTypeStyles['登记问题'];
@@ -5027,6 +5180,14 @@ let pendingConfirmAction = null;
 
     function getProjectSystems() {
         return allSystems.slice();
+    }
+
+    function isTaskReadOnly() {
+        return taskCompleted;
+    }
+
+    function blockReadOnlyAction() {
+        showToast('任务已完成，当前页面为只读状态。');
     }
 
     function collectCoverage(extraExperts = []) {
@@ -5142,6 +5303,14 @@ let pendingConfirmAction = null;
         return groups;
     }
 
+    function getHeaderPassSystems(groups = getSystemDecisionGroups(), issueCount = getOpenIssues().length, coverage = collectCoverage()) {
+        if (isTaskReadOnly()) return [];
+        if (coverage.complete && issueCount === 0) {
+            return getProjectSystems().filter(sys => systemDecisions[sys] !== 'passed');
+        }
+        return [];
+    }
+
     function getFlowSummary() {
         const groups = getSystemDecisionGroups();
         const total = getProjectSystems().length;
@@ -5151,10 +5320,10 @@ let pendingConfirmAction = null;
         let nextNote = '仍有体系未完成专家覆盖或评定。';
         let state = '待评定';
 
-        if (completed === total) {
+        if (isTaskReadOnly() || completed === total) {
             nextAction = '处理完成';
-            nextNote = '所有体系均已进入认证决定。';
-            state = '已完成处理';
+            nextNote = '二次评定已完成，页面进入只读状态。';
+            state = '已完成';
         } else if (waiting > 0 && groups.ready.length === 0 && groups.problem.length === 0) {
             nextAction = groups.uncovered.length ? '补派专家' : '等待评定';
             nextNote = groups.uncovered.length ? '需先补齐未覆盖体系和专业代码。' : '等待专家提交二次评定结果。';
@@ -5181,6 +5350,7 @@ let pendingConfirmAction = null;
     }
 
     function getSystemStatus(sys) {
+        if (isTaskReadOnly()) return { key: 'passed', text: '已完成' };
         if (systemDecisions[sys] === 'passed') return { key: 'passed', text: '已通过' };
         const coverage = collectCoverage();
         const stats = getSystemIssueStats(sys);
@@ -5254,7 +5424,6 @@ let pendingConfirmAction = null;
             const progress = getSystemProgress(stats);
             const activeClass = currentSystemFilter === sys ? 'active' : '';
             const blocker = getSystemPassBlocker(sys);
-            const canPass = status.key === 'ready';
             return `
             <div class="global-stat-card system-top-card ${activeClass}" onclick="selectSystemOverview('${sys}')">
                 <div class="system-card-headline">
@@ -5267,10 +5436,7 @@ let pendingConfirmAction = null;
                     <span>未整改 ${stats.total}</span>
                 </div>
                 <div class="system-progress"><div class="system-progress-bar" style="width:${progress}%;"></div></div>
-                <div class="global-stat-note">${escapeHtml(blocker || '满足复核条件，可单独通过')}</div>
-                <div class="system-card-action">
-                    <button class="t-button btn-success btn-small" onclick="event.stopPropagation(); passSystem('${sys}')" ${canPass ? '' : 'disabled'}>通过${sys}体系</button>
-                </div>
+                <div class="global-stat-note">${escapeHtml(blocker || '满足复核条件，等待页头统一放行')}</div>
             </div>
         `}).join('');
     }
@@ -5288,7 +5454,7 @@ let pendingConfirmAction = null;
             if (!material || !material.files) return;
                 material.files.forEach((file, fileIndex) => {
                 if (currentSystemFilter !== 'all' && !file.applicableSystems.includes(currentSystemFilter)) return;
-                const systemsHtml = file.applicableSystems.map(s => `<span class="system-badge-table ${s}">${s}</span>`).join('');
+                const systemsHtml = renderTableSystemBadges(file.applicableSystems);
                 tableRowsHtml += `
                     <tr onclick="switchToMaterialDetail('${materialId}', ${fileIndex})" style="cursor: pointer;">
                         <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.title)}</div></div></td>
@@ -5327,33 +5493,77 @@ let pendingConfirmAction = null;
 
     function renderIssueActions(issue) {
         const materialId = issue.materialId || currentMaterialId;
+        const action = (label, className, handler) => ({ label, className, handler });
+        let actions = [];
+        if (isTaskReadOnly()) {
+            actions = [action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)];
+            return renderActionGroup(issue.id, actions);
+        }
         if (issue.reviewStatus === '已通过') {
-            return `
-                <button class="t-button btn-outline btn-small" onclick="openUndoIssueModal(${issue.id}, 'pass')">撤回通过</button>
-                <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>`;
+            actions = [
+                action('撤回通过', 'btn-outline', `openUndoIssueModal(${issue.id}, 'pass')`),
+                action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)
+            ];
+            return renderActionGroup(issue.id, actions);
         }
         if (issue.reviewStatus === '已退回') {
-            return `
-                <button class="t-button btn-outline btn-small" onclick="openUndoIssueModal(${issue.id}, 'return')">撤销退回</button>
-                <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>`;
+            actions = [
+                action('撤销退回', 'btn-outline', `openUndoIssueModal(${issue.id}, 'return')`),
+                action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)
+            ];
+            return renderActionGroup(issue.id, actions);
         }
         if (issue.reviewStatus === '待退回') {
-            return `
-                <button class="t-button btn-danger btn-small" onclick="returnRemediationIssue(${issue.id})">退回</button>
-                <button class="t-button btn-outline btn-small" onclick="editIssue(${issue.id})">编辑</button>
-                <button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id}, '${materialId}')">删除</button>
-                <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>`;
+            actions = [
+                action('退回', 'btn-danger', `returnRemediationIssue(${issue.id})`),
+                action('编辑', 'btn-outline', `editIssue(${issue.id})`),
+                action('删除', 'btn-outline', `requestDeleteIssue(${issue.id}, '${materialId}')`),
+                action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)
+            ];
+            return renderActionGroup(issue.id, actions);
         }
         if (issue.reviewStatus === '待提交' && issue.canUndoPendingReturn) {
-            return `
-                <button class="t-button btn-outline btn-small" onclick="openUndoIssueModal(${issue.id}, 'pendingReturn')">撤回退回</button>
-                <button class="t-button btn-outline btn-small" onclick="openHistoryModal(${issue.id})">查看记录</button>`;
+            actions = [
+                action('撤回退回', 'btn-outline', `openUndoIssueModal(${issue.id}, 'pendingReturn')`),
+                action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)
+            ];
+            return renderActionGroup(issue.id, actions);
         }
+        actions = [
+            action('通过整改', 'btn-success', `resolveRemediationIssue(${issue.id})`),
+            action('退回', 'btn-danger', `returnRemediationIssue(${issue.id})`),
+            action('编辑', 'btn-outline', `editIssue(${issue.id})`),
+            action('删除', 'btn-outline', `requestDeleteIssue(${issue.id}, '${materialId}')`),
+            action('查看记录', 'btn-outline', `openHistoryModal(${issue.id})`)
+        ];
+        return renderActionGroup(issue.id, actions);
+    }
+
+    function renderActionGroup(issueId, actions) {
+        const visibleActions = actions.slice(0, 2);
+        const moreActions = actions.slice(2);
+        const renderButton = item => `<button type="button" class="t-button ${item.className} btn-small" onclick="event.stopPropagation(); closeIssueActionMenus(); ${item.handler}">${escapeHtml(item.label)}</button>`;
         return `
-            <button class="t-button btn-success btn-small" onclick="resolveRemediationIssue(${issue.id})">通过整改</button>
-            <button class="t-button btn-danger btn-small" onclick="returnRemediationIssue(${issue.id})">退回</button>
-            <button class="t-button btn-outline btn-small" onclick="editIssue(${issue.id})">编辑</button>
-            <button class="t-button btn-outline btn-small" onclick="requestDeleteIssue(${issue.id}, '${materialId}')">删除</button>`;
+            ${visibleActions.map(renderButton).join('')}
+            ${moreActions.length ? `
+                <div class="issue-more-wrap" data-issue-more="${issueId}">
+                    <button type="button" class="t-button btn-outline btn-small" onclick="toggleIssueMore(event, ${issueId})">更多</button>
+                    <div class="issue-more-menu">${moreActions.map(renderButton).join('')}</div>
+                </div>
+            ` : ''}
+        `;
+    }
+
+    function closeIssueActionMenus() {
+        document.querySelectorAll('.issue-more-wrap.open').forEach(menu => menu.classList.remove('open'));
+    }
+
+    function toggleIssueMore(event, issueId) {
+        event.stopPropagation();
+        const current = document.querySelector(`[data-issue-more="${issueId}"]`);
+        const shouldOpen = current && !current.classList.contains('open');
+        closeIssueActionMenus();
+        if (current && shouldOpen) current.classList.add('open');
     }
 
     function renderIssuesListView(system = 'all', scopeMaterialId = null) {
@@ -5362,7 +5572,7 @@ let pendingConfirmAction = null;
         if (!scopeMaterialId && system !== 'all') issues = issues.filter(issue => issue.systems.includes(system));
         if (currentIssueFilter !== 'all') issues = issues.filter(issue => issue.type === currentIssueFilter);
         const rowsHtml = issues.map((issue, index) => {
-            const systemsHtml = issue.systems.map(s => `<span class="system-badge-table ${s}">${s}</span>`).join('');
+            const systemsHtml = renderTableSystemBadges(issue.systems);
             const materialName = issue.materialId && materialsData[issue.materialId] ? materialsData[issue.materialId].title : '-';
             const requirement = issue.requiredAttachment || issue.remediationRequirement || issue.expertFeedback || '-';
             const reviewOpinion = issue.returnReason
@@ -5388,13 +5598,16 @@ let pendingConfirmAction = null;
                 </tr>`;
         }).join('');
         const title = scopeMaterialId ? '当前材料整改问题清单' : `整改问题清单 ${system !== 'all' ? '(' + system + ')' : '(全部)'}`;
+        const toolbarActions = isTaskReadOnly()
+            ? '<button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>'
+            : `<button class="t-button btn-primary btn-small" onclick="openIssueModal('${scopeMaterialId || currentMaterialId}', '材料问题')">登记问题</button>
+                        <button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>`;
         return `
             <div class="material-table-container" style="margin-bottom:20px;">
                 <div class="material-table-header issue-toolbar">
                     <div style="display:flex;align-items:center;gap:8px;"><span>${title}</span><span style="font-size:12px;color:#64748B;font-weight:500;">当前有效 ${issues.length} 项</span></div>
                     <div class="issue-toolbar-actions">
-                        <button class="t-button btn-primary btn-small" onclick="openIssueModal('${scopeMaterialId || currentMaterialId}', '材料问题')">登记问题</button>
-                        <button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>
+                        ${toolbarActions}
                     </div>
                 </div>
                 <div class="issue-table-scroll">
@@ -5416,7 +5629,7 @@ let pendingConfirmAction = null;
         const materialIssues = getActiveIssues().filter(issue => issue.materialId === materialId && (currentSystemFilter === 'all' || issue.systems.includes(currentSystemFilter)));
         const fileRowsHtml = (data.files || []).filter(file => currentSystemFilter === 'all' || file.applicableSystems.includes(currentSystemFilter)).map(file => {
             const fileExt = file.name.split('.').pop().toUpperCase();
-            const systemsHtml = file.applicableSystems.map(s => `<span class="system-badge-table ${s}">${s}</span>`).join('');
+            const systemsHtml = renderTableSystemBadges(file.applicableSystems);
             return `<tr><td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(data.title)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)} · ${escapeHtml(fileExt)}</div></div></td><td><div class="systems-cell">${systemsHtml}</div></td><td class="actions-cell"><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button></td></tr>`;
         }).join('');
         document.getElementById('contentBody').innerHTML = `
@@ -5432,6 +5645,7 @@ let pendingConfirmAction = null;
     function showAddIssueForm(materialId, type) { openIssueModal(materialId, type); }
 
     function openIssueModal(materialId = currentMaterialId, type = '材料问题') {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         editingIssueId = null;
         issueModalContext = { materialId, type };
         document.querySelector('#issueRegistrationModal .modal-header span').textContent = '登记问题';
@@ -5459,17 +5673,20 @@ let pendingConfirmAction = null;
         const materialId = document.getElementById('issueMaterialInput').value;
         const material = materialsData[materialId];
         const systems = material && material.catalogSystems ? material.catalogSystems : getProjectSystems();
-        document.getElementById('issueSystemInput').innerHTML = systems.map(s => `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;"><input type="checkbox" name="issueSystemsModal" value="${s}" checked onchange="validateIssueModal()"><span class="system-badge-table ${s}">${s}</span></label>`).join('');
+        document.getElementById('issueSystemInput').className = 'issue-system-readonly';
+        document.getElementById('issueSystemInput').dataset.systems = systems.join(',');
+        document.getElementById('issueSystemInput').innerHTML = renderTableSystemBadges(systems);
     }
 
     function validateIssueModal() {
         const desc = document.getElementById('issueDescInput').value.trim();
-        const checked = document.querySelectorAll('input[name="issueSystemsModal"]:checked');
+        const systems = (document.getElementById('issueSystemInput').dataset.systems || '').split(',').filter(Boolean);
         document.getElementById('issueModalCharCount').textContent = `${desc.length}字`;
-        document.getElementById('confirmIssueBtn').disabled = desc.length < 10 || checked.length === 0;
+        document.getElementById('confirmIssueBtn').disabled = desc.length < 10 || systems.length === 0;
     }
 
     function editIssue(issueId) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const issue = issuesData.all.find(item => item.id === issueId);
         if (!issue) return;
         editingIssueId = issueId;
@@ -5483,20 +5700,18 @@ let pendingConfirmAction = null;
         document.getElementById('issueRemediationInput').value = issue.remediation || '';
         document.getElementById('issueAttachmentInput').value = issue.remediationFile || issue.attachment || '';
         syncIssueSystemsFromMaterial();
-        document.querySelectorAll('input[name="issueSystemsModal"]').forEach(input => {
-            input.checked = issue.systems.includes(input.value);
-        });
         validateIssueModal();
         document.getElementById('issueRegistrationModal').classList.add('active');
     }
 
     function confirmIssueRegistration() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const materialId = document.getElementById('issueMaterialInput').value;
         const type = document.getElementById('issueTypeInput').value;
         const desc = document.getElementById('issueDescInput').value.trim();
         const remediation = document.getElementById('issueRemediationInput').value.trim();
         const remediationFile = document.getElementById('issueAttachmentInput').value.trim();
-        const systems = Array.from(document.querySelectorAll('input[name="issueSystemsModal"]:checked')).map(input => input.value);
+        const systems = (document.getElementById('issueSystemInput').dataset.systems || '').split(',').filter(Boolean);
         if (desc.length < 10 || systems.length === 0) return;
         if (editingIssueId) {
             const existingIssue = issuesData.all.find(item => item.id === editingIssueId);
@@ -5553,6 +5768,7 @@ let pendingConfirmAction = null;
     }
 
     function requestDeleteIssue(issueId, materialId = '') {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         pendingDeleteIssue = { issueId, materialId, action: 'delete' };
         document.getElementById('deleteReasonInput').value = '';
         document.querySelector('#deleteReasonModal .modal-header span').textContent = '删除问题并保留日志';
@@ -5574,6 +5790,7 @@ let pendingConfirmAction = null;
     }
 
     function confirmDeleteIssueWithReason() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         if (!pendingDeleteIssue) return;
         const reason = document.getElementById('deleteReasonInput').value.trim();
         if (reason.length < 5) return;
@@ -5611,6 +5828,7 @@ let pendingConfirmAction = null;
     }
 
     function returnRemediationIssue(issueId) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const issue = issuesData.all.find(item => item.id === issueId);
         if (!issue) return;
         if (issue.reviewStatus === '待退回') {
@@ -5643,6 +5861,7 @@ let pendingConfirmAction = null;
     }
 
     function confirmReturnRemediationIssue() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         if (!pendingReturnIssueId) return;
         const reason = document.getElementById('returnReasonInput').value.trim();
         if (reason.length < 5) return;
@@ -5661,6 +5880,7 @@ let pendingConfirmAction = null;
     }
 
     function resolveRemediationIssue(issueId) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const updatedIssue = syncIssueUpdate(issueId, {
             reviewStatus: '已通过',
             passedBy: coordinatorName,
@@ -5674,6 +5894,7 @@ let pendingConfirmAction = null;
     }
 
     function openUndoIssueModal(issueId, action) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const issue = issuesData.all.find(item => item.id === issueId);
         if (!issue) return;
         pendingUndoIssueId = issueId;
@@ -5706,6 +5927,7 @@ let pendingConfirmAction = null;
     }
 
     function confirmUndoIssue() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         if (!pendingUndoIssueId || !pendingUndoAction) return;
         const reason = document.getElementById('undoReasonInput').value.trim();
         if (reason.length < 5) return;
@@ -5748,18 +5970,21 @@ let pendingConfirmAction = null;
             const reason = log.reason || snapshot.returnReason || '系统记录本次问题处理动作。';
             return `
                 <div class="history-item">
-                    <div class="history-item-head">
-                        <span>${escapeHtml(log.action)} · ${escapeHtml(snapshot.type || '-')}</span>
-                        <span class="review-status ${statusClass}">${escapeHtml(status)}</span>
+                    <div class="history-card">
+                        <div class="history-item-head">
+                            <span>${escapeHtml(log.action)} · ${escapeHtml(snapshot.type || '-')}</span>
+                            <span class="review-status ${statusClass}">${escapeHtml(status)}</span>
+                        </div>
+                        <div class="history-meta">
+                            操作时间：${escapeHtml(log.createdAt || '')} · 操作人：${escapeHtml(log.operator || '-')}<br>
+                            所属材料：${escapeHtml(materialName)}<br>
+                            涉及体系：${systems.length ? systems.join('、') : '-'}<br>
+                            问题描述：${escapeHtml(snapshot.description || '-')}
+                            ${snapshot.remediation ? `<br>整改说明：${escapeHtml(snapshot.remediation)}` : ''}
+                            ${snapshot.remediationFile ? `<br>整改材料：${escapeHtml(snapshot.remediationFile)}` : ''}
+                        </div>
+                        <div class="history-reason">处理说明：${escapeHtml(reason)}</div>
                     </div>
-                    <div class="history-meta">
-                        所属材料：${escapeHtml(materialName)}<br>
-                        涉及体系：${systems.length ? systems.join('、') : '-'} · 操作人：${escapeHtml(log.operator || '-')} · 操作时间：${escapeHtml(log.createdAt || '')}<br>
-                        问题描述：${escapeHtml(snapshot.description || '-')}
-                        ${snapshot.remediation ? `<br>整改说明：${escapeHtml(snapshot.remediation)}` : ''}
-                        ${snapshot.remediationFile ? `<br>整改材料：${escapeHtml(snapshot.remediationFile)}` : ''}
-                    </div>
-                    <div class="history-reason">处理说明：${escapeHtml(reason)}</div>
                 </div>`;
         }).join('') || '<div class="empty-state">暂无历史问题记录。</div>';
         document.getElementById('historyIssueModal').classList.add('active');
@@ -5799,6 +6024,7 @@ let pendingConfirmAction = null;
     }
 
     function deleteExpert(index) {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const expert = assignedExperts[index];
         if (!expert) return;
         openConfirmActionModal('撤回专家指派', `
@@ -5814,6 +6040,7 @@ let pendingConfirmAction = null;
     }
 
     function openExpertModal() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         modalExpertPage = 1;
         modalExpertSelection = {};
         modalExpertFilterState = { domain: '', name: '', company: '', codes: '' };
@@ -5957,6 +6184,7 @@ let pendingConfirmAction = null;
     }
 
     function confirmExpertSelection() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const selected = getSelectedModalExperts();
         if (selected.length === 0) { showToast('请先选择至少一名专家。'); return; }
         const today = new Date().toISOString().split('T')[0];
@@ -5969,6 +6197,7 @@ let pendingConfirmAction = null;
     }
 
     function simulateExpertIssue() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         if (!collectCoverage().complete) { showToast('请先完成专家指派。'); return; }
         const expert = assignedExperts[0];
         const materialId = '9';
@@ -6020,6 +6249,7 @@ let pendingConfirmAction = null;
 
 
     function simulateExpertNoIssue() {
+        if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         if (!collectCoverage().complete) { showToast('请先完成专家指派。'); return; }
         expertReviewStarted = true;
         expertReviewCompleted = true;
@@ -6065,13 +6295,14 @@ let pendingConfirmAction = null;
         if (warningDiv) warningDiv.innerHTML = blockers.length ? `提示：${blockers.join('。')}。` : '提示：当前无阻断项。';
         const passBtn = document.getElementById('headerPassBtn');
         if (passBtn) {
-            passBtn.disabled = groups.ready.length === 0;
-            passBtn.textContent = groups.ready.length === flow.total ? '通过复评' : '通过可通过体系';
-            passBtn.title = passBtn.disabled ? next : `通过${groups.ready.length}个可通过体系`;
+            const headerPassSystems = getHeaderPassSystems(groups, issueCount, coverage);
+            passBtn.disabled = headerPassSystems.length === 0;
+            passBtn.textContent = isTaskReadOnly() ? '已完成' : '通过评定任务';
+            passBtn.title = passBtn.disabled ? next : '通过当前评定任务';
         }
         const headerExpertAssignBtn = document.getElementById('headerExpertAssignBtn');
         if (headerExpertAssignBtn) {
-            headerExpertAssignBtn.style.display = isCurrentScopeCoverageComplete(coverage) ? 'none' : '';
+            headerExpertAssignBtn.style.display = isTaskReadOnly() || isCurrentScopeCoverageComplete(coverage) ? 'none' : '';
         }
         const coverageRows = getProjectSystems().map(sys => {
             const missingCodes = coverage.missingCodes.filter(item => item.sys === sys).map(item => item.code);
@@ -6100,7 +6331,7 @@ let pendingConfirmAction = null;
                         要求完成日期：${escapeHtml(expert.deadline || '-')}
                     </div>
                     <div class="expert-actions">
-                        <button class="t-button btn-outline btn-small" onclick="deleteExpert(${index})">撤回指派</button>
+                        ${isTaskReadOnly() ? '<span class="file-parent-text">只读</span>' : `<button class="t-button btn-outline btn-small" onclick="deleteExpert(${index})">撤回指派</button>`}
                     </div>
                 </div>`;
         }).join('');
@@ -6147,7 +6378,7 @@ let pendingConfirmAction = null;
                     </div>
                 </div>
                 <div class="console-card">
-                    <div class="console-card-header"><span>专家覆盖</span><button class="t-button btn-outline btn-small" onclick="openExpertModal()">${assignedExperts.length ? '调整' : '指派'}</button></div>
+                    <div class="console-card-header"><span>专家覆盖</span>${isTaskReadOnly() ? '<span class="status-pill">只读</span>' : `<button class="t-button btn-outline btn-small" onclick="openExpertModal()">${assignedExperts.length ? '调整' : '指派'}</button>`}</div>
                     <div class="console-card-body">${coverageRows}${expertToggle}${expertList}</div>
                 </div>
                 <div class="console-card">
@@ -6164,10 +6395,10 @@ let pendingConfirmAction = null;
                         <div class="stats-row"><span>未整改问题</span><strong style="color:${issueCount ? 'var(--reject-color)' : 'var(--pass-color)'};">${issueCount}项</strong></div>
                         <div class="stats-row"><span>问题处理日志</span><strong>${deletedIssueLogs.length}条</strong></div>
                         ${groups.problem.length ? '<div class="task-next-step" style="background:#FFF7ED;border-color:#FED7AA;color:#C2410C;">存在未整改问题的体系暂不可通过；请在问题清单逐项退回、编辑或删除处理。</div>' : ''}
-                        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                        ${isTaskReadOnly() ? '<div class="task-next-step" style="background:#E6F7F1;border-color:#B8E8D7;color:#00875A;">任务已完成，页面只读；可继续预览文件和查看历史记录。</div>' : `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
                             <button class="t-button btn-outline btn-small" onclick="simulateExpertIssue()">模拟专家提出问题</button>
                             <button class="t-button btn-outline btn-small" onclick="simulateExpertNoIssue()">模拟专家无问题</button>
-                        </div>
+                        </div>`}
                     </div>
                 </div>
                 ${deletedIssueLogs.length ? `<div class="console-card"><div class="console-card-header"><span>问题处理日志</span></div><div class="console-card-body">${issueActionLogs}</div></div>` : ''}
@@ -6178,11 +6409,13 @@ let pendingConfirmAction = null;
 
     function passTask() {
         const groups = getSystemDecisionGroups();
-        if (groups.ready.length === 0) return;
-        openTaskDecisionModal(groups.ready);
+        const passSystems = getHeaderPassSystems(groups, getOpenIssues().length, collectCoverage());
+        if (passSystems.length === 0) return;
+        openTaskDecisionModal(passSystems);
     }
 
     function passSystem(sys) {
+        if (isTaskReadOnly()) return;
         if (!getProjectSystems().includes(sys)) return;
         if (getSystemStatus(sys).key !== 'ready') {
             showToast(getSystemPassBlocker(sys));
@@ -6196,15 +6429,15 @@ let pendingConfirmAction = null;
     }
 
     function openTaskDecisionModal(passSystems) {
+        if (isTaskReadOnly()) return;
         pendingTaskDecision = { action: 'pass', passSystems: passSystems.slice(), returnSystems: [] };
         const isFullPass = passSystems.length === getProjectSystems().length;
-        const isSinglePass = passSystems.length === 1;
-        document.getElementById('taskDecisionTitle').textContent = isFullPass ? '确认通过复评' : (isSinglePass ? `确认通过${passSystems[0]}体系` : '确认通过可通过体系');
+        document.getElementById('taskDecisionTitle').textContent = '确认通过评定任务';
         document.getElementById('confirmTaskDecisionBtn').className = 't-button btn-primary';
         document.getElementById('confirmTaskDecisionBtn').textContent = '确认通过';
         document.getElementById('taskDecisionBody').innerHTML = `
             <div style="font-size:13px;color:#334155;line-height:1.7;margin-bottom:14px;">
-                当前项目包含 Q/E/S/F 四个体系，二次评定结论按体系分别处理。本次仅通过当前无未整改问题且已完成评定的体系。
+                当前项目未发现有效未整改问题。确认后，二次评定任务进入已完成状态，页面转为只读，仅保留材料预览和历史记录查看。
             </div>
             <div style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;">
                 <div style="display:flex;justify-content:space-between;gap:16px;padding:12px 14px;border-bottom:1px solid #E2E8F0;background:#FAFAFA;">
@@ -6215,8 +6448,8 @@ let pendingConfirmAction = null;
             </div>
             <div class="task-next-step" style="background:#F4F8FF;border-color:#B7D3FF;color:#0B3B88;">
                 ${isFullPass
-                    ? '确认后，Q/E/S/F 全部体系进入认证决定。'
-                    : '确认后，本次通过体系进入认证决定；未满足条件的体系仍保留当前复核状态。'}
+                    ? '确认后，Q/E/S/F 全部体系完成二次评定。'
+                    : '确认后，本次体系完成二次评定；页面将进入只读状态。'}
             </div>
         `;
         document.getElementById('taskDecisionModal').classList.add('active');
@@ -6230,17 +6463,18 @@ let pendingConfirmAction = null;
     function confirmTaskDecision() {
         if (!pendingTaskDecision) return;
         const time = new Date().toLocaleString('zh-CN', { hour12: false });
-        pendingTaskDecision.passSystems.forEach(sys => { systemDecisions[sys] = 'passed'; });
+        getProjectSystems().forEach(sys => { systemDecisions[sys] = 'passed'; });
+        taskCompleted = true;
         if (pendingTaskDecision.passSystems.length) {
             systemDecisionLogs.push({
                 action: 'pass',
                 systems: pendingTaskDecision.passSystems.slice(),
                 time,
-                note: pendingTaskDecision.passSystems.length === getProjectSystems().length ? '全部体系进入认证决定' : '可通过体系进入认证决定'
+                note: '二次评定完成，页面进入只读状态'
             });
         }
         closeTaskDecisionModal();
-        showToast('体系处理结果已更新。');
+        showToast('二次评定已完成，页面已切换为只读状态。');
         renderExpertList();
         currentMaterialId === 'all' ? renderAllMaterialsView() : renderMaterialDetail(currentMaterialId);
     }
@@ -6248,6 +6482,7 @@ let pendingConfirmAction = null;
     // 初始化
     document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', function(event) {
+            closeIssueActionMenus();
             const dropdown = document.getElementById('systemFilterDropdown');
             if (!dropdown || dropdown.contains(event.target)) return;
             dropdown.classList.remove('open');
@@ -6264,6 +6499,96 @@ let pendingConfirmAction = null;
         renderAllMaterialsView();
         renderExpertList();
     });
+
+const PAGE_GUIDE_STEPS = [
+    {
+        "target": "#globalStatsStrip",
+        "title": "查看体系概况",
+        "body": "顶部统计和体系卡展示 Q/E/S/F 的材料、专家覆盖和有效问题情况。"
+    },
+    {
+        "target": "#contentBody",
+        "title": "清理未整改问题",
+        "body": "中间问题清单用于逐条通过整改、退回、编辑、删除或查看历史记录。"
+    },
+    {
+        "target": ".sidebar-right",
+        "title": "核对复评条件",
+        "body": "右侧复评控制台汇总专家覆盖、体系分流和阻断原因，辅助判断是否可通过。"
+    },
+    {
+        "target": "#headerPassBtn",
+        "title": "通过评定任务",
+        "body": "全部体系无阻断后，页头通过评定任务按钮可完成二次评定。"
+    }
+];
+let pageGuideIndex = 0;
+let pageGuideTarget = null;
+function startPageGuide() {
+    pageGuideIndex = 0;
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    renderPageGuide();
+}
+function closePageGuide() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    pageGuideTarget = null;
+}
+function movePageGuide(delta) {
+    const next = pageGuideIndex + delta;
+    if (next < 0) return;
+    if (next >= PAGE_GUIDE_STEPS.length) {
+        closePageGuide();
+        return;
+    }
+    pageGuideIndex = next;
+    renderPageGuide();
+}
+function renderPageGuide() {
+    const step = PAGE_GUIDE_STEPS[pageGuideIndex];
+    if (!step) return;
+    pageGuideTarget = document.querySelector(step.target) || document.querySelector('.page-container') || document.body;
+    document.getElementById('pageGuideTitle').textContent = step.title;
+    document.getElementById('pageGuideBody').textContent = step.body;
+    document.getElementById('pageGuideCount').textContent = (pageGuideIndex + 1) + ' / ' + PAGE_GUIDE_STEPS.length;
+    document.getElementById('pageGuidePrev').disabled = pageGuideIndex === 0;
+    document.getElementById('pageGuideNext').textContent = pageGuideIndex === PAGE_GUIDE_STEPS.length - 1 ? '完成' : '下一步';
+    pageGuideTarget.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    window.setTimeout(updatePageGuidePosition, 220);
+}
+function updatePageGuidePosition() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay || !overlay.classList.contains('active') || !pageGuideTarget) return;
+    const rect = pageGuideTarget.getBoundingClientRect();
+    const pad = 6;
+    const highlight = document.getElementById('pageGuideHighlight');
+    const popover = document.getElementById('pageGuidePopover');
+    const left = Math.max(8, rect.left - pad);
+    const top = Math.max(8, rect.top - pad);
+    const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+    highlight.style.left = left + 'px';
+    highlight.style.top = top + 'px';
+    highlight.style.width = Math.max(40, width) + 'px';
+    highlight.style.height = Math.max(32, height) + 'px';
+    const popWidth = Math.min(340, window.innerWidth - 32);
+    let popLeft = left + width + 16;
+    if (popLeft + popWidth > window.innerWidth - 16) popLeft = Math.max(16, left - popWidth - 16);
+    let popTop = Math.min(Math.max(16, top), window.innerHeight - 260);
+    popover.style.left = popLeft + 'px';
+    popover.style.top = popTop + 'px';
+}
+window.addEventListener('resize', updatePageGuidePosition);
+document.addEventListener('scroll', updatePageGuidePosition, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePageGuide();
+});
+
 </script>
 <script src="pdf-preview.js"></script>
 </body>

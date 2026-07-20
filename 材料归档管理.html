@@ -317,6 +317,10 @@
             margin-left: 6px;
         }
 
+        .action-link.danger {
+            color: var(--danger);
+        }
+
         .system-badges,
         .type-tags {
             display: flex;
@@ -477,6 +481,55 @@
             font-size: 12px;
         }
 
+        .material-count {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+            color: var(--text-secondary);
+        }
+
+        .material-count strong {
+            color: var(--text-main);
+            font-size: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .issue-progress {
+            display: grid;
+            grid-template-columns: 78px auto;
+            align-items: center;
+            gap: 5px 8px;
+            min-width: 164px;
+        }
+
+        .issue-progress .progress-track {
+            width: 78px;
+        }
+
+        .issue-progress-value {
+            color: var(--text-main);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .issue-progress-note {
+            grid-column: 1 / -1;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .issue-progress-empty {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            border: 1px solid #b8e8d7;
+            border-radius: 4px;
+            background: #e6f7f1;
+            color: #00875a;
+            padding: 0 8px;
+            font-size: 12px;
+        }
+
         .rectify-overview {
             display: inline-flex;
             align-items: center;
@@ -536,6 +589,10 @@
             font-size: 12px;
         }
 
+        .status.final {
+            min-width: 104px;
+        }
+
         .status.pending {
             background: #ffefd6;
             color: #d96800;
@@ -546,9 +603,34 @@
             color: #0052d9;
         }
 
+        .status.second-review {
+            background: #f1edff;
+            color: #6339d8;
+        }
+
         .status.cert {
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .status.issue {
             background: #e5fbf5;
             color: #00875a;
+        }
+
+        .status.pending-cert {
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .status.no-cert {
+            background: #ffecee;
+            color: #d54941;
+        }
+
+        .status.notice {
+            background: #e8f1ff;
+            color: #0052d9;
         }
 
         .status.done {
@@ -564,6 +646,45 @@
         .status.returned {
             background: #ffecee;
             color: #d54941;
+        }
+
+        .status-stack {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            min-width: 86px;
+        }
+
+        .receive-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            background: #f7f8fa;
+            color: var(--text-secondary);
+            padding: 0 8px;
+            font-size: 12px;
+            line-height: 20px;
+        }
+
+        .receive-badge.pending {
+            border-color: #ffd5a8;
+            background: #fff3e5;
+            color: #c46000;
+        }
+
+        .receive-badge.received {
+            border-color: #b8e8d7;
+            background: #e6f7f1;
+            color: #00875a;
+        }
+
+        .receive-badge.review {
+            border-color: #b7d3ff;
+            background: #e8f1ff;
+            color: #0052d9;
         }
 
         .pagination {
@@ -640,6 +761,70 @@
 
         .toast.show {
             display: block;
+        }
+
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.38);
+            padding: 20px;
+        }
+
+        .modal-mask.show {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            width: min(440px, 100%);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 48px rgba(21, 35, 66, 0.18);
+        }
+
+        .confirm-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .confirm-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .confirm-body {
+            padding: 16px 20px 4px;
+            color: var(--text-secondary);
+        }
+
+        .confirm-task {
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .confirm-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 20px 20px;
+        }
+
+        .btn.solid {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn.danger {
+            border-color: #ffc2c7;
+            background: #ffecee;
+            color: #d54941;
         }
 
         @media (max-width: 1180px) {
@@ -726,7 +911,10 @@
                 <button class="tab active" type="button" data-status="全部">全部</button>
                 <button class="tab" type="button" data-status="草稿">草稿</button>
                 <button class="tab" type="button" data-status="初次评定中">初次评定中</button>
+                <button class="tab" type="button" data-status="二次评定中">二次评定中</button>
                 <button class="tab" type="button" data-status="认证决定中">认证决定中</button>
+                <button class="tab" type="button" data-status="证书待签发">证书签发</button>
+                <button class="tab" type="button" data-status="待推送">监督审核通知</button>
                 <button class="tab" type="button" data-status="已完结">已完结</button>
             </nav>
 
@@ -750,8 +938,14 @@
                         <option value="">全部</option>
                         <option value="草稿">草稿</option>
                         <option value="初次评定中">初次评定中</option>
+                        <option value="二次评定中">二次评定中</option>
                         <option value="认证决定中">认证决定中</option>
+                        <option value="证书待签发">证书待签发</option>
+                        <option value="待推送">待推送</option>
                         <option value="已完结">已完结</option>
+                        <option value="证书已签发">证书已签发</option>
+                        <option value="证书不予签发">证书不予签发</option>
+                        <option value="监督审核通知已推送">监督审核通知已推送</option>
                     </select>
                 </div>
                 <div class="filter-actions">
@@ -779,14 +973,14 @@
                             <th>归属机构</th>
                             <th>归属部门</th>
                             <th>计划审核时间</th>
-                            <th>材料进度</th>
-                            <th>问题整改概览</th>
+                            <th id="materialColumnHeader">材料进度</th>
+                            <th id="issueColumnHeader">问题整改概览</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="taskRows">
-                        <tr data-status="草稿" data-rectify="0" data-review-return="0" data-type="初次认证" data-task="1100-Q-2026-0001" data-customer="华锐精密机械制造有限公司">
+                        <tr data-status="草稿" data-received="false" data-rectify="0" data-review-return="0" data-type="初次认证" data-task="1100-Q-2026-0001" data-customer="华锐精密机械制造有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0001</a></td>
                             <td>华锐精密机械制造有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -799,7 +993,7 @@
                             <td><span class="status draft">草稿</span></td>
                             <td><a class="action-link" href="#">提交</a><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="2" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0002" data-customer="绿源生态食品科技股份有限公司">
+                        <tr data-status="初次评定中" data-received="false" data-rectify="2" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0002" data-customer="绿源生态食品科技股份有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0002</a></td>
                             <td>绿源生态食品科技股份有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / FSMS" aria-label="QMS / EMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -812,10 +1006,10 @@
                             <td><span class="status submitted">初次评定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="认证决定中" data-rectify="0" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0003" data-customer="恒信芯联电子元器件有限公司">
+                        <tr data-status="认证决定中" data-received="true" data-rectify="0" data-review-return="0" data-material-count="38" data-issues-total="0" data-issues-resolved="0" data-type="再认证" data-task="1100-Q-2026-0003" data-customer="恒信芯联电子元器件有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0003</a></td>
                             <td>恒信芯联电子元器件有限公司</td>
-                            <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
+                            <td><div class="system-badges" title="QMS" aria-label="QMS"><span class="sys q">QMS</span></div></td>
                             <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
@@ -825,7 +1019,7 @@
                             <td><span class="status cert">认证决定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="草稿" data-rectify="0" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0004" data-customer="鑫泰筑邦建材实业有限公司">
+                        <tr data-status="草稿" data-received="false" data-rectify="0" data-review-return="0" data-type="监督审核" data-task="1100-Q-2026-0004" data-customer="鑫泰筑邦建材实业有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0004</a></td>
                             <td>鑫泰筑邦建材实业有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS" aria-label="QMS / EMS / OHSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -838,20 +1032,20 @@
                             <td><span class="status draft">草稿</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="已完结" data-rectify="0" data-review-return="0" data-type="初次认证,再认证" data-task="1100-Q-2026-0005" data-customer="安捷通运输仓储有限公司">
-                            <td><a class="task-link" href="#">1100-Q-2026-0005</a></td>
+                        <tr data-status="认证决定中" data-workflow-status="待补充材料" data-received="true" data-rectify="1" data-review-return="0" data-material-count="48" data-issues-total="3" data-issues-resolved="2" data-type="初次认证" data-task="1100-QS-2026-0005" data-customer="安捷通运输仓储有限公司">
+                            <td><a class="task-link" href="#">1100-QS-2026-0005</a></td>
                             <td>安捷通运输仓储有限公司</td>
-                            <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
-                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td><div class="system-badges" title="QMS" aria-label="QMS"><span class="sys q">QMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td>2026-03-30</td>
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 100%"></div></div><div class="progress-value">48/48</div></div></td>
-                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
-                            <td><span class="status done">已完结</span></td>
-                            <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>1</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status cert">认证决定中</span></td>
+                            <td><a class="action-link detail-link" href="归档材料退回-详情-简化布局-v2-顶部统计卡片版.html?taskNo=1100-QS-2026-0005&amp;stage=certificate-decision&amp;mode=rectification" target="_self">退回详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="4" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
+                        <tr data-status="初次评定中" data-received="true" data-rectify="4" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0006</a></td>
                             <td>盛达新材化工有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -864,7 +1058,7 @@
                             <td><span class="status submitted">初次评定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="认证决定中" data-rectify="2" data-review-return="1" data-type="再认证" data-task="1100-Q-2026-0007" data-customer="科瑞智联新能源科技有限公司">
+                        <tr data-status="二次评定中" data-received="true" data-rectify="2" data-review-return="1" data-type="再认证" data-task="1100-Q-2026-0007" data-customer="科瑞智联新能源科技有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0007</a></td>
                             <td>科瑞智联新能源科技有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -874,10 +1068,10 @@
                             <td>2026-03-30</td>
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
                             <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>2</strong></span><span class="rectify-pill danger">复核退回 <strong>1</strong></span></div></td>
-                            <td><span class="status cert">认证决定中</span></td>
+                            <td><span class="status second-review">二次评定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="认证决定中" data-rectify="5" data-review-return="2" data-type="初次认证,再认证" data-task="1100-Q-2026-0008" data-customer="锦程织造服饰有限公司">
+                        <tr data-status="二次评定中" data-received="true" data-rectify="5" data-review-return="2" data-type="初次认证,再认证" data-task="1100-Q-2026-0008" data-customer="锦程织造服饰有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0008</a></td>
                             <td>锦程织造服饰有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / FSMS" aria-label="QMS / EMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -887,36 +1081,36 @@
                             <td>2026-03-30</td>
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 79%"></div></div><div class="progress-value">38/48</div></div></td>
                             <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>5</strong></span><span class="rectify-pill danger">复核退回 <strong>2</strong></span></div></td>
-                            <td><span class="status cert">认证决定中</span></td>
+                            <td><span class="status second-review">二次评定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="0" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0009" data-customer="康泰瑞康医疗器械有限公司">
+                        <tr data-status="证书待签发" data-received="true" data-rectify="0" data-review-return="0" data-material-count="34" data-issues-total="2" data-issues-resolved="2" data-type="再认证" data-task="1100-Q-2026-0009" data-customer="康泰瑞康医疗器械有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0009</a></td>
                             <td>康泰瑞康医疗器械有限公司</td>
-                            <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
+                            <td><div class="system-badges" title="QMS" aria-label="QMS"><span class="sys q">QMS</span></div></td>
                             <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td>2026-03-30</td>
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
                             <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
-                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><span class="status pending-cert">证书待签发</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="1" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0010" data-customer="宏远精工五金制品有限公司">
+                        <tr data-status="待推送" data-received="true" data-rectify="1" data-review-return="0" data-material-count="34" data-issues-total="4" data-issues-resolved="3" data-type="再认证" data-task="1100-Q-2026-0010" data-customer="宏远精工五金制品有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0010</a></td>
                             <td>宏远精工五金制品有限公司</td>
-                            <td><div class="system-badges" title="QMS / EMS / OHSMS" aria-label="QMS / EMS / OHSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
+                            <td><div class="system-badges" title="QMS" aria-label="QMS"><span class="sys q">QMS</span></div></td>
                             <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td>2026-03-30</td>
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 71%"></div></div><div class="progress-value">34/48</div></div></td>
                             <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>1</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
-                            <td><span class="status submitted">初次评定中</span></td>
+                            <td><span class="status notice">待推送</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="0" data-review-return="0" data-type="初次认证,再认证" data-task="1100-Q-2026-0011" data-customer="佳禾优品包装印刷有限公司">
+                        <tr data-status="初次评定中" data-received="false" data-rectify="0" data-review-return="0" data-type="初次认证,再认证" data-task="1100-Q-2026-0011" data-customer="佳禾优品包装印刷有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0011</a></td>
                             <td>佳禾优品包装印刷有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
@@ -929,7 +1123,7 @@
                             <td><span class="status submitted">初次评定中</span></td>
                             <td><a class="action-link detail-link" href="归档材料提交-详情-10体系重构版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="初次评定中" data-rectify="3" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0012" data-customer="博通智能自动化设备有限公司">
+                        <tr data-status="初次评定中" data-received="true" data-rectify="3" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0012" data-customer="博通智能自动化设备有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0012</a></td>
                             <td>博通智能自动化设备有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
@@ -972,6 +1166,22 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <div class="modal-mask" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-hidden="true">
+        <div class="confirm-dialog">
+            <div class="confirm-header">
+                <h2 class="confirm-title" id="confirmTitle">确认操作</h2>
+            </div>
+            <div class="confirm-body">
+                <div class="confirm-task" id="confirmTask"></div>
+                <div id="confirmMessage"></div>
+            </div>
+            <div class="confirm-footer">
+                <button class="btn" type="button" id="confirmCancel">取消</button>
+                <button class="btn solid" type="button" id="confirmOk">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const rows = Array.from(document.querySelectorAll("#taskRows tr"));
         const tabs = Array.from(document.querySelectorAll(".tab"));
@@ -981,8 +1191,40 @@
         const customer = document.querySelector("#customer");
         const statusSelect = document.querySelector("#statusSelect");
         const toast = document.querySelector("#toast");
+        const confirmModal = document.querySelector("#confirmModal");
+        const confirmTitle = document.querySelector("#confirmTitle");
+        const confirmTask = document.querySelector("#confirmTask");
+        const confirmMessage = document.querySelector("#confirmMessage");
+        const confirmCancel = document.querySelector("#confirmCancel");
+        const confirmOk = document.querySelector("#confirmOk");
+        const materialColumnHeader = document.querySelector("#materialColumnHeader");
+        const issueColumnHeader = document.querySelector("#issueColumnHeader");
         let activeStatus = "全部";
         let activeType = "全部类型";
+        let pendingConfirm = null;
+        const completedStatuses = ["证书已签发", "证书不予签发", "监督审核通知已推送"];
+        const lateStageTabs = new Set(["认证决定中", "证书待签发", "待推送", "已完结"]);
+        const CERT_DECISION_FLOW_PREFIX = "certificate-decision-rectification:";
+
+        function syncCertificateDecisionRow(row) {
+            if (row.dataset.status !== "认证决定中") return;
+            try {
+                const flow = JSON.parse(localStorage.getItem(`${CERT_DECISION_FLOW_PREFIX}${row.dataset.task}`) || "null");
+                if (!flow?.issues?.length) return;
+                const pending = flow.issues.filter(issue => ["returned_to_project", "review_rejected"].includes(issue.status)).length;
+                const awaitingReview = flow.issues.filter(issue => issue.status === "rectification_submitted").length;
+                const reviewReturned = flow.issues.filter(issue => issue.status === "review_rejected").length;
+                row.dataset.rectify = String(pending);
+                row.dataset.reviewReturn = String(reviewReturned);
+                row.dataset.issuesTotal = String(flow.issues.length);
+                row.dataset.issuesResolved = String(Math.max(0, flow.issues.length - pending - awaitingReview));
+                row.dataset.workflowStatus = awaitingReview > 0 ? "待复核" : flow.taskStatus || "待补充材料";
+                const overview = row.cells[8];
+                overview.innerHTML = `<div class="rectify-overview"><span class="rectify-pill ${pending ? 'warning' : ''}">待整改 <strong>${pending}</strong></span><span class="rectify-pill ${reviewReturned ? 'danger' : ''}">复核退回 <strong>${reviewReturned}</strong></span></div>`;
+            } catch (error) {
+                console.warn("无法同步认证决定整改任务", error);
+            }
+        }
 
         function showToast(message) {
             toast.textContent = message;
@@ -1000,11 +1242,15 @@
             const selectedCustomer = customer.value;
             const selectedStatus = statusSelect.value;
 
-            const statusOk = activeStatus === "全部" || rowStatus === activeStatus;
+            const statusOk = activeStatus === "全部"
+                || rowStatus === activeStatus
+                || (activeStatus === "已完结" && completedStatuses.includes(rowStatus));
             const typeOk = activeType === "全部类型" || rowType.includes(activeType);
             const taskOk = !keyword || rowTask.includes(keyword);
             const customerOk = !selectedCustomer || rowCustomer === selectedCustomer;
-            const selectStatusOk = !selectedStatus || rowStatus === selectedStatus;
+            const selectStatusOk = !selectedStatus
+                || rowStatus === selectedStatus
+                || (selectedStatus === "已完结" && completedStatuses.includes(rowStatus));
 
             return statusOk && typeOk && taskOk && customerOk && selectStatusOk;
         }
@@ -1016,15 +1262,178 @@
                 row.hidden = !visible;
                 if (visible) visibleCount += 1;
             });
+            updateStageColumns();
             showToast(`已筛选出 ${visibleCount} 条归档任务`);
+        }
+
+        function updateStageColumns() {
+            const useLateStageColumns = lateStageTabs.has(activeStatus);
+            materialColumnHeader.textContent = useLateStageColumns ? "材料数量" : "材料进度";
+            issueColumnHeader.textContent = useLateStageColumns ? "问题整改进度" : "问题整改概览";
+
+            rows.forEach((row) => {
+                const materialCell = row.cells[7];
+                const issueCell = row.cells[8];
+
+                if (!useLateStageColumns) {
+                    materialCell.innerHTML = row.dataset.originalMaterialHtml;
+                    issueCell.innerHTML = row.dataset.originalIssueHtml;
+                    return;
+                }
+
+                const fallbackMaterialCount = Number.parseInt(row.dataset.originalMaterialHtml.match(/progress-value[^>]*>(\d+)/)?.[1] || "0", 10);
+                const materialCount = Number(row.dataset.materialCount || fallbackMaterialCount);
+                const fallbackPending = Math.max(0, Number(row.dataset.rectify || 0));
+                const issuesTotal = Math.max(0, Number(row.dataset.issuesTotal ?? fallbackPending));
+                const issuesResolved = Math.min(issuesTotal, Math.max(0, Number(row.dataset.issuesResolved || 0)));
+                const pendingIssues = issuesTotal - issuesResolved;
+
+                materialCell.innerHTML = `<div class="material-count"><strong>${materialCount}</strong><span>份</span></div>`;
+
+                if (issuesTotal === 0) {
+                    issueCell.innerHTML = `<span class="issue-progress-empty">无需整改</span>`;
+                    return;
+                }
+
+                const progressPercent = Math.round(issuesResolved / issuesTotal * 100);
+                issueCell.innerHTML = `
+                    <div class="issue-progress" aria-label="已整改 ${issuesResolved} 项，共 ${issuesTotal} 项">
+                        <div class="progress-track"><div class="progress-bar" style="width: ${progressPercent}%"></div></div>
+                        <span class="issue-progress-value">${issuesResolved}/${issuesTotal}</span>
+                        <span class="issue-progress-note">已整改 ${issuesResolved} 项，待整改 ${pendingIssues} 项</span>
+                    </div>
+                `;
+            });
+        }
+
+        function activateStatusTab(status) {
+            activeStatus = status;
+            tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === status));
+            statusSelect.value = "";
+            applyFilters();
+        }
+
+        function statusClass(status) {
+            return {
+                "草稿": "draft",
+                "初次评定中": "submitted",
+                "二次评定中": "second-review",
+                "认证决定中": "cert",
+                "证书待签发": "pending-cert",
+                "待推送": "notice",
+                "证书已签发": "final issue",
+                "证书不予签发": "final no-cert",
+                "监督审核通知已推送": "final notice"
+            }[status] || "draft";
+        }
+
+        function getDetailUrl(row) {
+            const hasRectifyWork = Number(row.dataset.rectify || 0) > 0 || Number(row.dataset.reviewReturn || 0) > 0;
+            const isCertificateDecisionRectification = row.dataset.status === "认证决定中"
+                && (hasRectifyWork || ["待补充材料", "待复核"].includes(row.dataset.workflowStatus));
+            if (isCertificateDecisionRectification) {
+                const params = new URLSearchParams({
+                    taskNo: row.dataset.task,
+                    stage: "certificate-decision",
+                    mode: "rectification"
+                });
+                return `${returnedDetailUrl}?${params.toString()}`;
+            }
+            return hasRectifyWork ? returnedDetailUrl : archiveDetailUrl;
+        }
+
+        function renderStatusCell(row) {
+            const status = row.dataset.status;
+            const statusCell = row.cells[9];
+            const statusHtml = `<span class="status ${statusClass(status)}">${status}</span>`;
+            const workflowStatus = row.dataset.workflowStatus || "";
+
+            if (workflowStatus) {
+                const workflowClass = workflowStatus === "待复核" ? "review" : workflowStatus === "待评定" ? "received" : "pending";
+                statusCell.innerHTML = `<span class="status-stack">${statusHtml}<span class="receive-badge ${workflowClass}">${workflowStatus}</span></span>`;
+                return;
+            }
+
+            if (status !== "初次评定中") {
+                statusCell.innerHTML = statusHtml;
+                return;
+            }
+
+            const received = row.dataset.received === "true";
+            const receiveText = received ? "已接收" : "未接收";
+            const receiveClass = received ? "received" : "pending";
+            statusCell.innerHTML = `
+                <span class="status-stack">
+                    ${statusHtml}
+                    <span class="receive-badge ${receiveClass}">${receiveText}</span>
+                </span>
+            `;
+        }
+
+        function renderActionCell(row) {
+            const actionCell = row.cells[10];
+            const detailUrl = getDetailUrl(row);
+            const status = row.dataset.status;
+            const received = row.dataset.received === "true";
+            const detailText = status === "认证决定中" && ["待补充材料", "待复核"].includes(row.dataset.workflowStatus) ? "退回详情" : "详情";
+            const detailLink = `<a class="action-link detail-link" href="${detailUrl}" target="_self">${detailText}</a>`;
+
+            if (status === "草稿") {
+                actionCell.innerHTML = `<a class="action-link submit-link" href="#">提交</a>${detailLink}`;
+                return;
+            }
+
+            if (status === "初次评定中" && !received) {
+                actionCell.innerHTML = `<a class="action-link danger withdraw-link" href="#">撤回</a>${detailLink}`;
+                return;
+            }
+
+            actionCell.innerHTML = detailLink;
+        }
+
+        function renderRow(row) {
+            syncCertificateDecisionRow(row);
+            renderStatusCell(row);
+            renderActionCell(row);
+        }
+
+        function openConfirm({ title, task, message, okText, okClass = "solid", onConfirm }) {
+            confirmTitle.textContent = title;
+            confirmTask.textContent = task;
+            confirmMessage.textContent = message;
+            confirmOk.textContent = okText;
+            confirmOk.className = `btn ${okClass}`;
+            pendingConfirm = onConfirm;
+            confirmModal.classList.add("show");
+            confirmModal.setAttribute("aria-hidden", "false");
+            confirmOk.focus();
+        }
+
+        function closeConfirm() {
+            confirmModal.classList.remove("show");
+            confirmModal.setAttribute("aria-hidden", "true");
+            pendingConfirm = null;
+        }
+
+        function submitTask(row) {
+            row.dataset.status = "初次评定中";
+            row.dataset.received = "false";
+            renderRow(row);
+            activateStatusTab("初次评定中");
+            showToast(`${row.dataset.task} 已提交初次评定，初评未接收前可撤回`);
+        }
+
+        function withdrawTask(row) {
+            row.dataset.status = "草稿";
+            row.dataset.received = "false";
+            renderRow(row);
+            activateStatusTab("草稿");
+            showToast(`${row.dataset.task} 已撤回至草稿`);
         }
 
         tabs.forEach((tab) => {
             tab.addEventListener("click", () => {
-                tabs.forEach((item) => item.classList.remove("active"));
-                tab.classList.add("active");
-                activeStatus = tab.dataset.status;
-                applyFilters();
+                activateStatusTab(tab.dataset.status);
             });
         });
 
@@ -1073,28 +1482,51 @@
         const archiveDetailUrl = "归档材料提交-详情-10体系重构版.html";
         const returnedDetailUrl = "归档材料退回-详情-简化布局-v2-顶部统计卡片版.html";
 
-        document.querySelectorAll("#taskRows tr").forEach((row) => {
-            const detailLink = Array.from(row.querySelectorAll(".action-link"))
-                .find((link) => link.textContent.trim() === "详情");
-            if (!detailLink) return;
+        rows.forEach(renderRow);
+        rows.forEach((row) => {
+            row.dataset.originalMaterialHtml = row.cells[7].innerHTML;
+            row.dataset.originalIssueHtml = row.cells[8].innerHTML;
+        });
+        updateStageColumns();
 
-            const hasRectifyWork = Number(row.dataset.rectify || 0) > 0 || Number(row.dataset.reviewReturn || 0) > 0;
-            detailLink.classList.add("detail-link");
-            detailLink.target = "_self";
-            detailLink.href = hasRectifyWork
-                ? returnedDetailUrl
-                : archiveDetailUrl;
+        document.querySelector("#taskRows").addEventListener("click", (event) => {
+            const link = event.target.closest(".action-link");
+            if (!link || link.classList.contains("detail-link")) return;
+
+            event.preventDefault();
+            const row = link.closest("tr");
+            const task = row.dataset.task;
+
+            if (link.classList.contains("submit-link")) {
+                openConfirm({
+                    title: "提交初次评定",
+                    task,
+                    message: "确定提交后，任务进入初次评定中。初评管理员未接收前，项目管理人员仍可在初次评定页签撤回。",
+                    okText: "提交初次评定",
+                    onConfirm: () => submitTask(row)
+                });
+                return;
+            }
+
+            if (link.classList.contains("withdraw-link")) {
+                openConfirm({
+                    title: "撤回初次评定",
+                    task,
+                    message: "确定撤回后，任务将回到草稿页签，可继续补充材料后再次提交初次评定。",
+                    okText: "确认撤回",
+                    okClass: "danger",
+                    onConfirm: () => withdrawTask(row)
+                });
+            }
         });
 
-        document.querySelectorAll(".action-link").forEach((link) => {
-            link.addEventListener("click", (event) => {
-                if (link.classList.contains("detail-link")) return;
-
-                event.preventDefault();
-                const action = link.textContent.trim();
-                const task = link.closest("tr").dataset.task;
-                showToast(`${task}：${action}操作已触发`);
-            });
+        confirmCancel.addEventListener("click", closeConfirm);
+        confirmModal.addEventListener("click", (event) => {
+            if (event.target === confirmModal) closeConfirm();
+        });
+        confirmOk.addEventListener("click", () => {
+            if (pendingConfirm) pendingConfirm();
+            closeConfirm();
         });
     </script>
 </body>

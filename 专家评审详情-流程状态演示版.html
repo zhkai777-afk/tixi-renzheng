@@ -692,6 +692,13 @@
             color: #9CA3AF;
         }
 
+        .system-badge.common {
+            min-width: 44px;
+            border-color: #DCDDE1;
+            background: #F7F8FA;
+            color: #4E5969;
+        }
+
         .file-count-pill {
             display: inline-flex;
             align-items: center;
@@ -981,9 +988,48 @@
         }
 
         .issue-actions {
+            position: relative;
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
+        }
+
+        .issue-more-wrap { position: relative; }
+
+        .issue-more-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 30;
+            display: none;
+            min-width: 128px;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, .14);
+        }
+
+        .issue-more-wrap.open .issue-more-menu {
+            display: grid;
+            gap: 4px;
+        }
+
+        .issue-more-menu .btn {
+            width: 100%;
+            justify-content: flex-start;
+            background: #fff;
+            white-space: nowrap;
+        }
+
+        .issue-system-readonly {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f8fafc;
         }
 
         .issue-table-scroll {
@@ -1830,6 +1876,69 @@
                 padding: 12px 16px;
             }
         }
+        .guide-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            background: transparent;
+        }
+        .guide-overlay.active { display: block; }
+        .guide-highlight {
+            position: fixed;
+            z-index: 3001;
+            border: 2px solid #0052D9;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, .52), 0 0 0 6px rgba(0, 82, 217, .14);
+            pointer-events: none;
+            transition: all .18s ease;
+        }
+        .guide-popover {
+            position: fixed;
+            z-index: 3002;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, .2);
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .guide-popover-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+        }
+        .guide-popover-title { font-size: 15px; font-weight: 700; }
+        .guide-popover-count { color: #64748b; font-size: 12px; white-space: nowrap; }
+        .guide-popover-body { padding: 14px; color: #334155; font-size: 13px; line-height: 1.7; }
+        .guide-popover-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid #edf1f5;
+        }
+        .guide-actions { display: flex; gap: 8px; }
+        .guide-btn {
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .guide-btn.primary { border-color: #0052D9; background: #0052D9; color: #fff; }
+        .guide-btn:disabled { opacity: .45; cursor: not-allowed; }
+
     </style>
 </head>
 <body>
@@ -1850,10 +1959,28 @@
             </div>
         </div>
         <div class="header-right">
+                <button class="btn" onclick="startPageGuide()">操作指引</button>
             <button class="btn">返回列表</button>
             <button class="btn btn-primary" id="submitBtn" onclick="submitReview()">提交结果至管理员</button>
         </div>
     </header>
+    <div class="guide-overlay" id="pageGuideOverlay" aria-hidden="true">
+        <div class="guide-highlight" id="pageGuideHighlight"></div>
+        <div class="guide-popover" id="pageGuidePopover" role="dialog" aria-modal="true" aria-label="操作指引">
+            <div class="guide-popover-head">
+                <div class="guide-popover-title" id="pageGuideTitle">操作指引</div>
+                <div class="guide-popover-count" id="pageGuideCount">1 / 4</div>
+            </div>
+            <div class="guide-popover-body" id="pageGuideBody"></div>
+            <div class="guide-popover-foot">
+                <button class="guide-btn" type="button" onclick="closePageGuide()">结束指引</button>
+                <div class="guide-actions">
+                    <button class="guide-btn" type="button" id="pageGuidePrev" onclick="movePageGuide(-1)">上一步</button>
+                    <button class="guide-btn primary" type="button" id="pageGuideNext" onclick="movePageGuide(1)">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="main-layout">
         <aside class="sidebar-left">
@@ -2027,8 +2154,8 @@
                 </select>
                 <label for="issueMaterial">所属材料</label>
                 <select id="issueMaterial" onchange="renderIssueSystemOptions(this.value)"></select>
-                <label for="issueSystems">涉及体系</label>
-                <select id="issueSystems"></select>
+                <label>涉及体系</label>
+                <div id="issueSystems" class="issue-system-readonly"></div>
                 <label for="issueDesc">问题描述</label>
                 <textarea id="issueDesc" placeholder="请输入问题原因、补充要求或补充审核要求，至少 10 个字。"></textarea>
                 <label for="issueAttachment">要求整改材料/附件</label>
@@ -2201,6 +2328,14 @@ function systemBadges(systems, mutedOthers = false, className = "system-badge") 
     }).join("");
 }
 
+function systemScopeBadges(systems, mutedOthers = false) {
+    const normalized = SYSTEM_ORDER.filter(sys => systems.includes(sys));
+    if (normalized.length === SYSTEM_ORDER.length) {
+        return `<span class="system-badge common">通用</span>`;
+    }
+    return systemBadges(normalized, mutedOthers);
+}
+
 function systemTags(systems, mutedOthers = false) {
     return systems.map(sys => {
         const muted = mutedOthers && !activeReviewSystems.includes(sys) ? " muted" : "";
@@ -2252,8 +2387,13 @@ function isRectificationReviewStage() {
 
 function normalizeIssue(issue) {
     const material = getMaterial(issue.materialId);
+    const systems = Array.isArray(issue.systems)
+        ? issue.systems
+        : (issue.system ? [issue.system] : (material ? material.systems.filter(sys => authorizedSystems.includes(sys)) : []));
     return {
         ...issue,
+        systems,
+        system: systems[0] || issue.system || "",
         materialName: issue.materialName || (material ? material.name : issue.materialId),
         status: issue.status || "draft",
         rectificationDesc: issue.rectificationDesc || "",
@@ -2661,7 +2801,7 @@ function renderFiles(materials) {
                 <div class="material-file-title">${escapeHtml(file.name)}</div>
                 <div class="material-file-meta">所属材料：${escapeHtml(file.material.name)} · ${file.type} · ${file.source} · ${file.date}</div>
             </td>
-            <td><div class="system-list">${systemBadges(file.systems, true)}</div></td>
+            <td><div class="system-list">${systemScopeBadges(file.systems, true)}</div></td>
             <td><button class="table-action-btn" onclick="previewFile('${file.material.id}', '${file.id}')">${file.type === "在线表单" ? "查看表单" : "预览"}</button></td>
         </tr>
     `).join("") : `
@@ -2713,7 +2853,7 @@ function renderIssues() {
                     <div class="issue-main-text">${escapeHtml(normalized.materialName)}</div>
                     <div class="issue-subtext">${normalized.materialId}</div>
                 </td>
-                <td>${systemBadges([normalized.system])}</td>
+                <td>${systemBadges(normalized.systems)}</td>
                 <td class="issue-text-cell">
                     <div class="issue-main-text">${escapeHtml(normalized.desc)}</div>
                     <div class="issue-subtext">${normalized.typeName} · 专家王建国</div>
@@ -2735,13 +2875,13 @@ function renderIssues() {
             <tr>
                 <td>${index + 1}</td>
                 <td class="issue-text-cell">${escapeHtml(normalized.materialName)}</td>
-                <td>${systemBadges([normalized.system])}</td>
+                <td>${systemBadges(normalized.systems)}</td>
                 <td><span class="status-tag ${normalized.type === "fix" ? "reject" : (normalized.type === "material" ? "pending" : "info")}">${normalized.typeName}</span></td>
                 <td class="issue-text-cell">${escapeHtml(normalized.desc)}</td>
                 <td class="issue-text-cell">${normalized.attachment ? escapeHtml(normalized.attachment) : '<span class="file-meta">未登记</span>'}</td>
                 <td><span class="status-tag info">专家提出</span><div class="file-meta">王建国</div></td>
                 <td class="issue-status-col">${issueStatusBadge(normalized.status)}</td>
-                <td class="issue-action-col">${isExpertDraftStage() ? `<button class="btn" onclick="deleteIssue(${normalized.id})">删除</button>` : '<span class="file-meta">只读</span>'}</td>
+                <td class="issue-action-col">${isExpertDraftStage() ? renderActionGroup(normalized.id, [{ label: '删除', className: '', handler: `deleteIssue(${normalized.id})` }]) : '<span class="file-meta">只读</span>'}</td>
             </tr>
         `;
     }).join("") : `
@@ -2759,14 +2899,39 @@ function renderRectificationActions(issue) {
         return `<span class="file-meta">${note}</span>`;
     }
     if (isRectificationReviewStage() && issue.status === "rectification_submitted") {
-        return `
-            <div class="issue-actions">
-                <button class="btn btn-success" onclick="approveIssue(${issue.id})">复核通过</button>
-                <button class="btn btn-danger" onclick="rejectIssue(${issue.id})">退回复改</button>
-            </div>
-        `;
+        return `<div class="issue-actions">${renderActionGroup(issue.id, [
+            { label: '复核通过', className: 'btn-success', handler: `approveIssue(${issue.id})` },
+            { label: '退回复改', className: 'btn-danger', handler: `rejectIssue(${issue.id})` }
+        ])}</div>`;
     }
     return '<span class="file-meta">无待办</span>';
+}
+
+function renderActionGroup(issueId, actions) {
+    const visibleActions = actions.slice(0, 2);
+    const moreActions = actions.slice(2);
+    const renderButton = item => `<button type="button" class="btn ${item.className}" onclick="event.stopPropagation(); closeIssueActionMenus(); ${item.handler}">${escapeHtml(item.label)}</button>`;
+    return `
+        ${visibleActions.map(renderButton).join('')}
+        ${moreActions.length ? `
+            <div class="issue-more-wrap" data-issue-more="${issueId}">
+                <button type="button" class="btn" onclick="toggleIssueMore(event, ${issueId})">更多</button>
+                <div class="issue-more-menu">${moreActions.map(renderButton).join('')}</div>
+            </div>
+        ` : ''}
+    `;
+}
+
+function closeIssueActionMenus() {
+    document.querySelectorAll('.issue-more-wrap.open').forEach(menu => menu.classList.remove('open'));
+}
+
+function toggleIssueMore(event, issueId) {
+    event.stopPropagation();
+    const current = document.querySelector(`[data-issue-more="${issueId}"]`);
+    const shouldOpen = current && !current.classList.contains('open');
+    closeIssueActionMenus();
+    if (current && shouldOpen) current.classList.add('open');
 }
 
 function renderConsole() {
@@ -2816,7 +2981,9 @@ function renderIssueSystemOptions(materialId) {
     const systems = material
         ? material.systems.filter(sys => authorizedSystems.includes(sys))
         : [...authorizedSystems];
-    document.getElementById("issueSystems").innerHTML = systems.map(sys => `<option value="${sys}">${sys} ${SYSTEM_NAMES[sys]}</option>`).join("");
+    const target = document.getElementById("issueSystems");
+    target.dataset.systems = systems.join(",");
+    target.innerHTML = systems.map(sys => `<span class="system-badge ${sys}">${sys}</span>`).join("");
 }
 
 function closeIssueModal() {
@@ -2828,7 +2995,7 @@ function saveIssue() {
     const material = getMaterial(materialId);
     const desc = document.getElementById("issueDesc").value.trim();
     const attachment = document.getElementById("issueAttachment").value.trim();
-    const system = document.getElementById("issueSystems").value;
+    const systems = (document.getElementById("issueSystems").dataset.systems || "").split(",").filter(Boolean);
     currentIssueType = document.getElementById("issueType").value;
     if (!material) {
         showToast("请选择所属材料");
@@ -2838,6 +3005,10 @@ function saveIssue() {
         showToast("问题描述至少需要 10 个字");
         return;
     }
+    if (!systems.length) {
+        showToast("当前材料没有可登记的授权体系");
+        return;
+    }
     const names = { fix: "材料问题", material: "补充材料", review: "补充审核" };
     issues.push({
         id: Date.now(),
@@ -2845,7 +3016,8 @@ function saveIssue() {
         typeName: names[currentIssueType],
         desc,
         attachment,
-        system,
+        system: systems[0],
+        systems,
         materialId,
         materialName: material.name,
         status: "draft"
@@ -2984,7 +3156,7 @@ function renderPreview() {
                         当前文件：${escapeHtml(file.name)} · ${file.type} · ${file.source} · ${file.date}
                     </div>
                 </div>
-                <div class="system-list">${systemBadges(file.systems, true)}</div>
+                <div class="system-list">${systemScopeBadges(file.systems, true)}</div>
             </div>
             <div class="preview-pane">
                 <div class="preview-document">
@@ -3237,6 +3409,7 @@ document.getElementById("rejectModal").addEventListener("click", event => {
     if (event.target.id === "rejectModal") closeRejectModal();
 });
 document.addEventListener("click", event => {
+    closeIssueActionMenus();
     const select = document.getElementById("systemMultiSelect");
     if (select && !select.contains(event.target)) closeSystemDropdown();
 });
@@ -3258,6 +3431,96 @@ renderMain();
 renderIssues();
 renderConsole();
 restoreDraft();
+
+const PAGE_GUIDE_STEPS = [
+    {
+        "target": ".sidebar-left",
+        "title": "查看授权材料",
+        "body": "左侧材料清单按专家授权体系过滤，只展示当前专家可审范围内的材料。"
+    },
+    {
+        "target": ".content-main",
+        "title": "预览文件与问题",
+        "body": "中间区域用于预览归档文件、查看问题清单，并把发现的问题登记到材料清单项。"
+    },
+    {
+        "target": "#issueRegisterBtn",
+        "title": "登记问题",
+        "body": "登记问题时选择所属材料，涉及体系会按材料适用体系和专家授权范围自动展示。"
+    },
+    {
+        "target": "#submitBtn",
+        "title": "提交评审结果",
+        "body": "确认问题清单无遗漏后，点击页头提交结果至管理员。"
+    }
+];
+let pageGuideIndex = 0;
+let pageGuideTarget = null;
+function startPageGuide() {
+    pageGuideIndex = 0;
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    renderPageGuide();
+}
+function closePageGuide() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    pageGuideTarget = null;
+}
+function movePageGuide(delta) {
+    const next = pageGuideIndex + delta;
+    if (next < 0) return;
+    if (next >= PAGE_GUIDE_STEPS.length) {
+        closePageGuide();
+        return;
+    }
+    pageGuideIndex = next;
+    renderPageGuide();
+}
+function renderPageGuide() {
+    const step = PAGE_GUIDE_STEPS[pageGuideIndex];
+    if (!step) return;
+    pageGuideTarget = document.querySelector(step.target) || document.querySelector('.page-container') || document.body;
+    document.getElementById('pageGuideTitle').textContent = step.title;
+    document.getElementById('pageGuideBody').textContent = step.body;
+    document.getElementById('pageGuideCount').textContent = (pageGuideIndex + 1) + ' / ' + PAGE_GUIDE_STEPS.length;
+    document.getElementById('pageGuidePrev').disabled = pageGuideIndex === 0;
+    document.getElementById('pageGuideNext').textContent = pageGuideIndex === PAGE_GUIDE_STEPS.length - 1 ? '完成' : '下一步';
+    pageGuideTarget.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    window.setTimeout(updatePageGuidePosition, 220);
+}
+function updatePageGuidePosition() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay || !overlay.classList.contains('active') || !pageGuideTarget) return;
+    const rect = pageGuideTarget.getBoundingClientRect();
+    const pad = 6;
+    const highlight = document.getElementById('pageGuideHighlight');
+    const popover = document.getElementById('pageGuidePopover');
+    const left = Math.max(8, rect.left - pad);
+    const top = Math.max(8, rect.top - pad);
+    const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+    highlight.style.left = left + 'px';
+    highlight.style.top = top + 'px';
+    highlight.style.width = Math.max(40, width) + 'px';
+    highlight.style.height = Math.max(32, height) + 'px';
+    const popWidth = Math.min(340, window.innerWidth - 32);
+    let popLeft = left + width + 16;
+    if (popLeft + popWidth > window.innerWidth - 16) popLeft = Math.max(16, left - popWidth - 16);
+    let popTop = Math.min(Math.max(16, top), window.innerHeight - 260);
+    popover.style.left = popLeft + 'px';
+    popover.style.top = popTop + 'px';
+}
+window.addEventListener('resize', updatePageGuidePosition);
+document.addEventListener('scroll', updatePageGuidePosition, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePageGuide();
+});
+
 </script>
 <script src="pdf-preview.js"></script>
 </body>

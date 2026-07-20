@@ -847,9 +847,38 @@
         .sys-tag-inline.F { background: var(--fsms-color); }
         
         .action-btns {
+            position: relative;
             display: flex;
             gap: 6px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
+        }
+
+        .issue-more-wrap { position: relative; }
+
+        .issue-more-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 30;
+            display: none;
+            min-width: 128px;
+            padding: 6px;
+            border: 1px solid #dfe7f2;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, .14);
+        }
+
+        .issue-more-wrap.open .issue-more-menu {
+            display: grid;
+            gap: 4px;
+        }
+
+        .issue-more-menu .btn-mini {
+            width: 100%;
+            justify-content: flex-start;
+            background: #fff;
+            white-space: nowrap;
         }
         
         .btn-mini {
@@ -1036,18 +1065,6 @@
             background: #003bb3;
         }
 
-        .t-button--primary.resubmit-ready:not(:disabled) {
-            background: #0052D9;
-            border-color: #0052D9;
-            box-shadow: 0 0 0 3px rgba(0,82,217,0.12), 0 6px 14px rgba(0,82,217,0.22);
-        }
-
-        .t-button--primary.resubmit-ready:not(:disabled):hover {
-            background: #003bb3;
-            border-color: #003bb3;
-            box-shadow: 0 0 0 3px rgba(0,82,217,0.16), 0 8px 18px rgba(0,82,217,0.26);
-        }
-        
         .t-button--primary:disabled {
             background: #b3b3b3;
             cursor: not-allowed;
@@ -1643,11 +1660,35 @@
         }
 
         .history-record-list {
-            display: grid;
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding-left: 12px;
         }
 
         .history-record-card {
+            position: relative;
+            padding: 0 0 16px 22px;
+            border-left: 1px solid #dfe7f2;
+        }
+
+        .history-record-card:last-child {
+            padding-bottom: 0;
+        }
+
+        .history-record-card::before {
+            content: "";
+            position: absolute;
+            left: -5px;
+            top: 3px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #0052D9;
+            box-shadow: 0 0 0 3px #E8F1FF;
+        }
+
+        .history-record-content {
             border: 1px solid #e7e7e7;
             border-radius: 8px;
             padding: 14px;
@@ -2127,6 +2168,69 @@
             }
 
         }
+        .guide-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            background: transparent;
+        }
+        .guide-overlay.active { display: block; }
+        .guide-highlight {
+            position: fixed;
+            z-index: 3001;
+            border: 2px solid #0052D9;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, .52), 0 0 0 6px rgba(0, 82, 217, .14);
+            pointer-events: none;
+            transition: all .18s ease;
+        }
+        .guide-popover {
+            position: fixed;
+            z-index: 3002;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            border: 1px solid #dfe7f2;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, .2);
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .guide-popover-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf1f5;
+            background: #fafafa;
+        }
+        .guide-popover-title { font-size: 15px; font-weight: 700; }
+        .guide-popover-count { color: #64748b; font-size: 12px; white-space: nowrap; }
+        .guide-popover-body { padding: 14px; color: #334155; font-size: 13px; line-height: 1.7; }
+        .guide-popover-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid #edf1f5;
+        }
+        .guide-actions { display: flex; gap: 8px; }
+        .guide-btn {
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .guide-btn.primary { border-color: #0052D9; background: #0052D9; color: #fff; }
+        .guide-btn:disabled { opacity: .45; cursor: not-allowed; }
+
     </style>
 </head>
 <body>
@@ -2147,8 +2251,8 @@
                 <span class="project-current" id="currentMaterialName">当前状态：初次评定退回</span>
             </div>
             <div class="header-right">
+                <button class="t-button t-button--outline" onclick="startPageGuide()">操作指引</button>
                 <button class="t-button t-button--outline" onclick="saveDraft()">保存草稿</button>
-                <button class="t-button t-button--primary" id="headerResubmitBtn" disabled onclick="headerResubmit()">重新提交初次评定</button>
             </div>
         </div>
         <div class="project-tip" id="projectTip">初评负责人张经理于 2026-04-01 15:30 退回该任务。请处理 6 个退回问题，处理后问题进入待复核。</div>
@@ -2163,8 +2267,25 @@
             <span class="alert-meta">该任务被 [初评负责人-张经理] 于 [2026-04-01 15:30] 退回，请完成整改或说明无需解决后提交复核</span>
         </div>
     </div>
+<!-- 主体三栏布局 -->
+    <div class="guide-overlay" id="pageGuideOverlay" aria-hidden="true">
+        <div class="guide-highlight" id="pageGuideHighlight"></div>
+        <div class="guide-popover" id="pageGuidePopover" role="dialog" aria-modal="true" aria-label="操作指引">
+            <div class="guide-popover-head">
+                <div class="guide-popover-title" id="pageGuideTitle">操作指引</div>
+                <div class="guide-popover-count" id="pageGuideCount">1 / 4</div>
+            </div>
+            <div class="guide-popover-body" id="pageGuideBody"></div>
+            <div class="guide-popover-foot">
+                <button class="guide-btn" type="button" onclick="closePageGuide()">结束指引</button>
+                <div class="guide-actions">
+                    <button class="guide-btn" type="button" id="pageGuidePrev" onclick="movePageGuide(-1)">上一步</button>
+                    <button class="guide-btn primary" type="button" id="pageGuideNext" onclick="movePageGuide(1)">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- 主体三栏布局 -->
     <div class="main-layout">
         <!-- 左栏：退回材料清单 -->
         <aside class="sidebar-left">
@@ -2245,7 +2366,6 @@
                 <div class="problem-list-section">
                     <div class="section-title">
                         <div class="section-title-left">问题清单</div>
-                        <button class="btn-mini btn-mini-outline" type="button" onclick="openHistoryModal()">历史问题记录</button>
                     </div>
                     <div class="problem-table-scroll">
                         <table class="data-table problem-table">
@@ -2315,17 +2435,14 @@
 
             </div>
             
-            <!-- 底部重新提交栏 -->
+            <!-- 底部操作栏 -->
             <div class="bottom-action-bar">
                 <div class="action-left">
                     <button class="t-button t-button--outline" onclick="cancelReturn()">取消</button>
                     <button class="t-button t-button--outline" onclick="saveDraft()">保存草稿</button>
                 </div>
                 <div class="action-right">
-                    <span class="status-hint" id="submitHint">仍有 6 个问题待整改，全部处理后可重新提交</span>
-                    <button class="t-button t-button--primary" id="resubmitBtn" disabled onclick="resubmitAudit()">
-                        重新提交初次评定
-                    </button>
+                    <span class="status-hint" id="submitHint">仍有 6 个问题待整改，逐条处理后进入待复核</span>
                 </div>
             </div>
         </main>
@@ -2354,13 +2471,13 @@
                     <div class="progress-item">
                         <div class="progress-header">
                             <span style="color: #00A870; font-weight: 500;">未退回材料</span>
-                            <span style="color: #00A870; font-weight: 600;">44项</span>
+                            <span style="color: #00A870; font-weight: 600;" id="unreturnedMaterialCount">-</span>
                         </div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill fill-passed" style="width: 100%"></div>
                         </div>
                         <div style="font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 4px;">
-                            未被退回的问题材料将随本次重新提交保留
+                            未被退回的材料保持当前状态
                         </div>
                     </div>
                 </div>
@@ -2408,14 +2525,7 @@
                         <div class="timeline-dot" style="background: #E7E7E7;"></div>
                         <div class="timeline-content">
                             <div class="timeline-title" style="color: rgba(0,0,0,0.4);" id="timeline-pending">待整改：6个问题</div>
-                            <div class="timeline-time">等待全部问题处理完成</div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot" style="background: #E7E7E7;"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-title" style="color: rgba(0,0,0,0.4);">重新提交初次评定</div>
-                            <div class="timeline-time">待完成所有处理后</div>
+                            <div class="timeline-time">逐条处理后进入待复核</div>
                         </div>
                     </div>
                 </div>
@@ -2516,11 +2626,67 @@
         "MSF11-20-046": { detailId: "audit-report", fileCount: 2 }
     };
     const REVIEW_FLOW_STORAGE_KEY = 'TASK-2026-001-review-issues';
+    const RETURN_PAGE_PARAMS = new URLSearchParams(window.location.search);
+    const RETURN_TASK_NO = RETURN_PAGE_PARAMS.get('taskNo') || 'TASK-2026-001';
+    const RETURN_SOURCE_STAGE = RETURN_PAGE_PARAMS.get('stage') || '';
+    const IS_CERTIFICATE_DECISION_RETURN = RETURN_SOURCE_STAGE === 'certificate-decision';
+    const ACTIVE_REVIEW_FLOW_STORAGE_KEY = IS_CERTIFICATE_DECISION_RETURN
+        ? `certificate-decision-rectification:${RETURN_TASK_NO}`
+        : REVIEW_FLOW_STORAGE_KEY;
+
+    function createCertificateDecisionReturnPayload() {
+        return {
+            taskNo: RETURN_TASK_NO,
+            customer: '安捷通运输仓储有限公司',
+            sourceStage: 'certificate-decision',
+            stage: 'certificate_decision_returned',
+            taskStatus: '待补充材料',
+            updatedAt: '2026-04-02 10:20:00',
+            issues: [{
+                id: 'CERT-ISSUE-001',
+                type: 'supplement_material',
+                typeName: '补充材料',
+                materialId: 'MSF11-20-025',
+                materialName: '法规符合性证明文件（适用时）',
+                systems: ['Q', 'S'],
+                desc: '运输服务场所及车辆证明材料不完整，现有归档文件无法确认全部运营场所和车辆权属信息。',
+                attachment: '请补充全部运营及仓储场所清单、车辆权属或租赁证明及仓储设施现场照片。',
+                deadline: '2026-04-05 17:00',
+                status: 'returned_to_project',
+                createdBy: '认证决定员-李敏',
+                createdAt: '2026-04-02 10:20:00',
+                rectificationDesc: '',
+                rectificationAttachment: '',
+                reviewComment: ''
+            }],
+            history: [{ node: '认证决定登记', operator: '认证决定员-李敏', time: '2026-04-02 10:20:00', detail: '登记1个补充材料问题，任务进入待补充材料。' }]
+        };
+    }
+
+    function applyReturnWorkflowContext() {
+        if (!IS_CERTIFICATE_DECISION_RETURN) return;
+        const payload = getSharedReviewPayload() || createCertificateDecisionReturnPayload();
+        const pending = (payload.issues || []).filter(issue => ['returned_to_project', 'review_rejected'].includes(issue.status)).length;
+        const awaitingReview = (payload.issues || []).filter(issue => issue.status === 'rectification_submitted').length;
+        document.querySelector('.project-title').textContent = '认证决定退回处理';
+        document.querySelector('.project-task').textContent = `任务号：${RETURN_TASK_NO}`;
+        document.querySelector('.header-meta').textContent = payload.customer || '安捷通运输仓储有限公司';
+        document.getElementById('currentMaterialName').textContent = awaitingReview ? '当前状态：待复核' : '当前状态：待补充材料';
+        document.getElementById('projectTip').textContent = pending
+            ? `认证决定人员已登记 ${pending} 个补充材料问题，请逐条完成整改并提交反馈。`
+            : `全部补充材料问题已提交整改，其中 ${awaitingReview} 个问题等待认证决定人员复核。`;
+        document.querySelector('.alert-banner strong').textContent = awaitingReview ? '整改已提交' : '认证决定退回待整改';
+        document.querySelector('.alert-meta').textContent = awaitingReview
+            ? '整改说明和附件已提交，请返回证书决定列表的“待补充材料”页签进行复核。'
+            : '该任务由认证决定人员退回，请按登记的问题描述和附件要求完成补充。';
+        document.querySelector('.sidebar-title').textContent = '认证决定退回材料清单';
+    }
 
     const HISTORY_RECORDS = {
         "recommendation": [
             {
                 id: "history-recommendation-1",
+                problemId: 4,
                 materialName: "认证发证推荐表",
                 stage: "初次评定阶段",
                 node: "初评退回",
@@ -2529,10 +2695,11 @@
                 operator: "张经理",
                 time: "2026-04-01 15:30:11",
                 status: "复核退回",
-                note: "请上传最新续签版本，并使用最新版证书确认件模板重新提交。"
+                note: "请上传最新续签版本，并使用最新版证书确认件模板重新上传。"
             },
             {
                 id: "history-recommendation-2",
+                problemId: 3,
                 materialName: "认证发证推荐表",
                 stage: "归档提交阶段",
                 node: "项目提交",
@@ -2547,6 +2714,7 @@
         "audit-report": [
             {
                 id: "history-audit-report-1",
+                problemId: 1,
                 materialName: "审核报告",
                 stage: "初次评定阶段",
                 node: "初评退回",
@@ -2561,6 +2729,7 @@
         "supplement-material": [
             {
                 id: "history-supplement-material-1",
+                problemId: 5,
                 materialName: "法规符合性证明文件（适用时）",
                 stage: "认证决定阶段",
                 node: "补充材料",
@@ -2575,6 +2744,7 @@
         "supplement-audit": [
             {
                 id: "history-supplement-audit-1",
+                problemId: 6,
                 materialName: "第一阶段审核报告",
                 stage: "认证决定阶段",
                 node: "补充审核",
@@ -2623,7 +2793,12 @@
 
     function getSharedReviewPayload() {
         try {
-            return JSON.parse(localStorage.getItem(REVIEW_FLOW_STORAGE_KEY) || 'null');
+            let payload = JSON.parse(localStorage.getItem(ACTIVE_REVIEW_FLOW_STORAGE_KEY) || 'null');
+            if (!payload && IS_CERTIFICATE_DECISION_RETURN) {
+                payload = createCertificateDecisionReturnPayload();
+                localStorage.setItem(ACTIVE_REVIEW_FLOW_STORAGE_KEY, JSON.stringify(payload));
+            }
+            return payload;
         } catch (error) {
             return null;
         }
@@ -2698,7 +2873,7 @@
                 materialName,
                 description: issue.desc || issue.description || '',
                 systems: (issue.systems || [issue.system || 'Q']).join(','),
-                stage: '专家评审退回整改',
+                stage: IS_CERTIFICATE_DECISION_RETURN ? '认证决定阶段' : '专家评审退回整改',
                 raisedAt: issue.createdAt || issue.updatedAt || '2026-04-02 10:30:15',
                 requirement: issue.attachment || issue.requiredAttachment || '按专家问题要求补充整改材料或说明。',
                 status: sharedStatusToProblemStatus(issue.status),
@@ -2754,12 +2929,27 @@
                 updatedAt: formatHistoryTime()
             };
         });
-        localStorage.setItem(REVIEW_FLOW_STORAGE_KEY, JSON.stringify({
+        const history = [...(payload.history || [])];
+        issues.forEach(issue => {
+            const previous = payload.issues.find(item => String(item.id) === String(issue.id));
+            if (issue.rectificationDesc && !previous?.rectificationDesc) {
+                history.push({
+                    node: '整改提交',
+                    operator: '项目管理人员-王伟',
+                    time: issue.rectificationTime || formatHistoryTime(),
+                    detail: `提交整改说明：${issue.rectificationDesc}${issue.rectificationAttachment ? `；整改材料/附件：${issue.rectificationAttachment}` : ''}`
+                });
+            }
+        });
+        const updatedPayload = {
             ...payload,
             stage: issues.some(issue => issue.status === 'rectification_submitted') ? 'rectification_submitted' : 'coordinator_returned',
+            taskStatus: IS_CERTIFICATE_DECISION_RETURN ? '待补充材料' : payload.taskStatus,
             updatedAt: formatHistoryTime(),
-            issues
-        }));
+            issues,
+            history
+        };
+        localStorage.setItem(ACTIVE_REVIEW_FLOW_STORAGE_KEY, JSON.stringify(updatedPayload));
     }
 
     function getInitialReturnDetailId() {
@@ -3023,6 +3213,42 @@
 
     function getHistoryRecordsByDetailId(detailId) {
         return HISTORY_RECORDS[detailId] || [];
+    }
+
+    function getHistoryRecordsByProblemId(problemId) {
+        const normalizedId = Number(problemId);
+        const records = Object.values(HISTORY_RECORDS)
+            .flat()
+            .filter(record => Number(record.problemId) === normalizedId);
+        if (records.length) return records;
+        const found = findProblemById(normalizedId);
+        if (!found) return [];
+        const { problem, detailId } = found;
+        const catalogItem = getCatalogItemByDetailId(detailId);
+        return [{
+            id: `history-fallback-${normalizedId}`,
+            problemId: normalizedId,
+            materialName: problem.materialName || catalogItem?.name || '归档材料',
+            stage: problem.stage || '退回整改阶段',
+            node: problem.type || '问题登记',
+            detail: problem.description || '该问题已登记并进入退回整改流程。',
+            systems: String(problem.systems || '').split(',').map(item => item.trim()).filter(Boolean).join('/') || 'Q/E/S/F',
+            operator: problem.operator || '初评负责人',
+            time: problem.raisedAt || '-',
+            status: normalizeProblemStatus(problem.status),
+            note: problem.description || '查看该问题的登记与处理记录。'
+        }];
+    }
+
+    function findProblemById(problemId) {
+        const normalizedId = Number(problemId);
+        for (const section of document.querySelectorAll('.material-detail-section')) {
+            const detailId = section.id.replace('content-', '');
+            const problems = JSON.parse(section.getAttribute('data-problems') || '[]');
+            const problem = problems.find(item => Number(item.id) === normalizedId);
+            if (problem) return { problem, detailId };
+        }
+        return null;
     }
 
     function getHistoryStatusClass(status) {
@@ -3374,16 +3600,20 @@
             // 根据状态生成不同的操作按钮
             let actionButtons = '';
             if (isPendingRectification(problem)) {
-                actionButtons = `
-                    <button class="btn-mini btn-mini-primary" onclick="solveProblem(${problem.id}, this)">解决</button>
-                    <button class="btn-mini btn-mini-outline" onclick="skipProblem(${problem.id}, this)" title="认定此问题不需要解决，需填写说明">无需解决</button>
-                `;
+                actionButtons = renderProblemActions(problem.id, [
+                    { label: '解决', className: 'btn-mini-primary', handler: `solveProblem(${problem.id}, this)` },
+                    { label: '无需解决', className: 'btn-mini-outline', handler: `skipProblem(${problem.id}, this)`, title: '认定此问题不需要解决，需填写说明' },
+                    { label: '历史记录', className: 'btn-mini-outline', handler: `openHistoryModal(${problem.id})` }
+                ]);
             } else if (status === '待复核') {
-                actionButtons = `
-                    <button class="btn-mini btn-mini-outline" onclick="cancelReviewProblem(${problem.id}, this)">撤回</button>
-                `;
+                actionButtons = renderProblemActions(problem.id, [
+                    { label: '撤回', className: 'btn-mini-outline', handler: `cancelReviewProblem(${problem.id}, this)` },
+                    { label: '历史记录', className: 'btn-mini-outline', handler: `openHistoryModal(${problem.id})` }
+                ]);
             } else {
-                actionButtons = '<span style="color: rgba(0,0,0,0.4);">随复核同步</span>';
+                actionButtons = renderProblemActions(problem.id, [
+                    { label: '历史记录', className: 'btn-mini-outline', handler: `openHistoryModal(${problem.id})` }
+                ]);
             }
 
             tr.innerHTML = `
@@ -3410,6 +3640,33 @@
         updateGlobalSubmitStatus();
     }
 
+    function renderProblemActions(problemId, actions) {
+        const visibleActions = actions.slice(0, 2);
+        const moreActions = actions.slice(2);
+        const renderButton = item => `<button class="btn-mini ${item.className}" ${item.title ? `title="${escapeHtml(item.title)}"` : ''} onclick="event.stopPropagation(); closeIssueActionMenus(); ${item.handler}">${escapeHtml(item.label)}</button>`;
+        return `
+            ${visibleActions.map(renderButton).join('')}
+            ${moreActions.length ? `
+                <div class="issue-more-wrap" data-issue-more="${problemId}">
+                    <button class="btn-mini btn-mini-outline" onclick="toggleIssueMore(event, ${problemId})">更多</button>
+                    <div class="issue-more-menu">${moreActions.map(renderButton).join('')}</div>
+                </div>
+            ` : ''}
+        `;
+    }
+
+    function closeIssueActionMenus() {
+        document.querySelectorAll('.issue-more-wrap.open').forEach(menu => menu.classList.remove('open'));
+    }
+
+    function toggleIssueMore(event, problemId) {
+        event.stopPropagation();
+        const current = document.querySelector(`[data-issue-more="${problemId}"]`);
+        const shouldOpen = current && !current.classList.contains('open');
+        closeIssueActionMenus();
+        if (current && shouldOpen) current.classList.add('open');
+    }
+
     function renderHistoryTable(records) {
         currentHistoryRecords = records;
         const modal = document.getElementById('historyModal');
@@ -3433,23 +3690,29 @@
             const card = document.createElement('div');
             card.className = 'history-record-card';
             card.innerHTML = `
-                <div class="history-record-head">
-                    <div class="history-record-title">${escapeHtml(record.node || '问题处理')} · ${escapeHtml(record.materialName || '归档材料')}</div>
-                    <span class="status-pill ${statusClass}">${escapeHtml(record.status || '-')}</span>
+                <div class="history-record-content">
+                    <div class="history-record-head">
+                        <div class="history-record-title">${escapeHtml(record.node || '问题处理')} · ${escapeHtml(record.materialName || '归档材料')}</div>
+                        <span class="status-pill ${statusClass}">${escapeHtml(record.status || '-')}</span>
+                    </div>
+                    <div class="history-record-meta">
+                        操作时间：${escapeHtml(record.time || '-')} · 操作人：${escapeHtml(record.operator || '-')}<br>
+                        所属材料：${escapeHtml(record.materialName || '归档材料')}<br>
+                        涉及体系：${escapeHtml(record.systems || 'Q/E/S/F')}<br>
+                        业务阶段：${escapeHtml(record.stage || '-')}<br>
+                        记录内容：${escapeHtml(record.detail || '-')}
+                    </div>
+                    <div class="history-record-note">处理说明：${escapeHtml(record.note || record.detail || '-')}</div>
                 </div>
-                <div class="history-record-meta">
-                    所属材料：${escapeHtml(record.materialName || '归档材料')}<br>
-                    涉及体系：${escapeHtml(record.systems || 'Q/E/S/F')} · 操作人：${escapeHtml(record.operator || '-')} · 操作时间：${escapeHtml(record.time || '-')}<br>
-                    业务阶段：${escapeHtml(record.stage || '-')}<br>
-                    记录内容：${escapeHtml(record.detail || '-')}
-                </div>
-                <div class="history-record-note">处理说明：${escapeHtml(record.note || record.detail || '-')}</div>
             `;
             list.appendChild(card);
         });
     }
 
-    function openHistoryModal() {
+    function openHistoryModal(problemId = null) {
+        if (problemId !== null) {
+            currentHistoryRecords = getHistoryRecordsByProblemId(problemId);
+        }
         renderHistoryModalList();
         document.getElementById('historyModal')?.classList.add('active');
     }
@@ -3512,6 +3775,7 @@
             }
             historyList.unshift({
                 id: `history-${detailId}-${Date.now()}`,
+                problemId,
                 materialName,
                 stage: problem.stage || '退回整改阶段',
                 node,
@@ -3567,43 +3831,6 @@
                 : 't-tag';
     }
 
-    function setResubmitButtonsReady(isReady) {
-        const buttons = [
-            document.getElementById('resubmitBtn'),
-            document.getElementById('headerResubmitBtn')
-        ].filter(Boolean);
-
-        buttons.forEach(button => {
-            button.disabled = !isReady;
-            button.classList.toggle('resubmit-ready', isReady);
-            button.innerHTML = '重新提交初次评定';
-            button.title = isReady ? '退回问题已处理完成，可重新提交初次评定' : '仍有问题待整改，暂不能重新提交';
-        });
-    }
-
-    function setResubmitButtonsSubmitting() {
-        const loadingHtml = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: rotate 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12" stroke-linecap="round"></circle></svg> 提交中...';
-        [document.getElementById('resubmitBtn'), document.getElementById('headerResubmitBtn')]
-            .filter(Boolean)
-            .forEach(button => {
-                button.innerHTML = loadingHtml;
-                button.disabled = true;
-                button.classList.remove('resubmit-ready');
-                button.title = '正在重新提交初次评定';
-            });
-    }
-
-    function setResubmitButtonsSubmitted() {
-        [document.getElementById('resubmitBtn'), document.getElementById('headerResubmitBtn')]
-            .filter(Boolean)
-            .forEach(button => {
-                button.innerHTML = '已提交';
-                button.disabled = true;
-                button.classList.remove('resubmit-ready');
-                button.title = '材料已重新提交初次评定';
-            });
-    }
-
     function updateGlobalSubmitStatus() {
         const stats = getGlobalProblemStats();
 
@@ -3611,32 +3838,35 @@
         const pendingProgressEl = document.getElementById('pending-progress');
         const timelinePendingEl = document.getElementById('timeline-pending');
         const returnStatsEl = document.getElementById('returnStats');
+        const unreturnedMaterialCount = document.getElementById('unreturnedMaterialCount');
 
         if (pendingCountEl) pendingCountEl.textContent = `${stats.handled}/${stats.total}`;
         if (pendingProgressEl) pendingProgressEl.style.width = stats.total > 0 ? `${(stats.handled / stats.total) * 100}%` : '0%';
         if (timelinePendingEl) timelinePendingEl.textContent = stats.pending > 0 ? `待整改：${stats.pending}个问题` : `待复核：${stats.awaitingReview}个问题`;
-        if (returnStatsEl) returnStatsEl.textContent = `MSF11-20 共 48 项 | 4 项有问题 | ${stats.pending} 个待整改问题 | ${stats.awaitingReview} 个待复核问题`;
+        if (returnStatsEl) returnStatsEl.textContent = `MSF11-20 共 48 项 | ${Object.keys(ISSUE_MATERIALS).length} 项有问题 | ${stats.pending} 个待整改问题 | ${stats.awaitingReview} 个待复核问题`;
+        if (unreturnedMaterialCount) unreturnedMaterialCount.textContent = `${48 - Object.keys(ISSUE_MATERIALS).length}项`;
         const projectTip = document.getElementById('projectTip');
         if (projectTip) {
-            projectTip.textContent = stats.pending > 0
-                ? `初评负责人张经理于 2026-04-01 15:30 退回该任务。仍有 ${stats.pending} 个问题待整改，处理完成后进入待复核。`
-                : `所有退回问题已处理完成，其中 ${stats.awaitingReview} 个问题待复核，可重新提交初次评定。`;
+            projectTip.textContent = IS_CERTIFICATE_DECISION_RETURN
+                ? (stats.pending > 0
+                    ? `认证决定人员已登记 ${stats.pending} 个补充材料问题，请逐条完成整改并提交反馈。`
+                    : `全部补充材料问题已提交整改，其中 ${stats.awaitingReview} 个问题等待认证决定人员复核。`)
+                : (stats.pending > 0
+                    ? `初评负责人张经理于 2026-04-01 15:30 退回该任务。仍有 ${stats.pending} 个问题待整改，处理完成后进入待复核。`
+                    : `所有退回问题已处理完成，其中 ${stats.awaitingReview} 个问题待复核，等待初评负责人复核。`);
         }
 
         const submitHint = document.getElementById('submitHint');
-        const isReadyToResubmit = stats.pending === 0 && stats.total > 0;
 
         if (submitHint) {
-            if (isReadyToResubmit) {
-                submitHint.textContent = `所有退回问题已处理完成，${stats.awaitingReview} 个问题待复核，可重新提交初次评定`;
+            if (stats.pending === 0 && stats.total > 0) {
+                submitHint.textContent = `所有退回问题已处理完成，${stats.awaitingReview} 个问题待复核`;
                 submitHint.classList.add('ready');
             } else {
-                submitHint.textContent = `仍有 ${stats.pending} 个问题待整改，全部处理后可重新提交`;
+                submitHint.textContent = `仍有 ${stats.pending} 个问题待整改，逐条处理后进入待复核`;
                 submitHint.classList.remove('ready');
             }
         }
-
-        setResubmitButtonsReady(isReadyToResubmit);
 
         const legacyPending = document.getElementById('legacy-stat-pending');
         const legacySolved = document.getElementById('legacy-stat-solved');
@@ -3647,6 +3877,7 @@
 
         renderProjectSummary();
         applyLeftPanelFilter();
+        if (IS_CERTIFICATE_DECISION_RETURN) applyReturnWorkflowContext();
     }
 
     // 渲染材料明细表
@@ -3798,17 +4029,6 @@
         showToast('草稿已保存');
     }
 
-    // 顶部重新提交
-    async function headerResubmit() {
-        const btn = document.getElementById('headerResubmitBtn');
-        if (btn && btn.disabled) {
-            return;
-        }
-        if (await showConfirm('确定要重新提交初次评定吗？请确认所有退回问题已处理完毕。')) {
-            resubmitAudit();
-        }
-    }
-    
     // 从归档材料提交页面复制的认证领域筛选功能
     function toggleSystemFilter(system) {
         if (selectedSystems.has(system)) {
@@ -3969,22 +4189,6 @@
         }
     }
     
-    // 重新提交初次评定
-    function resubmitAudit() {
-        const stats = getGlobalProblemStats();
-        if (stats.pending > 0) {
-            showToast(`仍有 ${stats.pending} 个问题待整改，暂不能重新提交。`);
-            return;
-        }
-        setResubmitButtonsSubmitting();
-        
-        setTimeout(() => {
-            syncArchiveProblemsToShared();
-            showToast('材料已重新提交初次评定，系统将通知初评负责人张经理复核。');
-            setResubmitButtonsSubmitted();
-        }, 1500);
-    }
-
     // 删除文件
     async function deleteFile(fileId) {
         if (!await showConfirm('确定要删除该文件吗？此操作不可恢复。')) {
@@ -4014,6 +4218,7 @@
 
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
+        applyReturnWorkflowContext();
         applySharedReviewIssuesToArchive();
         currentMaterialType = getInitialReturnDetailId();
         renderMaterialNav();
@@ -4035,6 +4240,7 @@
     });
 
     document.addEventListener('click', function(event) {
+        closeIssueActionMenus();
         if (!event.target.closest('.system-filter-dropdown')) {
             document.getElementById('systemFilterMenu')?.classList.remove('active');
         }
@@ -4049,6 +4255,91 @@
         }
     `;
     document.head.appendChild(style);
+
+const PAGE_GUIDE_STEPS = [
+    {
+        "target": ".alert-banner",
+        "title": "确认退回要求",
+        "body": "顶部退回提示说明退回来源、时间和整改目标，先确认本次需要处理的问题范围。"
+    },
+    {
+        "target": ".sidebar-left",
+        "title": "定位退回材料",
+        "body": "左侧退回材料清单按材料项展示问题数量，可快速切换到对应材料。"
+    },
+    {
+        "target": "#problem-table-body",
+        "title": "逐条处理问题",
+        "body": "中间问题清单支持解决、无需解决、撤回和查看单条历史记录，处理后问题进入待复核。"
+    }
+];
+let pageGuideIndex = 0;
+let pageGuideTarget = null;
+function startPageGuide() {
+    pageGuideIndex = 0;
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    renderPageGuide();
+}
+function closePageGuide() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    pageGuideTarget = null;
+}
+function movePageGuide(delta) {
+    const next = pageGuideIndex + delta;
+    if (next < 0) return;
+    if (next >= PAGE_GUIDE_STEPS.length) {
+        closePageGuide();
+        return;
+    }
+    pageGuideIndex = next;
+    renderPageGuide();
+}
+function renderPageGuide() {
+    const step = PAGE_GUIDE_STEPS[pageGuideIndex];
+    if (!step) return;
+    pageGuideTarget = document.querySelector(step.target) || document.querySelector('.page-container') || document.body;
+    document.getElementById('pageGuideTitle').textContent = step.title;
+    document.getElementById('pageGuideBody').textContent = step.body;
+    document.getElementById('pageGuideCount').textContent = (pageGuideIndex + 1) + ' / ' + PAGE_GUIDE_STEPS.length;
+    document.getElementById('pageGuidePrev').disabled = pageGuideIndex === 0;
+    document.getElementById('pageGuideNext').textContent = pageGuideIndex === PAGE_GUIDE_STEPS.length - 1 ? '完成' : '下一步';
+    pageGuideTarget.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    window.setTimeout(updatePageGuidePosition, 220);
+}
+function updatePageGuidePosition() {
+    const overlay = document.getElementById('pageGuideOverlay');
+    if (!overlay || !overlay.classList.contains('active') || !pageGuideTarget) return;
+    const rect = pageGuideTarget.getBoundingClientRect();
+    const pad = 6;
+    const highlight = document.getElementById('pageGuideHighlight');
+    const popover = document.getElementById('pageGuidePopover');
+    const left = Math.max(8, rect.left - pad);
+    const top = Math.max(8, rect.top - pad);
+    const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+    highlight.style.left = left + 'px';
+    highlight.style.top = top + 'px';
+    highlight.style.width = Math.max(40, width) + 'px';
+    highlight.style.height = Math.max(32, height) + 'px';
+    const popWidth = Math.min(340, window.innerWidth - 32);
+    let popLeft = left + width + 16;
+    if (popLeft + popWidth > window.innerWidth - 16) popLeft = Math.max(16, left - popWidth - 16);
+    let popTop = Math.min(Math.max(16, top), window.innerHeight - 260);
+    popover.style.left = popLeft + 'px';
+    popover.style.top = popTop + 'px';
+}
+window.addEventListener('resize', updatePageGuidePosition);
+document.addEventListener('scroll', updatePageGuidePosition, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePageGuide();
+});
+
 </script>
 <script src="pdf-preview.js"></script>
 </body>
