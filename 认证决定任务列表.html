@@ -269,6 +269,14 @@
             background: var(--warning);
         }
 
+        .dot.purple {
+            background: var(--f);
+        }
+
+        .dot.red {
+            background: var(--danger);
+        }
+
         .table-panel {
             border: 1px solid var(--line-strong);
             overflow-x: auto;
@@ -726,7 +734,6 @@
         <section class="workspace" aria-label="二次评定任务列表">
             <nav class="tabs" aria-label="任务状态">
                 <button class="tab active" type="button" data-status="全部">全部<span class="tab-count" data-count-for="全部">0</span></button>
-                <button class="tab" type="button" data-status="待接收">待接收<span class="tab-count" data-count-for="待接收">0</span></button>
                 <button class="tab" type="button" data-status="待指派专家">待指派专家<span class="tab-count" data-count-for="待指派专家">0</span></button>
                 <button class="tab" type="button" data-status="二次评定中">二次评定中<span class="tab-count" data-count-for="二次评定中">0</span></button>
                 <button class="tab" type="button" data-status="二次评定通过">二次评定通过<span class="tab-count" data-count-for="二次评定通过">0</span></button>
@@ -766,8 +773,10 @@
             <div class="type-filter" aria-label="认证类型">
                 <button class="type-chip active" type="button" data-type="全部类型">全部类型</button>
                 <button class="type-chip" type="button" data-type="初次认证"><span class="dot"></span>初次认证</button>
+                <button class="type-chip" type="button" data-type="认证转化"><span class="dot purple"></span>认证转化</button>
                 <button class="type-chip" type="button" data-type="监督审核"><span class="dot green"></span>监督审核</button>
-                <button class="type-chip" type="button" data-type="再认证"><span class="dot orange"></span>再认证</button>
+                <button class="type-chip" type="button" data-type="证书变更"><span class="dot red"></span>证书变更</button>
+                <button class="type-chip" type="button" data-type="再认证审核"><span class="dot orange"></span>再认证审核</button>
             </div>
 
             <div class="table-panel">
@@ -799,7 +808,7 @@
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pending">待接收</span></td>
-                            <td><a class="action-link" href="#">接收</a><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
+                            <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
                         <tr data-status="待指派专家" data-type="监督审核" data-task="1100-Q-2026-0002" data-customer="绿源生态食品科技股份有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0002</a></td>
@@ -814,11 +823,11 @@
                             <td><span class="status assign">待指派专家</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定中" data-type="再认证" data-task="1100-Q-2026-0003" data-customer="恒信芯联电子元器件有限公司">
+                        <tr data-status="二次评定中" data-type="再认证审核" data-task="1100-Q-2026-0003" data-customer="恒信芯联电子元器件有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0003</a></td>
                             <td>恒信芯联电子元器件有限公司</td>
                             <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag orange">Q/F 已覆盖</span></td>
@@ -840,11 +849,11 @@
                             <td><span class="status review">二次评定中</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定中" data-type="初次认证,再认证" data-task="1100-Q-2026-0005" data-customer="安捷通运输仓储有限公司">
+                        <tr data-status="二次评定中" data-type="初次认证,再认证审核" data-task="1100-Q-2026-0005" data-customer="安捷通运输仓储有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0005</a></td>
                             <td>安捷通运输仓储有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
-                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -853,11 +862,11 @@
                             <td><span class="status review">二次评定中</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="再认证" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
+                        <tr data-status="二次评定通过" data-type="再认证审核" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0006</a></td>
                             <td>盛达新材化工有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -866,11 +875,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="再认证" data-task="1100-Q-2026-0007" data-customer="科瑞智联新能源科技有限公司">
+                        <tr data-status="二次评定通过" data-type="再认证审核" data-task="1100-Q-2026-0007" data-customer="科瑞智联新能源科技有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0007</a></td>
                             <td>科瑞智联新能源科技有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -879,11 +888,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="初次认证,再认证" data-task="1100-Q-2026-0008" data-customer="锦程织造服饰有限公司">
+                        <tr data-status="二次评定通过" data-type="初次认证,再认证审核" data-task="1100-Q-2026-0008" data-customer="锦程织造服饰有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0008</a></td>
                             <td>锦程织造服饰有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / FSMS" aria-label="QMS / EMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
-                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -892,11 +901,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="再认证" data-task="1100-Q-2026-0009" data-customer="康泰瑞康医疗器械有限公司">
+                        <tr data-status="二次评定通过" data-type="再认证审核" data-task="1100-Q-2026-0009" data-customer="康泰瑞康医疗器械有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0009</a></td>
                             <td>康泰瑞康医疗器械有限公司</td>
                             <td><div class="system-badges" title="QMS / FSMS" aria-label="QMS / FSMS"><span class="sys q">QMS</span><span class="sys f">FSMS</span></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -905,11 +914,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="再认证" data-task="1100-Q-2026-0010" data-customer="宏远精工五金制品有限公司">
+                        <tr data-status="二次评定通过" data-type="再认证审核" data-task="1100-Q-2026-0010" data-customer="宏远精工五金制品有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0010</a></td>
                             <td>宏远精工五金制品有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS" aria-label="QMS / EMS / OHSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+1</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -918,11 +927,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="初次认证,再认证" data-task="1100-Q-2026-0011" data-customer="佳禾优品包装印刷有限公司">
+                        <tr data-status="二次评定通过" data-type="初次认证,再认证审核" data-task="1100-Q-2026-0011" data-customer="佳禾优品包装印刷有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0011</a></td>
                             <td>佳禾优品包装印刷有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
-                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
@@ -931,11 +940,11 @@
                             <td><span class="status pass">二次评定通过</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
-                        <tr data-status="二次评定通过" data-type="再认证" data-task="1100-Q-2026-0012" data-customer="博通智能自动化设备有限公司">
+                        <tr data-status="二次评定通过" data-type="再认证审核" data-task="1100-Q-2026-0012" data-customer="博通智能自动化设备有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0012</a></td>
                             <td>博通智能自动化设备有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
-                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
                             <td><span class="tag green">已覆盖</span></td>
