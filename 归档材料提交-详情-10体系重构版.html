@@ -829,14 +829,6 @@
             font-weight: 600;
             line-height: 1.45;
         }
-        .ledger-material-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            color: rgba(0,0,0,.45);
-            font-size: 12px;
-        }
         .common-system-pill {
             display: inline-flex;
             align-items: center;
@@ -1594,10 +1586,7 @@
                         <input class="search-input" id="materialSearch" placeholder="搜索材料、文件、来源" oninput="filterMaterials(this.value)">
                     </div>
                     <div class="action-spacer"></div>
-                    <div class="header-right">
-                        <button class="t-button btn-outline" onclick="showFirstMissingMaterial()">定位缺失材料</button>
-                        <input type="file" id="fileUpload" multiple style="display:none" onchange="handleLocalUpload(event)">
-                    </div>
+                    <input type="file" id="fileUpload" multiple style="display:none" onchange="handleLocalUpload(event)">
                 </div>
                 <div id="uploadPanel" class="upload-panel">
                     <div style="font-size:13px;color:rgba(0,0,0,0.65);font-weight:600;">待补充文件 · <span id="uploadMaterialName">请选择材料</span></div>
@@ -2049,7 +2038,6 @@ function renderLedgerView() {
     const rows = filtered.map((material, index) => {
         const coverage = getMaterialCoverage(material);
         const expanded = expandedMaterialIds.has(material.id);
-        const required = isRequiredForCurrentScope(material);
         const visibleFileCount = getVisibleFilesForCurrentSystems(material).length;
         const fileRows = renderFileRows([material]) || `<tr><td colspan="3"><div class="empty-state">该材料暂无文件。请在本行点击“上传文件”或“资料库选择”补充。</div></td></tr>`;
         return `
@@ -2058,11 +2046,6 @@ function renderLedgerView() {
                 <td style="width:34%;">
                     <div class="ledger-material-cell">
                         <div class="ledger-material-name">${escapeHtml(material.materialName)}</div>
-                        <div class="ledger-material-meta">
-                            <span>${escapeHtml(material.category === '二阶段及其他审核材料' ? '二阶段材料' : material.category)}</span>
-                            <span>${escapeHtml(material.tag || material.category)}</span>
-                            ${required ? '<span class="required-pill must">必交</span>' : ''}
-                        </div>
                     </div>
                 </td>
                 <td style="width:16%;"><div class="systems-cell">${renderApplicableSystemsCell(material.applicableSystems)}</div></td>
