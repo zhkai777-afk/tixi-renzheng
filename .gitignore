@@ -7,3 +7,21 @@ node_modules/
 # Local preview files for demos; keep out of GitHub.
 output/pdf/
 tmp/
+
+# Local project instructions and requirements documents.
+AGENTS.md
+PROJECT_REQUIREMENTS.md
+materials-catalog.md
+page-style-spec.md
+材料归档需求待确认问题清单.md
+
+# Local specifications, review sheets, and office documents.
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.pdf
+*.drawio
+*.inspect.ndjson

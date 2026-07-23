@@ -2705,6 +2705,70 @@
             flex-shrink: 0;
         }
 
+        .initial-review-handoff {
+            padding: 11px 12px;
+            border: 1px solid #B7D3FF;
+            border-radius: 8px;
+            background: #F8FBFF;
+            display: grid;
+            grid-template-columns: 168px minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 12px 16px;
+        }
+
+        .initial-review-handoff-heading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .initial-review-handoff-title {
+            color: #0F172A;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .initial-review-status {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 7px;
+            border-radius: 4px;
+            background: #E6F7F1;
+            color: #00875A;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .initial-review-handoff-content {
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .initial-review-handoff-meta {
+            color: #64748B;
+            font-size: 12px;
+            line-height: 1.65;
+            text-align: right;
+            white-space: pre-line;
+        }
+
+        @media (max-width: 1120px) {
+            .initial-review-handoff {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .initial-review-handoff-meta {
+                text-align: left;
+            }
+        }
+
         .global-stats-strip {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3300,6 +3364,14 @@
             </div>
         </div>
         <div class="project-tip" id="projectTip">二次评定管理员按体系查看问题整改情况；全部问题整改后，可通过页头操作批量通过符合条件的体系。</div>
+        <section class="initial-review-handoff" id="initialReviewHandoff" aria-labelledby="initialReviewHandoffTitle">
+            <div class="initial-review-handoff-heading">
+                <span class="initial-review-handoff-title" id="initialReviewHandoffTitle">初次评定结论说明</span>
+                <span class="initial-review-status">初评通过</span>
+            </div>
+            <div class="initial-review-handoff-content" id="initialReviewHandoffContent"></div>
+            <div class="initial-review-handoff-meta" id="initialReviewHandoffMeta"></div>
+        </section>
         <div class="global-stats-strip" id="globalStatsStrip">
             <div class="global-stat-card">
                 <div class="global-stat-label">材料清单</div>
@@ -3713,6 +3785,27 @@
     let currentMaterialId = 'all';
     let systemDecisions = {};
     let pendingTaskDecision = null;
+    const INITIAL_REVIEW_HANDOFF_KEY = 'TASK-2026-001-initial-review-handoff';
+
+    function renderInitialReviewHandoff() {
+        const content = document.getElementById('initialReviewHandoffContent');
+        const meta = document.getElementById('initialReviewHandoffMeta');
+        if (!content || !meta) return;
+
+        const fallbackRemark = '专家覆盖完整，待关闭整改问题已清零，归档材料满足进入二次评定的条件。';
+        try {
+            const record = JSON.parse(localStorage.getItem(INITIAL_REVIEW_HANDOFF_KEY) || 'null');
+            if (record && record.taskNo === 'TASK-2026-001' && record.decision === 'passed') {
+                content.textContent = record.remark || '初次评定已通过，未填写额外备注。';
+                meta.textContent = `${record.reviewer || '初次评定管理员'}\n${record.submittedAt || '已随任务带入'}`;
+                return;
+            }
+        } catch (error) {
+            // 本地原型存储不可用时展示任务级默认结论。
+        }
+        content.textContent = fallbackRemark;
+        meta.textContent = '初次评定管理员\n已随任务带入';
+    }
 
     // 体系对应的默认专业代码数据结构 (模拟业务需求，可根据实际情况修改)
     // 这里使用一个对象数组来存储领域及其对应的专业代码，更贴合实际业务
@@ -6481,6 +6574,7 @@ let pendingConfirmAction = null;
 
     // 初始化
     document.addEventListener('DOMContentLoaded', function() {
+        renderInitialReviewHandoff();
         document.addEventListener('click', function(event) {
             closeIssueActionMenus();
             const dropdown = document.getElementById('systemFilterDropdown');

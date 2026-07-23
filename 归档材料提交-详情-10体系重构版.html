@@ -483,52 +483,6 @@
             font-size: 12px;
             line-height: 1.6;
         }
-        .decision-state {
-            border: 1px solid #FDE68A;
-            background: #FFFBEB;
-            border-radius: 8px;
-            padding: 12px;
-        }
-        .decision-state.ready {
-            border-color: #B5F5C8;
-            background: #F0FFF4;
-        }
-        .decision-title {
-            color: #8A4B00;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .decision-state.ready .decision-title {
-            color: #087443;
-        }
-        .decision-reason {
-            margin-top: 6px;
-            color: rgba(0,0,0,0.62);
-            font-size: 12px;
-            line-height: 1.6;
-        }
-        .console-stat-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .console-stat {
-            border: 1px solid #e5eaf3;
-            border-radius: 8px;
-            padding: 10px 8px;
-            text-align: center;
-            background: #fff;
-        }
-        .console-stat-value {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .console-stat-label {
-            margin-top: 4px;
-            color: rgba(0,0,0,0.5);
-            font-size: 12px;
-        }
         .console-progress-list {
             display: flex;
             flex-direction: column;
@@ -1527,10 +1481,10 @@
                 <button class="t-button btn-outline" onclick="startPageGuide()">操作指引</button>
                 <button class="t-button btn-outline" onclick="simulateAllUploaded()">模拟全部资料补齐</button>
                 <button class="t-button btn-outline" onclick="showToast('已保存草稿（模拟）')">保存草稿</button>
-                <button class="t-button btn-primary" id="submitBtn" disabled onclick="openSubmitModal()">提交初次评定</button>
+                <button class="t-button btn-primary" id="submitBtn" onclick="openSubmitModal()">提交初次评定</button>
             </div>
         </div>
-        <div class="project-tip" id="projectTip">系统已自动带出前序业务环节产生的归档文件。请补充缺失材料，全部体系达到 100% 后提交初次评定。</div>
+        <div class="project-tip" id="projectTip">系统已自动带出前序业务环节产生的归档文件。当前材料可提交初次评定，缺失材料仍可继续补充。</div>
         <div class="project-summary" id="projectSummary"></div>
     </header>
     <div class="guide-overlay" id="pageGuideOverlay" aria-hidden="true">
@@ -1609,13 +1563,8 @@
             <section class="console-section">
                 <div class="console-title">
                     <span>提交控制台</span>
-                    <span class="t-tag tag-warning" id="taskStateTag">草稿</span>
+                    <span class="t-tag tag-primary" id="taskStateTag">待提交</span>
                 </div>
-                <div class="decision-state" id="decisionState">
-                    <div class="decision-title" id="decisionTitle">暂不可提交</div>
-                    <div class="decision-reason" id="decisionReason">仍有体系存在缺失材料，请先补齐阻断项。</div>
-                </div>
-                <div class="console-stat-grid" id="consoleStats"></div>
             </section>
             <section class="console-section">
                 <div class="console-title">
@@ -1635,7 +1584,7 @@
             <button class="t-button btn-text" onclick="closeModal('submitModal')">关闭</button>
         </div>
         <div class="modal-body">
-            当前项目 Q/E/S/F 四体系必备归档材料均已补齐。确认提交后，任务状态将流转为“初次评定”，项目管理人员不可继续编辑材料。
+            确认提交当前 Q/E/S/F 四体系归档材料？提交后任务状态将流转为“初次评定”，项目管理人员不可继续编辑材料。
         </div>
         <div class="modal-footer">
             <button class="t-button btn-outline" onclick="closeModal('submitModal')">取消</button>
@@ -1998,8 +1947,7 @@ function renderFileRows(filteredMaterials) {
     const fileRows = filteredMaterials.flatMap(material => {
         return getVisibleFilesForCurrentSystems(material).map(file => `
             <tr>
-                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)} · 覆盖 ${normalizeBadgeSystems(file.systems).join('/')}</div></div></td>
-                <td><div class="systems-cell">${renderSystemBadges(file.systems, 'system-badge-table')}</div></td>
+                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
                 <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
             </tr>`);
     }).join('');
@@ -2024,8 +1972,8 @@ function renderCurrentFileListView(filteredMaterials = getFilteredMaterials()) {
                 <span class="header-meta">当前显示 ${fileCount} 个具体文件，来自 ${materialCount} 项材料</span>
             </div>
             <table class="material-data-table">
-                <thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead>
-                <tbody>${fileRows || `<tr><td colspan="3"><div class="empty-state">${emptyText}</div></td></tr>`}</tbody>
+                <thead><tr><th style="width:82%;">具体文件名称</th><th style="width:18%;">操作</th></tr></thead>
+                <tbody>${fileRows || `<tr><td colspan="2"><div class="empty-state">${emptyText}</div></td></tr>`}</tbody>
             </table>
         </div>`;
     renderMaterialNav();
@@ -2059,7 +2007,7 @@ function renderLedgerView() {
                     </div>
                 </td>
             </tr>
-            ${expanded ? `<tr class="ledger-files-row"><td colspan="6"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:58%;">具体文件名称</th><th style="width:24%;">适用体系</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
+            ${expanded ? `<tr class="ledger-files-row"><td colspan="6"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:82%;">具体文件名称</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
     }).join('');
     document.getElementById('currentMaterialName').textContent = currentMaterialId
         ? `当前材料：${materials.find(item => item.id === currentMaterialId)?.materialName || ''}`
@@ -2158,21 +2106,8 @@ function getSystemCompletionStats() {
     });
 }
 function renderRightConsole(systemStats, total, ready, missing) {
-    const isReady = missing === 0;
-    const decisionState = document.getElementById('decisionState');
-    if (!decisionState) return;
-    decisionState.classList.toggle('ready', isReady);
-    document.getElementById('taskStateTag').textContent = isReady ? '待提交' : '草稿';
-    document.getElementById('taskStateTag').className = `t-tag ${isReady ? 'tag-primary' : 'tag-warning'}`;
-    document.getElementById('decisionTitle').textContent = isReady ? '可提交初次评定' : '暂不可提交';
-    const lackSystems = systemStats.filter(item => item.lack > 0);
-    document.getElementById('decisionReason').textContent = isReady
-        ? 'Q/E/S/F 四体系必备归档材料均已补齐，提交后进入初次评定。'
-        : `仍有 ${lackSystems.length} 个体系存在缺失材料，合计 ${missing} 项材料未补齐。`;
-    document.getElementById('consoleStats').innerHTML = `
-        <div class="console-stat"><div class="console-stat-value">${total}</div><div class="console-stat-label">材料总项</div></div>
-        <div class="console-stat"><div class="console-stat-value" style="color:var(--pass-color);">${ready}</div><div class="console-stat-label">已补齐</div></div>
-        <div class="console-stat"><div class="console-stat-value" style="color:var(--reject-color);">${missing}</div><div class="console-stat-label">缺失项</div></div>`;
+    document.getElementById('taskStateTag').textContent = '待提交';
+    document.getElementById('taskStateTag').className = 't-tag tag-primary';
     document.getElementById('systemScopeText').textContent = `${PROJECT_SYSTEMS.length} 个体系`;
     document.getElementById('consoleProgressList').innerHTML = [...systemStats]
         .sort((a, b) => b.lack - a.lack || a.percent - b.percent)
@@ -2201,12 +2136,12 @@ function updatePanels() {
     const isReady = missing === 0;
     const globalStats = document.getElementById('globalStats');
     if (globalStats) globalStats.textContent = `总计: ${total}项 | 已补齐: ${ready} | 缺失: ${missing}`;
-    document.getElementById('submitBtn').disabled = !isReady;
+    document.getElementById('submitBtn').disabled = false;
     const projectTip = document.getElementById('projectTip');
     if (projectTip) {
         projectTip.textContent = isReady
             ? '48 项归档材料均已补齐，可提交初次评定。'
-            : `仍有 ${missing} 项必备归档材料未补齐，补齐后可提交初次评定。`;
+            : `当前材料可提交初次评定；仍有 ${missing} 项材料可继续补充。`;
     }
     const projectSummary = document.getElementById('projectSummary');
     if (projectSummary) {
@@ -2522,7 +2457,7 @@ const PAGE_GUIDE_STEPS = [
     {
         "target": "#submitBtn",
         "title": "提交初次评定",
-        "body": "所有涉及体系必备材料齐全后，页头的提交初次评定按钮会启用，提交后进入初评。"
+        "body": "页头的提交初次评定按钮默认可用，提交后任务进入初评。"
     }
 ];
 let pageGuideIndex = 0;

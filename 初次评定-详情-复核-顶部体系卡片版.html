@@ -1061,6 +1061,17 @@
             font-size: 12px;
             text-align: right;
         }
+        .decision-remark-field {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #edf1f5;
+        }
+        .decision-remark-helper {
+            margin-top: 6px;
+            color: #64748B;
+            font-size: 12px;
+            line-height: 1.6;
+        }
         .modal-table {
             width: 100%;
             border-collapse: collapse;
@@ -1702,6 +1713,7 @@ let taskDecisionStatus = 'active';
 let toastTimer = null;
 let expertCoverageExpanded = false;
 const REVIEW_FLOW_STORAGE_KEY = 'TASK-2026-001-review-issues';
+const INITIAL_REVIEW_HANDOFF_KEY = 'TASK-2026-001-initial-review-handoff';
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -3026,13 +3038,47 @@ function openDecisionModal(action) {
         ? '当前专家覆盖完整、整改复核已完成且无待关闭问题。确认后任务将流转至二次评定。'
         : `当前仍有 ${openIssues.length} 项待关闭整改问题。确认退回后，项目管理人员需按整改问题清单补充材料或补充审核说明。`;
     document.getElementById('decisionTitle').textContent = title;
-    document.getElementById('decisionBody').innerHTML = `<p>${escapeHtml(body)}</p><div class="task-next-step">${escapeHtml(state.next)}</div>`;
+    document.getElementById('decisionBody').innerHTML = action === 'pass'
+        ? `<p>${escapeHtml(body)}</p>
+            <div class="task-next-step">${escapeHtml(state.next)}</div>
+            <div class="decision-remark-field">
+                <label class="form-label" for="initialReviewRemarkInput">初评备注说明（选填）</label>
+                <textarea class="form-textarea" id="initialReviewRemarkInput" maxlength="500" placeholder="请填写本次初次评定的判断依据、需要二次评定关注的事项或其他说明" oninput="updateInitialReviewRemarkCount()"></textarea>
+                <div class="decision-remark-helper">提交后将随任务带入二次评定，二次评定管理员可在任务详情页查看。</div>
+                <div class="char-count" id="initialReviewRemarkCount">0/500字</div>
+            </div>`
+        : `<p>${escapeHtml(body)}</p><div class="task-next-step">${escapeHtml(state.next)}</div>`;
+    if (action === 'pass') {
+        const input = document.getElementById('initialReviewRemarkInput');
+        try {
+            const saved = JSON.parse(localStorage.getItem(INITIAL_REVIEW_HANDOFF_KEY) || 'null');
+            input.value = saved && saved.taskNo === 'TASK-2026-001' ? (saved.remark || '') : '';
+        } catch (error) {
+            input.value = '';
+        }
+        updateInitialReviewRemarkCount();
+    }
     document.getElementById('confirmDecisionBtn').className = action === 'pass' ? 't-button btn-success' : 't-button btn-danger';
     document.getElementById('confirmDecisionBtn').textContent = action === 'pass' ? '确认通过' : '确认退回';
     document.getElementById('decisionModal').classList.add('active');
 }
+function updateInitialReviewRemarkCount() {
+    const input = document.getElementById('initialReviewRemarkInput');
+    const count = document.getElementById('initialReviewRemarkCount');
+    if (input && count) count.textContent = `${input.value.length}/500字`;
+}
 function confirmDecision() {
     if (pendingDecision === 'pass') {
+        const remarkInput = document.getElementById('initialReviewRemarkInput');
+        const remark = remarkInput ? remarkInput.value.trim() : '';
+        localStorage.setItem(INITIAL_REVIEW_HANDOFF_KEY, JSON.stringify({
+            taskNo: 'TASK-2026-001',
+            decision: 'passed',
+            remark,
+            reviewer: '初次评定管理员',
+            submittedAt: new Date().toLocaleString('zh-CN', { hour12: false })
+        }));
+        saveInitialIssuesToShared('initial_passed');
         taskDecisionStatus = 'passed';
         showToast('初评已通过，任务已提交至二次评定。');
     } else {

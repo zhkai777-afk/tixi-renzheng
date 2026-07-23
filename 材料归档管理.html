@@ -494,42 +494,6 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .issue-progress {
-            display: grid;
-            grid-template-columns: 78px auto;
-            align-items: center;
-            gap: 5px 8px;
-            min-width: 164px;
-        }
-
-        .issue-progress .progress-track {
-            width: 78px;
-        }
-
-        .issue-progress-value {
-            color: var(--text-main);
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .issue-progress-note {
-            grid-column: 1 / -1;
-            color: var(--text-secondary);
-            font-size: 11px;
-        }
-
-        .issue-progress-empty {
-            display: inline-flex;
-            align-items: center;
-            height: 24px;
-            border: 1px solid #b8e8d7;
-            border-radius: 4px;
-            background: #e6f7f1;
-            color: #00875a;
-            padding: 0 8px;
-            font-size: 12px;
-        }
-
         .rectify-overview {
             display: inline-flex;
             align-items: center;
@@ -556,6 +520,16 @@
             font-size: 13px;
             font-weight: 600;
             color: var(--text-main);
+        }
+
+        .rectify-pill.success {
+            border-color: #b8e8d7;
+            background: #e6f7f1;
+            color: #00875a;
+        }
+
+        .rectify-pill.success strong {
+            color: #00875a;
         }
 
         .rectify-pill.warning {
@@ -1204,6 +1178,7 @@
         let pendingConfirm = null;
         const completedStatuses = ["证书已签发", "证书不予签发", "监督审核通知已推送"];
         const lateStageTabs = new Set(["认证决定中", "证书待签发", "待推送", "已完结"]);
+        const issueColumnHiddenTabs = new Set(["证书待签发", "待推送"]);
         const CERT_DECISION_FLOW_PREFIX = "certificate-decision-rectification:";
 
         function syncCertificateDecisionRow(row) {
@@ -1268,12 +1243,15 @@
 
         function updateStageColumns() {
             const useLateStageColumns = lateStageTabs.has(activeStatus);
+            const hideIssueColumn = issueColumnHiddenTabs.has(activeStatus);
             materialColumnHeader.textContent = useLateStageColumns ? "材料数量" : "材料进度";
-            issueColumnHeader.textContent = useLateStageColumns ? "问题整改进度" : "问题整改概览";
+            issueColumnHeader.textContent = "问题整改概览";
+            issueColumnHeader.hidden = hideIssueColumn;
 
             rows.forEach((row) => {
                 const materialCell = row.cells[7];
                 const issueCell = row.cells[8];
+                issueCell.hidden = hideIssueColumn;
 
                 if (!useLateStageColumns) {
                     materialCell.innerHTML = row.dataset.originalMaterialHtml;
@@ -1290,17 +1268,12 @@
 
                 materialCell.innerHTML = `<div class="material-count"><strong>${materialCount}</strong><span>份</span></div>`;
 
-                if (issuesTotal === 0) {
-                    issueCell.innerHTML = `<span class="issue-progress-empty">无需整改</span>`;
-                    return;
-                }
+                if (hideIssueColumn) return;
 
-                const progressPercent = Math.round(issuesResolved / issuesTotal * 100);
                 issueCell.innerHTML = `
-                    <div class="issue-progress" aria-label="已整改 ${issuesResolved} 项，共 ${issuesTotal} 项">
-                        <div class="progress-track"><div class="progress-bar" style="width: ${progressPercent}%"></div></div>
-                        <span class="issue-progress-value">${issuesResolved}/${issuesTotal}</span>
-                        <span class="issue-progress-note">已整改 ${issuesResolved} 项，待整改 ${pendingIssues} 项</span>
+                    <div class="rectify-overview" aria-label="已整改 ${issuesResolved} 项，待整改 ${pendingIssues} 项">
+                        <span class="rectify-pill ${issuesResolved ? 'success' : ''}">已整改 <strong>${issuesResolved}</strong></span>
+                        <span class="rectify-pill ${pendingIssues ? 'warning' : ''}">待整改 <strong>${pendingIssues}</strong></span>
                     </div>
                 `;
             });

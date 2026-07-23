@@ -915,6 +915,16 @@
         .issue-system-badge.s .issue-system-code { background: #fff7ed; color: #c2410c; }
         .issue-system-badge.f .issue-system-code { background: #f5f3ff; color: #6d28d9; }
         .issue-system-hint { color: var(--text-placeholder); font-size: 12px; }
+        .saved-deficiency-panel { display: none; margin-bottom: 16px; border: 1px solid #b7d3ff; border-radius: 8px; background: #f7faff; overflow: hidden; }
+        .saved-deficiency-panel.visible { display: block; }
+        .saved-deficiency-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid #d7e5ff; color: var(--brand-color); font-size: 13px; font-weight: 600; }
+        .saved-deficiency-list { display: grid; gap: 8px; padding: 10px 12px; }
+        .saved-deficiency-item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: start; font-size: 12px; line-height: 1.55; }
+        .saved-deficiency-index { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #e8f1ff; color: var(--brand-color); font-weight: 600; }
+        .saved-deficiency-name { color: var(--text-main); font-weight: 600; }
+        .saved-deficiency-desc { color: var(--text-secondary); }
+        .saved-deficiency-remove { border: 0; background: transparent; color: var(--danger-color); cursor: pointer; font-size: 12px; padding: 2px 4px; }
+        .modal-footer-note { margin-right: auto; align-self: center; color: var(--text-placeholder); font-size: 12px; }
         .rectification-review-card { margin-top: 12px; border: 1px solid #dfe7f2; border-radius: 8px; background: #fff; overflow: hidden; }
         .rectification-review-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 14px; font-weight: 600; }
         .review-status-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; border: 1px solid #fde68a; background: #fffbeb; color: #b45309; font-size: 12px; }
@@ -1170,8 +1180,16 @@
         <div class="modal-body">
             <div style="background: #f0f5ff; border: 1px solid #b5c7ff; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: var(--brand-color); display: flex; align-items: flex-start; gap: 8px;">
                 <i class="t-icon t-icon-info-circle" style="margin-top: 2px;"></i>
-                <div>问题提交后任务进入“待补充材料”，项目管理人员将在材料归档管理中完成整改，随后返回证书决定复核。</div>
+                <div>可先保存当前问题并继续添加；完成登记后任务进入“待补充材料”，系统返回证书决定列表并提供补充材料入口。</div>
             </div>
+
+            <section id="savedDeficiencyPanel" class="saved-deficiency-panel" aria-live="polite">
+                <div class="saved-deficiency-head">
+                    <span>本次已保存问题</span>
+                    <span id="savedDeficiencyCount">0 项</span>
+                </div>
+                <div id="savedDeficiencyList" class="saved-deficiency-list"></div>
+            </section>
 
             <div class="issue-form-grid">
                 <div class="form-item">
@@ -1202,7 +1220,9 @@
             </div>
         </div>
         <div class="modal-footer">
+            <span id="deficiencyFooterNote" class="modal-footer-note">尚未保存问题</span>
             <button class="t-button t-button--ghost" onclick="closeDeficiencyModal()">取消</button>
+            <button class="t-button t-button--ghost" onclick="saveAndContinueDeficiency()">保存并继续添加</button>
             <button class="t-button t-button--primary" onclick="submitDeficiency()">提交登记</button>
         </div>
     </div>
@@ -1503,6 +1523,7 @@ const mockSupplementRequests = {
 let currentDomain = taskConfig.domainId;
 let missingItemIndex = 1;
 let selectedTreeNode = 'all'; // 当前选中的树节点：all, stage1, stage2, general, 或具体子分类名
+let pendingDeficiencyIssues = [];
 let reviewMode = taskConfig.source === 'certificate-decision-list'
     && (taskConfig.entryStatus === '待补充材料' || certificateDecisionFlow?.taskStatus === '待补充材料');
 let supplementMode = false;
@@ -2048,12 +2069,93 @@ function openDeficiencyModal() {
     materialSelect.value = '';
     document.getElementById('deficiencyDescription').value = '';
     document.getElementById('deficiencyAttachment').value = '';
+    pendingDeficiencyIssues = [];
+    renderSavedDeficiencies();
     renderDeficiencySystems();
     setTimeout(() => materialSelect.focus(), 0);
 }
 
 function closeDeficiencyModal() {
     document.getElementById('deficiencyModal').style.display = 'none';
+}
+
+function buildDeficiencyFromForm() {
+    const materialId = document.getElementById('deficiencyMaterialSelect').value;
+    const material = catalogMaterials.find(item => item.id === materialId);
+    const description = document.getElementById('deficiencyDescription').value.trim();
+    const attachment = document.getElementById('deficiencyAttachment').value.trim();
+    const deadline = document.getElementById('deadlineInput').value.replace('T', ' ') || '-';
+
+    if (!material) {
+        showToast('请选择所属材料', 'warning');
+        document.getElementById('deficiencyMaterialSelect').focus();
+        return null;
+    }
+    if (description.length < 10) {
+        showToast('问题描述至少填写10个字', 'warning');
+        document.getElementById('deficiencyDescription').focus();
+        return null;
+    }
+
+    const now = currentTimeText();
+    return {
+        id: `CERT-ISSUE-${Date.now()}-${pendingDeficiencyIssues.length}`,
+        type: 'supplement_material',
+        typeName: '补充材料',
+        materialId: material.id,
+        materialName: material.name,
+        systems: getDeficiencySystems(),
+        desc: description,
+        attachment,
+        deadline,
+        status: 'returned_to_project',
+        createdBy: '认证决定员-李敏',
+        createdAt: now,
+        rectificationDesc: '',
+        rectificationAttachment: '',
+        reviewComment: ''
+    };
+}
+
+function clearDeficiencyForm() {
+    document.getElementById('deficiencyMaterialSelect').value = '';
+    document.getElementById('deficiencyDescription').value = '';
+    document.getElementById('deficiencyAttachment').value = '';
+    document.getElementById('deficiencyMaterialSelect').focus();
+}
+
+function renderSavedDeficiencies() {
+    const panel = document.getElementById('savedDeficiencyPanel');
+    panel.classList.toggle('visible', pendingDeficiencyIssues.length > 0);
+    document.getElementById('savedDeficiencyCount').textContent = `${pendingDeficiencyIssues.length} 项`;
+    document.getElementById('deficiencyFooterNote').textContent = pendingDeficiencyIssues.length > 0
+        ? `已保存 ${pendingDeficiencyIssues.length} 项，可继续添加或提交登记`
+        : '尚未保存问题';
+    document.getElementById('savedDeficiencyList').innerHTML = pendingDeficiencyIssues.map((issue, index) => `
+        <div class="saved-deficiency-item">
+            <span class="saved-deficiency-index">${index + 1}</span>
+            <div>
+                <div class="saved-deficiency-name">${escapeHtml(issue.materialName)}</div>
+                <div class="saved-deficiency-desc">${escapeHtml(issue.desc)}</div>
+            </div>
+            <button class="saved-deficiency-remove" type="button" onclick="removeSavedDeficiency(${index})">移除</button>
+        </div>
+    `).join('');
+}
+
+function removeSavedDeficiency(index) {
+    pendingDeficiencyIssues.splice(index, 1);
+    renderSavedDeficiencies();
+    showToast('已移除该条暂存问题');
+}
+
+function saveAndContinueDeficiency() {
+    const issue = buildDeficiencyFromForm();
+    if (!issue) return;
+    pendingDeficiencyIssues.push(issue);
+    renderSavedDeficiencies();
+    clearDeficiencyForm();
+    showToast(`第 ${pendingDeficiencyIssues.length} 项问题已保存，可继续添加`, 'success');
 }
 
 function fuzzyMatch(text, query) {
@@ -2298,40 +2400,17 @@ function addMissingItem() {
 }
 
 function submitDeficiency() {
-    const materialId = document.getElementById('deficiencyMaterialSelect').value;
-    const material = catalogMaterials.find(item => item.id === materialId);
-    const systems = getDeficiencySystems();
-    const description = document.getElementById('deficiencyDescription').value.trim();
-    const attachment = document.getElementById('deficiencyAttachment').value.trim();
-    const deadline = document.getElementById('deadlineInput').value.replace('T', ' ') || '-';
+    const hasCurrentInput = document.getElementById('deficiencyMaterialSelect').value
+        || document.getElementById('deficiencyDescription').value.trim()
+        || document.getElementById('deficiencyAttachment').value.trim();
+    if (hasCurrentInput || pendingDeficiencyIssues.length === 0) {
+        const issue = buildDeficiencyFromForm();
+        if (!issue) return;
+        pendingDeficiencyIssues.push(issue);
+    }
 
-    if (!material) {
-        showToast('请选择所属材料', 'warning');
-        return;
-    }
-    if (description.length < 10) {
-        showToast('问题描述至少填写10个字', 'warning');
-        document.getElementById('deficiencyDescription').focus();
-        return;
-    }
+    const issues = pendingDeficiencyIssues.slice();
     const now = currentTimeText();
-    const issue = {
-        id: `CERT-ISSUE-${Date.now()}`,
-        type: 'supplement_material',
-        typeName: '补充材料',
-        materialId: material.id,
-        materialName: material.name,
-        systems,
-        desc: description,
-        attachment,
-        deadline,
-        status: 'returned_to_project',
-        createdBy: '认证决定员-李敏',
-        createdAt: now,
-        rectificationDesc: '',
-        rectificationAttachment: '',
-        reviewComment: ''
-    };
     const payload = {
         taskNo: taskConfig.taskNo,
         customer: taskConfig.taskNo === '1100-QS-2026-0005' ? '安捷通运输仓储有限公司' : '当前认证客户',
@@ -2339,10 +2418,10 @@ function submitDeficiency() {
         stage: 'certificate_decision_returned',
         taskStatus: '待补充材料',
         updatedAt: now,
-        issues: [issue],
+        issues,
         history: [
             ...(certificateDecisionFlow?.history || []),
-            { node: '认证决定登记', operator: '认证决定员-李敏', time: now, detail: `登记补充材料问题：${description}` }
+            { node: '认证决定登记', operator: '认证决定员-李敏', time: now, detail: `登记 ${issues.length} 个补充材料问题，任务进入待补充材料。` }
         ]
     };
     saveCertificateDecisionFlow(payload);
@@ -2353,17 +2432,16 @@ function submitDeficiency() {
     supplementMode = false;
     taskConfig.entryStatus = '待补充材料';
     supplementRequest = {
-        items: [{ name: material.name, requirement: attachment, issue }],
-        deadline
+        items: issues.map(issue => ({ name: issue.materialName, requirement: issue.attachment, issue })),
+        deadline: issues[0]?.deadline || '-'
     };
 
-    const nextParams = new URLSearchParams(window.location.search);
-    nextParams.set('status', '待补充材料');
-    window.history.replaceState(null, '', `${window.location.pathname}?${nextParams.toString()}`);
-    
-    closeDeficiencyModal();
-    renderContent();
-    showToast('补充材料问题已登记，任务已进入待补充材料。', 'success');
+    const listParams = new URLSearchParams({
+        status: '待补充材料',
+        taskNo: taskConfig.taskNo,
+        registered: String(issues.length)
+    });
+    window.location.assign(`./证书决定管理.html?${listParams.toString()}`);
 }
 
 function approveRectificationReview(issueId) {

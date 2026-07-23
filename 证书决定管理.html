@@ -251,7 +251,7 @@
         tbody tr:last-child td { border-bottom: 0; }
         tbody tr:hover { background: #fafcff; }
 
-        .task-link, .detail-button {
+        .task-link, .detail-button, .supplement-button {
             border: 0;
             background: transparent;
             color: var(--primary);
@@ -259,10 +259,13 @@
             text-decoration: none;
         }
 
-        .detail-button { white-space: nowrap; }
+        .detail-button, .supplement-button { white-space: nowrap; }
 
         .task-link { padding: 6px 0; font-variant-numeric: tabular-nums; }
-        .task-link:hover, .detail-button:hover { color: var(--primary-hover); text-decoration: underline; }
+        .task-link:hover, .detail-button:hover, .supplement-button:hover { color: var(--primary-hover); text-decoration: underline; }
+        .supplement-button { color: var(--warning); }
+        .row-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .row-action-divider { width: 1px; height: 14px; background: var(--border-strong); }
         .customer-name { color: var(--text); font-weight: 500; }
         .systems { display: flex; flex-wrap: wrap; gap: 4px; }
 
@@ -437,7 +440,7 @@
             td { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; height: auto; min-height: 38px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
             td:last-child { border-bottom: 0; }
             td::before { content: attr(data-label); color: var(--text-muted); font-size: 12px; }
-            .task-link, .detail-button { justify-self: start; padding: 6px 0; }
+            .task-link, .detail-button, .supplement-button { justify-self: start; padding: 6px 0; }
             .pagination { justify-content: flex-start; }
             .detail-grid { grid-template-columns: 1fr; }
             .detail-item, .detail-item:nth-child(2n) { border-right: 0; border-bottom: 1px solid var(--border); }
@@ -529,7 +532,7 @@
                     <div class="table-scroll">
                         <table>
                             <colgroup>
-                                <col style="width: 145px"><col style="width: 200px"><col style="width: 100px"><col style="width: 100px"><col style="width: 210px"><col style="width: 110px"><col style="width: 150px"><col style="width: 100px"><col style="width: 80px">
+                                <col style="width: 145px"><col style="width: 200px"><col style="width: 100px"><col style="width: 100px"><col style="width: 210px"><col style="width: 110px"><col style="width: 150px"><col style="width: 100px"><col style="width: 145px">
                             </colgroup>
                             <thead>
                                 <tr>
@@ -615,7 +618,10 @@
             }
         });
 
-        const state = { status: '全部', type: '全部类型', page: 1, pageSize: 10, filtered: tasks.slice(), currentTask: null };
+        const pageParams = new URLSearchParams(window.location.search);
+        const requestedStatus = pageParams.get('status');
+        const requestedTaskNo = pageParams.get('taskNo') || '';
+        const state = { status: requestedStatus || '全部', type: '全部类型', page: 1, pageSize: 10, filtered: tasks.slice(), currentTask: null };
         const statusOptions = ['全部', '待评定', '待补充材料', '已通过', '不予通过'];
         const typeOptions = ['全部类型', '初次认证', '监督审核', '再认证'];
         const statusClass = { '待评定': 'status-pending', '进行中': 'status-progress', '待补充材料': 'status-supplement', '已通过': 'status-passed', '不予通过': 'status-rejected' };
@@ -683,7 +689,15 @@
                     <td data-label="归属部门">${escapeHtml(task.dept)}</td>
                     <td data-label="提交时间"><span class="date-time">${task.submitted}</span></td>
                     <td data-label="当前状态"><span class="status-tag ${statusClass[task.status]}">${task.status}</span></td>
-                    <td data-label="操作"><button class="detail-button" type="button" data-detail="${task.no}">查看详情</button></td>
+                    <td data-label="操作">
+                        <div class="row-actions">
+                            <button class="detail-button" type="button" data-detail="${task.no}">查看详情</button>
+                            ${task.status === '待补充材料' ? `
+                                <span class="row-action-divider" aria-hidden="true"></span>
+                                <button class="supplement-button" type="button" data-supplement="${task.no}">补充材料</button>
+                            ` : ''}
+                        </div>
+                    </td>
                 </tr>`).join('');
 
             const isEmpty = state.filtered.length === 0;
@@ -728,6 +742,20 @@
                 domain: task.system || 'Q',
                 source: 'certificate-decision-list',
                 stage: 'certificate-decision'
+            });
+            window.location.assign(`./证书认定4-10-03 2.html?${params.toString()}`);
+        }
+
+        function openSupplement(taskNo) {
+            const task = tasks.find(item => item.no === taskNo);
+            if (!task) return;
+            const params = new URLSearchParams({
+                taskNo: task.no,
+                status: '待补充材料',
+                domain: task.system || 'Q',
+                source: 'certificate-decision-list',
+                stage: 'certificate-decision',
+                action: 'supplement'
             });
             window.location.assign(`./证书认定4-10-03 2.html?${params.toString()}`);
         }
@@ -798,6 +826,11 @@
         });
 
         $('#taskTableBody').addEventListener('click', event => {
+            const supplementButton = event.target.closest('[data-supplement]');
+            if (supplementButton) {
+                openSupplement(supplementButton.dataset.supplement);
+                return;
+            }
             const button = event.target.closest('[data-detail]');
             if (button) openDetail(button.dataset.detail);
         });
@@ -811,9 +844,14 @@
         });
         document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('#detailModal').classList.contains('open')) closeDetail(); });
 
+        if (requestedTaskNo) $('#taskNo').value = requestedTaskNo;
+        if (requestedStatus && statusOptions.includes(requestedStatus)) $('#statusSelect').value = requestedStatus;
         renderTabs();
         renderTypeFilters();
         runFilter(false);
+        if (pageParams.get('registered')) {
+            showToast(`已登记 ${pageParams.get('registered')} 个补充材料问题，可从列表进入补充材料处理`);
+        }
     </script>
 </body>
 </html>

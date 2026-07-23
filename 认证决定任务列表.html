@@ -496,11 +496,6 @@
             font-size: 12px;
         }
 
-        .status.pending {
-            background: #ffefd6;
-            color: #d96800;
-        }
-
         .status.assign {
             background: #edf2ff;
             color: #0052d9;
@@ -757,7 +752,6 @@
                     <label for="statusSelect">状态</label>
                     <select class="control" id="statusSelect" name="statusSelect">
                         <option value="">全部</option>
-                        <option value="待接收">待接收</option>
                         <option value="待指派专家">待指派专家</option>
                         <option value="二次评定中">二次评定中</option>
                         <option value="二次评定通过">二次评定通过</option>
@@ -797,17 +791,17 @@
                         </tr>
                     </thead>
                     <tbody id="taskRows">
-                        <tr data-status="待接收" data-type="初次认证" data-task="1100-Q-2026-0001" data-customer="华锐精密机械制造有限公司">
+                        <tr data-status="待指派专家" data-type="初次认证" data-task="1100-Q-2026-0001" data-customer="华锐精密机械制造有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0001</a></td>
                             <td>华锐精密机械制造有限公司</td>
                             <td><div class="system-badges" title="QMS / EMS / OHSMS / FSMS" aria-label="QMS / EMS / OHSMS / FSMS" data-expanded="false"><span class="sys q">QMS</span><span class="sys e">EMS</span><span class="sys s system-extra">OHSMS</span><span class="sys f system-extra">FSMS</span><button class="system-more" type="button" aria-expanded="false" aria-label="查看全部体系">+2</button><button class="system-collapse" type="button" aria-label="隐藏体系标签">收起</button></div></td>
                             <td><div class="type-tags"><span class="tag blue">初次认证</span></div></td>
                             <td>中国质量认证中心（CQC）</td>
                             <td>检验认证部</td>
-                            <td><span class="tag gray">未接收</span></td>
+                            <td><span class="tag orange">待指派</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
-                            <td><span class="status pending">待接收</span></td>
+                            <td><span class="status assign">待指派专家</span></td>
                             <td><a class="action-link detail-link" href="二次评定-详情-体系分流按体系卡片版.html" target="_self">详情</a></td>
                         </tr>
                         <tr data-status="待指派专家" data-type="监督审核" data-task="1100-Q-2026-0002" data-customer="绿源生态食品科技股份有限公司">
