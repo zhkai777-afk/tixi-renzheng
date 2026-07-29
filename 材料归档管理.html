@@ -134,7 +134,7 @@
         }
 
         .filters {
-            margin-top: 20px;
+            margin: 20px 0;
             padding: 24px clamp(16px, 2.7vw, 48px);
             background: #f3f6fa;
             display: grid;
@@ -188,6 +188,90 @@
             background-repeat: no-repeat;
         }
 
+        .multi-select {
+            position: relative;
+            min-width: 0;
+        }
+
+        .multi-select summary {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            cursor: pointer;
+            padding-right: 32px;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .multi-select summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .multi-select summary::after {
+            content: "";
+            position: absolute;
+            right: 13px;
+            top: 11px;
+            width: 7px;
+            height: 7px;
+            border-right: 1px solid #a8afb9;
+            border-bottom: 1px solid #a8afb9;
+            transform: rotate(45deg);
+        }
+
+        .multi-select[open] summary {
+            border-color: #9ec5ff;
+            box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.08);
+        }
+
+        .multi-select[open] summary::after {
+            top: 14px;
+            transform: rotate(225deg);
+        }
+
+        .multi-select-value {
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        .multi-select-panel {
+            position: absolute;
+            z-index: 30;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 264px;
+            overflow-y: auto;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(31, 45, 61, 0.14);
+            padding: 6px 0;
+        }
+
+        .multi-select-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 32px;
+            padding: 5px 12px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .multi-select-option:hover {
+            background: #f3f7ff;
+        }
+
+        .multi-select-option[hidden] {
+            display: none;
+        }
+
+        .multi-select-option input {
+            margin: 0;
+            accent-color: var(--primary);
+        }
+
         .filter-actions {
             display: flex;
             justify-content: flex-end;
@@ -222,51 +306,9 @@
 
         .btn:focus-visible,
         .tab:focus-visible,
-        .type-chip:focus-visible,
         .page-btn:focus-visible {
             outline: 2px solid rgba(0, 82, 217, 0.35);
             outline-offset: 2px;
-        }
-
-        .type-filter {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 20px 0 18px;
-        }
-
-        .type-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            height: 30px;
-            border: 1px solid #dfe5ee;
-            border-radius: 4px;
-            background: #fff;
-            color: var(--text-main);
-            padding: 0 14px;
-        }
-
-        .type-chip.active {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #fff;
-            font-weight: 600;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary);
-        }
-
-        .dot.green {
-            background: var(--success);
-        }
-
-        .dot.orange {
-            background: var(--warning);
         }
 
         .table-panel {
@@ -494,6 +536,10 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .material-quantity {
+            white-space: nowrap;
+        }
+
         .rectify-overview {
             display: inline-flex;
             align-items: center;
@@ -659,6 +705,12 @@
             border-color: #b7d3ff;
             background: #e8f1ff;
             color: #0052d9;
+        }
+
+        .receive-badge.rejected {
+            border-color: #ffc2c7;
+            background: #ffecee;
+            color: #d54941;
         }
 
         .pagination {
@@ -857,8 +909,7 @@
                 text-align: left;
             }
 
-            .filter-actions,
-            .type-filter {
+            .filter-actions {
                 gap: 8px;
             }
 
@@ -899,28 +950,26 @@
                 </div>
                 <div class="field">
                     <label for="customer">客户名称</label>
-                    <select class="control" id="customer" name="customer">
-                        <option value="">全部</option>
-                        <option value="华锐精密机械制造有限公司">华锐精密机械制造有限公司</option>
-                        <option value="绿源生态食品科技股份有限公司">绿源生态食品科技股份有限公司</option>
-                        <option value="恒信芯联电子元器件有限公司">恒信芯联电子元器件有限公司</option>
-                    </select>
+                    <input class="control" id="customer" name="customer" type="search" placeholder="请输入客户名称关键字">
                 </div>
                 <div class="field">
-                    <label for="statusSelect">状态</label>
-                    <select class="control" id="statusSelect" name="statusSelect">
-                        <option value="">全部</option>
-                        <option value="草稿">草稿</option>
-                        <option value="初次评定中">初次评定中</option>
-                        <option value="二次评定中">二次评定中</option>
-                        <option value="认证决定中">认证决定中</option>
-                        <option value="证书待签发">证书待签发</option>
-                        <option value="待推送">待推送</option>
-                        <option value="已完结">已完结</option>
-                        <option value="证书已签发">证书已签发</option>
-                        <option value="证书不予签发">证书不予签发</option>
-                        <option value="监督审核通知已推送">监督审核通知已推送</option>
-                    </select>
+                    <label id="statusLabel">状态</label>
+                    <details class="multi-select" id="statusFilter" aria-labelledby="statusLabel">
+                        <summary class="control" id="statusSelect"><span class="multi-select-value" id="statusSelectText">全部</span></summary>
+                        <div class="multi-select-panel" role="group" aria-label="状态（可多选）">
+                            <label class="multi-select-option" data-status-option="草稿"><input type="checkbox" name="statusSelect" value="草稿">草稿</label>
+                            <label class="multi-select-option" data-status-option="初次评定中"><input type="checkbox" name="statusSelect" value="初次评定中">初次评定中</label>
+                            <label class="multi-select-option" data-status-option="二次评定中"><input type="checkbox" name="statusSelect" value="二次评定中">二次评定中</label>
+                            <label class="multi-select-option" data-status-option="待认证决定"><input type="checkbox" name="statusSelect" value="待认证决定">待认证决定</label>
+                            <label class="multi-select-option" data-status-option="不予通过"><input type="checkbox" name="statusSelect" value="不予通过">不予通过</label>
+                            <label class="multi-select-option" data-status-option="待补充材料"><input type="checkbox" name="statusSelect" value="待补充材料">待补充材料</label>
+                            <label class="multi-select-option" data-status-option="待签发"><input type="checkbox" name="statusSelect" value="待签发">待签发</label>
+                            <label class="multi-select-option" data-status-option="已签发"><input type="checkbox" name="statusSelect" value="已签发">已签发</label>
+                            <label class="multi-select-option" data-status-option="待推送"><input type="checkbox" name="statusSelect" value="待推送">待推送</label>
+                            <label class="multi-select-option" data-status-option="已推送"><input type="checkbox" name="statusSelect" value="已推送">已推送</label>
+                            <label class="multi-select-option" data-status-option="已完结"><input type="checkbox" name="statusSelect" value="已完结">已完结</label>
+                        </div>
+                    </details>
                 </div>
                 <div class="filter-actions">
                     <button class="btn primary" type="submit">查询</button>
@@ -928,13 +977,6 @@
                     <button class="btn link" type="button" id="expandBtn">展开⌄</button>
                 </div>
             </form>
-
-            <div class="type-filter" aria-label="认证类型">
-                <button class="type-chip active" type="button" data-type="全部类型">全部类型</button>
-                <button class="type-chip" type="button" data-type="初次认证"><span class="dot"></span>初次认证</button>
-                <button class="type-chip" type="button" data-type="监督审核"><span class="dot green"></span>监督审核</button>
-                <button class="type-chip" type="button" data-type="再认证"><span class="dot orange"></span>再认证</button>
-            </div>
 
             <div class="table-panel">
                 <table>
@@ -948,6 +990,7 @@
                             <th>归属部门</th>
                             <th>计划审核时间</th>
                             <th id="materialColumnHeader">材料进度</th>
+                            <th>材料数量</th>
                             <th id="issueColumnHeader">问题整改概览</th>
                             <th>状态</th>
                             <th>操作</th>
@@ -1017,7 +1060,20 @@
                             <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 100%"></div></div><div class="progress-value">48/48</div></div></td>
                             <td><div class="rectify-overview"><span class="rectify-pill warning">待整改 <strong>1</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
                             <td><span class="status cert">认证决定中</span></td>
-                            <td><a class="action-link detail-link" href="归档材料退回-详情-简化布局-v2-顶部统计卡片版.html?taskNo=1100-QS-2026-0005&amp;stage=certificate-decision&amp;mode=rectification" target="_self">退回详情</a></td>
+                            <td><a class="action-link detail-link" href="归档材料退回-详情-简化布局-v2-顶部统计卡片版.html?taskNo=1100-QS-2026-0005&amp;stage=certificate-decision&amp;mode=rectification&amp;customer=%E5%AE%89%E6%8D%B7%E9%80%9A%E8%BF%90%E8%BE%93%E4%BB%93%E5%82%A8%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8" target="_self">详情</a></td>
+                        </tr>
+                        <tr data-status="认证决定中" data-workflow-status="不予通过" data-received="true" data-rectify="0" data-review-return="0" data-material-count="48" data-issues-total="2" data-issues-resolved="0" data-type="再认证" data-task="1100-QE-2026-0013" data-customer="华诚新型材料有限公司">
+                            <td><a class="task-link" href="#">1100-QE-2026-0013</a></td>
+                            <td>华诚新型材料有限公司</td>
+                            <td><div class="system-badges" title="QMS / EMS" aria-label="QMS / EMS"><span class="sys q">QMS</span><span class="sys e">EMS</span></div></td>
+                            <td><div class="type-tags"><span class="tag purple">再认证</span></div></td>
+                            <td>中国检验认证集团北京有限公司</td>
+                            <td>检验认证部</td>
+                            <td>2026-03-30</td>
+                            <td><div class="progress"><div class="progress-track"><div class="progress-bar" style="width: 100%"></div></div><div class="progress-value">48/48</div></div></td>
+                            <td><div class="rectify-overview"><span class="rectify-pill">待整改 <strong>0</strong></span><span class="rectify-pill">复核退回 <strong>0</strong></span></div></td>
+                            <td><span class="status-stack"><span class="status cert">认证决定中</span><span class="receive-badge rejected">不予通过</span></span></td>
+                            <td><a class="action-link detail-link" href="归档材料退回-详情-简化布局-v2-顶部统计卡片版.html?taskNo=1100-QE-2026-0013&amp;stage=certificate-decision&amp;mode=rectification&amp;rectificationState=review-rejected&amp;customer=%E5%8D%8E%E8%AF%9A%E6%96%B0%E5%9E%8B%E6%9D%90%E6%96%99%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8" target="_self">详情</a></td>
                         </tr>
                         <tr data-status="初次评定中" data-received="true" data-rectify="4" data-review-return="0" data-type="再认证" data-task="1100-Q-2026-0006" data-customer="盛达新材化工有限公司">
                             <td><a class="task-link" href="#">1100-Q-2026-0006</a></td>
@@ -1159,11 +1215,12 @@
     <script>
         const rows = Array.from(document.querySelectorAll("#taskRows tr"));
         const tabs = Array.from(document.querySelectorAll(".tab"));
-        const chips = Array.from(document.querySelectorAll(".type-chip"));
         const form = document.querySelector("#searchForm");
         const taskNo = document.querySelector("#taskNo");
         const customer = document.querySelector("#customer");
-        const statusSelect = document.querySelector("#statusSelect");
+        const statusFilter = document.querySelector("#statusFilter");
+        const statusSelectText = document.querySelector("#statusSelectText");
+        const statusOptions = Array.from(document.querySelectorAll("[data-status-option]"));
         const toast = document.querySelector("#toast");
         const confirmModal = document.querySelector("#confirmModal");
         const confirmTitle = document.querySelector("#confirmTitle");
@@ -1174,9 +1231,18 @@
         const materialColumnHeader = document.querySelector("#materialColumnHeader");
         const issueColumnHeader = document.querySelector("#issueColumnHeader");
         let activeStatus = "全部";
-        let activeType = "全部类型";
         let pendingConfirm = null;
-        const completedStatuses = ["证书已签发", "证书不予签发", "监督审核通知已推送"];
+        const selectedStatuses = new Set();
+        const tabStatusOptions = {
+            "全部": ["草稿", "初次评定中", "二次评定中", "待认证决定", "不予通过", "待补充材料", "待签发", "已签发", "待推送", "已推送", "已完结"],
+            "草稿": ["草稿"],
+            "初次评定中": ["初次评定中"],
+            "二次评定中": ["二次评定中"],
+            "认证决定中": ["待认证决定", "不予通过", "待补充材料"],
+            "证书待签发": ["待签发", "已签发"],
+            "待推送": ["待推送", "已推送"],
+            "已完结": ["已完结"]
+        };
         const lateStageTabs = new Set(["认证决定中", "证书待签发", "待推送", "已完结"]);
         const issueColumnHiddenTabs = new Set(["证书待签发", "待推送"]);
         const CERT_DECISION_FLOW_PREFIX = "certificate-decision-rectification:";
@@ -1193,8 +1259,12 @@
                 row.dataset.reviewReturn = String(reviewReturned);
                 row.dataset.issuesTotal = String(flow.issues.length);
                 row.dataset.issuesResolved = String(Math.max(0, flow.issues.length - pending - awaitingReview));
-                row.dataset.workflowStatus = awaitingReview > 0 ? "待复核" : flow.taskStatus || "待补充材料";
-                const overview = row.cells[8];
+                row.dataset.workflowStatus = pending > 0
+                    ? flow.taskStatus || "待补充材料"
+                    : awaitingReview > 0
+                        ? "待复核"
+                        : flow.taskStatus || "待补充材料";
+                const overview = row.cells[9];
                 overview.innerHTML = `<div class="rectify-overview"><span class="rectify-pill ${pending ? 'warning' : ''}">待整改 <strong>${pending}</strong></span><span class="rectify-pill ${reviewReturned ? 'danger' : ''}">复核退回 <strong>${reviewReturned}</strong></span></div>`;
             } catch (error) {
                 console.warn("无法同步认证决定整改任务", error);
@@ -1208,26 +1278,63 @@
             showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
         }
 
+        function getRowFilterStatus(row) {
+            const status = row.dataset.status;
+            if (status === "认证决定中") {
+                if (row.dataset.workflowStatus === "待补充材料" || row.dataset.workflowStatus === "待复核") return "待补充材料";
+                if (row.dataset.workflowStatus === "不予通过") return "不予通过";
+                return "待认证决定";
+            }
+            return {
+                "证书待签发": "待签发",
+                "证书已签发": "已签发",
+                "证书不予签发": "不予通过",
+                "监督审核通知已推送": "已推送"
+            }[status] || status;
+        }
+
+        function updateStatusSummary() {
+            const selected = Array.from(selectedStatuses);
+            statusSelectText.textContent = selected.length ? selected.join("、") : "全部";
+            statusSelectText.title = selected.length ? selected.join("、") : "全部";
+        }
+
+        function updateStatusOptions() {
+            const allowedStatuses = new Set(tabStatusOptions[activeStatus] || []);
+            statusOptions.forEach((option) => {
+                const value = option.dataset.statusOption;
+                const checkbox = option.querySelector("input");
+                const isAllowed = allowedStatuses.has(value);
+                option.hidden = !isAllowed;
+                if (!isAllowed && checkbox.checked) {
+                    checkbox.checked = false;
+                    selectedStatuses.delete(value);
+                }
+            });
+            updateStatusSummary();
+        }
+
+        function clearSelectedStatuses() {
+            selectedStatuses.clear();
+            statusOptions.forEach((option) => {
+                option.querySelector("input").checked = false;
+            });
+            updateStatusSummary();
+        }
+
         function rowMatches(row) {
-            const rowStatus = row.dataset.status;
-            const rowType = row.dataset.type;
+            const rowStatus = getRowFilterStatus(row);
             const rowTask = row.dataset.task.toLowerCase();
-            const rowCustomer = row.dataset.customer;
+            const rowCustomer = row.dataset.customer.toLowerCase();
             const keyword = taskNo.value.trim().toLowerCase();
-            const selectedCustomer = customer.value;
-            const selectedStatus = statusSelect.value;
+            const customerKeyword = customer.value.trim().toLowerCase();
 
-            const statusOk = activeStatus === "全部"
-                || rowStatus === activeStatus
-                || (activeStatus === "已完结" && completedStatuses.includes(rowStatus));
-            const typeOk = activeType === "全部类型" || rowType.includes(activeType);
+            const statusOk = (tabStatusOptions[activeStatus] || []).includes(rowStatus);
             const taskOk = !keyword || rowTask.includes(keyword);
-            const customerOk = !selectedCustomer || rowCustomer === selectedCustomer;
-            const selectStatusOk = !selectedStatus
-                || rowStatus === selectedStatus
-                || (selectedStatus === "已完结" && completedStatuses.includes(rowStatus));
+            const customerOk = !customerKeyword || rowCustomer.includes(customerKeyword);
+            const selectStatusOk = selectedStatuses.size === 0 || selectedStatuses.has(rowStatus);
 
-            return statusOk && typeOk && taskOk && customerOk && selectStatusOk;
+            return statusOk && taskOk && customerOk && selectStatusOk;
         }
 
         function applyFilters() {
@@ -1244,29 +1351,30 @@
         function updateStageColumns() {
             const useLateStageColumns = lateStageTabs.has(activeStatus);
             const hideIssueColumn = issueColumnHiddenTabs.has(activeStatus);
-            materialColumnHeader.textContent = useLateStageColumns ? "材料数量" : "材料进度";
+            materialColumnHeader.textContent = "材料进度";
             issueColumnHeader.textContent = "问题整改概览";
             issueColumnHeader.hidden = hideIssueColumn;
 
             rows.forEach((row) => {
                 const materialCell = row.cells[7];
-                const issueCell = row.cells[8];
+                const materialQuantityCell = row.cells[8];
+                const issueCell = row.cells[9];
                 issueCell.hidden = hideIssueColumn;
 
+                materialCell.innerHTML = row.dataset.originalMaterialHtml;
+                const fallbackMaterialCount = Number.parseInt(row.dataset.originalMaterialHtml.match(/progress-value[^>]*>(\d+)/)?.[1] || "0", 10);
+                const materialCount = Number(row.dataset.materialCount || fallbackMaterialCount);
+                materialQuantityCell.innerHTML = `<div class="material-count"><strong>${materialCount}</strong><span>份</span></div>`;
+
                 if (!useLateStageColumns) {
-                    materialCell.innerHTML = row.dataset.originalMaterialHtml;
                     issueCell.innerHTML = row.dataset.originalIssueHtml;
                     return;
                 }
 
-                const fallbackMaterialCount = Number.parseInt(row.dataset.originalMaterialHtml.match(/progress-value[^>]*>(\d+)/)?.[1] || "0", 10);
-                const materialCount = Number(row.dataset.materialCount || fallbackMaterialCount);
                 const fallbackPending = Math.max(0, Number(row.dataset.rectify || 0));
                 const issuesTotal = Math.max(0, Number(row.dataset.issuesTotal ?? fallbackPending));
                 const issuesResolved = Math.min(issuesTotal, Math.max(0, Number(row.dataset.issuesResolved || 0)));
                 const pendingIssues = issuesTotal - issuesResolved;
-
-                materialCell.innerHTML = `<div class="material-count"><strong>${materialCount}</strong><span>份</span></div>`;
 
                 if (hideIssueColumn) return;
 
@@ -1282,7 +1390,9 @@
         function activateStatusTab(status) {
             activeStatus = status;
             tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === status));
-            statusSelect.value = "";
+            clearSelectedStatuses();
+            updateStatusOptions();
+            statusFilter.open = false;
             applyFilters();
         }
 
@@ -1303,13 +1413,17 @@
         function getDetailUrl(row) {
             const hasRectifyWork = Number(row.dataset.rectify || 0) > 0 || Number(row.dataset.reviewReturn || 0) > 0;
             const isCertificateDecisionRectification = row.dataset.status === "认证决定中"
-                && (hasRectifyWork || ["待补充材料", "待复核"].includes(row.dataset.workflowStatus));
+                && (hasRectifyWork || ["待补充材料", "待复核", "不予通过"].includes(row.dataset.workflowStatus));
             if (isCertificateDecisionRectification) {
                 const params = new URLSearchParams({
                     taskNo: row.dataset.task,
                     stage: "certificate-decision",
-                    mode: "rectification"
+                    mode: "rectification",
+                    customer: row.dataset.customer
                 });
+                if (row.dataset.workflowStatus === "不予通过") {
+                    params.set("rectificationState", "review-rejected");
+                }
                 return `${returnedDetailUrl}?${params.toString()}`;
             }
             return hasRectifyWork ? returnedDetailUrl : archiveDetailUrl;
@@ -1317,12 +1431,18 @@
 
         function renderStatusCell(row) {
             const status = row.dataset.status;
-            const statusCell = row.cells[9];
+            const statusCell = row.cells[10];
             const statusHtml = `<span class="status ${statusClass(status)}">${status}</span>`;
             const workflowStatus = row.dataset.workflowStatus || "";
 
             if (workflowStatus) {
-                const workflowClass = workflowStatus === "待复核" ? "review" : workflowStatus === "待评定" ? "received" : "pending";
+                const workflowClass = workflowStatus === "待复核"
+                    ? "review"
+                    : workflowStatus === "待评定"
+                        ? "received"
+                        : workflowStatus === "不予通过"
+                            ? "rejected"
+                            : "pending";
                 statusCell.innerHTML = `<span class="status-stack">${statusHtml}<span class="receive-badge ${workflowClass}">${workflowStatus}</span></span>`;
                 return;
             }
@@ -1332,24 +1452,15 @@
                 return;
             }
 
-            const received = row.dataset.received === "true";
-            const receiveText = received ? "已接收" : "未接收";
-            const receiveClass = received ? "received" : "pending";
-            statusCell.innerHTML = `
-                <span class="status-stack">
-                    ${statusHtml}
-                    <span class="receive-badge ${receiveClass}">${receiveText}</span>
-                </span>
-            `;
+            statusCell.innerHTML = statusHtml;
         }
 
         function renderActionCell(row) {
-            const actionCell = row.cells[10];
+            const actionCell = row.cells[11];
             const detailUrl = getDetailUrl(row);
             const status = row.dataset.status;
             const received = row.dataset.received === "true";
-            const detailText = status === "认证决定中" && ["待补充材料", "待复核"].includes(row.dataset.workflowStatus) ? "退回详情" : "详情";
-            const detailLink = `<a class="action-link detail-link" href="${detailUrl}" target="_self">${detailText}</a>`;
+            const detailLink = `<a class="action-link detail-link" href="${detailUrl}" target="_self">详情</a>`;
 
             if (status === "草稿") {
                 actionCell.innerHTML = `<a class="action-link submit-link" href="#">提交</a>${detailLink}`;
@@ -1410,28 +1521,46 @@
             });
         });
 
-        chips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                chips.forEach((item) => item.classList.remove("active"));
-                chip.classList.add("active");
-                activeType = chip.dataset.type;
+        statusOptions.forEach((option) => {
+            option.querySelector("input").addEventListener("change", (event) => {
+                if (event.target.checked) {
+                    selectedStatuses.add(event.target.value);
+                } else {
+                    selectedStatuses.delete(event.target.value);
+                }
+                updateStatusSummary();
                 applyFilters();
             });
         });
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
+            statusFilter.open = false;
             applyFilters();
         });
 
         form.addEventListener("reset", () => {
             window.setTimeout(() => {
                 activeStatus = "全部";
-                activeType = "全部类型";
                 tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === "全部"));
-                chips.forEach((item) => item.classList.toggle("active", item.dataset.type === "全部类型"));
+                clearSelectedStatuses();
+                updateStatusOptions();
+                statusFilter.open = false;
                 applyFilters();
             });
+        });
+
+        document.addEventListener("click", (event) => {
+            if (statusFilter.open && !statusFilter.contains(event.target)) {
+                statusFilter.open = false;
+            }
+        });
+
+        statusFilter.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                statusFilter.open = false;
+                document.querySelector("#statusSelect").focus();
+            }
         });
 
         document.querySelector("#expandBtn").addEventListener("click", () => {
@@ -1455,11 +1584,17 @@
         const archiveDetailUrl = "归档材料提交-详情-10体系重构版.html";
         const returnedDetailUrl = "归档材料退回-详情-简化布局-v2-顶部统计卡片版.html";
 
+        rows.forEach((row) => {
+            const materialQuantityCell = document.createElement("td");
+            materialQuantityCell.className = "material-quantity";
+            row.insertBefore(materialQuantityCell, row.cells[8]);
+        });
         rows.forEach(renderRow);
         rows.forEach((row) => {
             row.dataset.originalMaterialHtml = row.cells[7].innerHTML;
-            row.dataset.originalIssueHtml = row.cells[8].innerHTML;
+            row.dataset.originalIssueHtml = row.cells[9].innerHTML;
         });
+        updateStatusOptions();
         updateStageColumns();
 
         document.querySelector("#taskRows").addEventListener("click", (event) => {

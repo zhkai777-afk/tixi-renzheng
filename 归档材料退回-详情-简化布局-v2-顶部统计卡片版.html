@@ -1393,6 +1393,8 @@
         .item-system-tags {
             gap: 4px;
             margin-top: 0;
+            min-width: 0;
+            flex: 1;
         }
 
         .item-system-tag,
@@ -1419,6 +1421,21 @@
         .item-system-tag.F,
         .sys-tag-inline.F { background: #F1EDFF; border-color: #D6CAFF; color: #6339D8; }
 
+        .common-applicable-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 18px;
+            line-height: 16px;
+            padding: 0 7px;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            background: #f2f3f5;
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
         .item-system-tag.dimmed {
             opacity: 1;
             filter: none;
@@ -1432,11 +1449,12 @@
             color: rgba(0,0,0,0.5);
         }
 
-        .item-footer {
+        .item-detail-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
+            margin-top: 7px;
             font-size: 12px;
             color: rgba(0,0,0,0.5);
         }
@@ -2292,7 +2310,6 @@
             <!-- 从归档材料提交页面复制的完整筛选区域 - 开始 -->
             <div class="sidebar-header">
                 <div class="sidebar-title">退回材料清单</div>
-                <div class="sidebar-stats" id="returnStats">MSF11-20 共 48 项 | 4 项有问题 | 6 个待整改问题</div>
                 <!-- 认证领域筛选 -->
                 <div class="filter-section">
                     <div class="filter-label">
@@ -2373,7 +2390,7 @@
                                 <tr>
                                     <th style="width: 60px;">序号</th>
                                     <th style="width: 200px;">所属材料</th>
-                                    <th style="width: 100px;">涉及体系</th>
+                                    <th style="width: 100px;">适用体系</th>
                                     <th style="width: 100px;">问题类型</th>
                                     <th class="issue-desc-col">问题描述</th>
                                     <th class="issue-requirement-col">要求整改材料/附件</th>
@@ -2414,7 +2431,6 @@
                         <thead>
                             <tr>
                                 <th>具体文件名称</th>
-                                <th style="width: 150px;">适用体系</th>
                                 <th style="width: 140px;">操作</th>
                             </tr>
                         </thead>
@@ -2629,15 +2645,67 @@
     const RETURN_PAGE_PARAMS = new URLSearchParams(window.location.search);
     const RETURN_TASK_NO = RETURN_PAGE_PARAMS.get('taskNo') || 'TASK-2026-001';
     const RETURN_SOURCE_STAGE = RETURN_PAGE_PARAMS.get('stage') || '';
+    const RETURN_CUSTOMER = RETURN_PAGE_PARAMS.get('customer') || '安捷通运输仓储有限公司';
+    const RETURN_RECTIFICATION_STATE = RETURN_PAGE_PARAMS.get('rectificationState') || '';
     const IS_CERTIFICATE_DECISION_RETURN = RETURN_SOURCE_STAGE === 'certificate-decision';
+    const IS_REVIEW_REJECTED_RETURN = RETURN_RECTIFICATION_STATE === 'review-rejected';
     const ACTIVE_REVIEW_FLOW_STORAGE_KEY = IS_CERTIFICATE_DECISION_RETURN
         ? `certificate-decision-rectification:${RETURN_TASK_NO}`
         : REVIEW_FLOW_STORAGE_KEY;
 
     function createCertificateDecisionReturnPayload() {
+        if (IS_REVIEW_REJECTED_RETURN) {
+            return {
+                taskNo: RETURN_TASK_NO,
+                customer: RETURN_CUSTOMER,
+                sourceStage: 'certificate-decision',
+                stage: 'certificate_decision_returned',
+                taskStatus: '不予通过',
+                updatedAt: '2026-04-03 09:40:00',
+                issues: [{
+                    id: 'CERT-REVIEW-ISSUE-001',
+                    type: 'supplement_material',
+                    typeName: '补充材料',
+                    materialId: 'MSF11-20-025',
+                    materialName: '法规符合性证明文件（适用时）',
+                    systems: ['Q', 'E'],
+                    desc: '法规符合性证明材料的整改版本仍缺少有效期页，无法确认文件在本次认证周期内持续有效。',
+                    attachment: '请重新上传包含完整有效期、发证机关及许可范围的证明文件。',
+                    deadline: '2026-04-06 17:00',
+                    status: 'review_rejected',
+                    createdBy: '认证决定员-李敏',
+                    createdAt: '2026-04-02 10:20:00',
+                    rectificationDesc: '已补充法规符合性证明扫描件。',
+                    rectificationAttachment: '法规符合性证明_整改版.pdf',
+                    reviewComment: '整改文件缺少有效期页，请补齐完整文件后重新提交。'
+                }, {
+                    id: 'CERT-REVIEW-ISSUE-002',
+                    type: 'material_issue',
+                    typeName: '材料问题',
+                    materialId: 'MSF11-20-046',
+                    materialName: '审核报告',
+                    systems: ['Q', 'E'],
+                    desc: '审核报告整改版本中的审核日期与审核计划不一致，且审核组长签字页仍不完整。',
+                    attachment: '请修正审核日期并补充完整签字页后重新提交审核报告。',
+                    deadline: '2026-04-06 17:00',
+                    status: 'review_rejected',
+                    createdBy: '认证决定员-李敏',
+                    createdAt: '2026-04-02 10:25:00',
+                    rectificationDesc: '已修订审核报告并补充签字页。',
+                    rectificationAttachment: '审核报告_整改版.pdf',
+                    reviewComment: '审核日期仍与审核计划不一致，签字页缺少审核组长签字。'
+                }],
+                history: [{
+                    node: '整改复核退回',
+                    operator: '认证决定员-李敏',
+                    time: '2026-04-03 09:40:00',
+                    detail: '2个整改问题复核未通过，任务退回项目管理人员重新整改并提交。'
+                }]
+            };
+        }
         return {
             taskNo: RETURN_TASK_NO,
-            customer: '安捷通运输仓储有限公司',
+            customer: RETURN_CUSTOMER,
             sourceStage: 'certificate-decision',
             stage: 'certificate_decision_returned',
             taskStatus: '待补充材料',
@@ -2667,16 +2735,25 @@
         if (!IS_CERTIFICATE_DECISION_RETURN) return;
         const payload = getSharedReviewPayload() || createCertificateDecisionReturnPayload();
         const pending = (payload.issues || []).filter(issue => ['returned_to_project', 'review_rejected'].includes(issue.status)).length;
+        const reviewRejected = (payload.issues || []).filter(issue => issue.status === 'review_rejected').length;
         const awaitingReview = (payload.issues || []).filter(issue => issue.status === 'rectification_submitted').length;
         document.querySelector('.project-title').textContent = '认证决定退回处理';
         document.querySelector('.project-task').textContent = `任务号：${RETURN_TASK_NO}`;
-        document.querySelector('.header-meta').textContent = payload.customer || '安捷通运输仓储有限公司';
-        document.getElementById('currentMaterialName').textContent = awaitingReview ? '当前状态：待复核' : '当前状态：待补充材料';
-        document.getElementById('projectTip').textContent = pending
+        document.querySelector('.header-meta').textContent = payload.customer || RETURN_CUSTOMER;
+        document.getElementById('currentMaterialName').textContent = reviewRejected
+            ? '当前状态：整改驳回'
+            : awaitingReview ? '当前状态：待复核' : '当前状态：待补充材料';
+        document.getElementById('projectTip').textContent = reviewRejected
+            ? `${reviewRejected} 个整改问题复核未通过，请根据驳回意见重新整改并提交。`
+            : pending
             ? `认证决定人员已登记 ${pending} 个补充材料问题，请逐条完成整改并提交反馈。`
             : `全部补充材料问题已提交整改，其中 ${awaitingReview} 个问题等待认证决定人员复核。`;
-        document.querySelector('.alert-banner strong').textContent = awaitingReview ? '整改已提交' : '认证决定退回待整改';
-        document.querySelector('.alert-meta').textContent = awaitingReview
+        document.querySelector('.alert-banner strong').textContent = reviewRejected
+            ? '整改问题已驳回'
+            : awaitingReview ? '整改已提交' : '认证决定退回待整改';
+        document.querySelector('.alert-meta').textContent = reviewRejected
+            ? '上次整改未通过复核，请依据驳回意见重新补充整改说明和材料后提交。'
+            : awaitingReview
             ? '整改说明和附件已提交，请返回证书决定列表的“待补充材料”页签进行复核。'
             : '该任务由认证决定人员退回，请按登记的问题描述和附件要求完成补充。';
         document.querySelector('.sidebar-title').textContent = '认证决定退回材料清单';
@@ -2941,10 +3018,18 @@
                 });
             }
         });
+        const hasReviewRejected = issues.some(issue => issue.status === 'review_rejected');
+        const hasReturnedToProject = issues.some(issue => issue.status === 'returned_to_project');
         const updatedPayload = {
             ...payload,
             stage: issues.some(issue => issue.status === 'rectification_submitted') ? 'rectification_submitted' : 'coordinator_returned',
-            taskStatus: IS_CERTIFICATE_DECISION_RETURN ? '待补充材料' : payload.taskStatus,
+            taskStatus: IS_CERTIFICATE_DECISION_RETURN
+                ? hasReviewRejected
+                    ? '不予通过'
+                    : hasReturnedToProject
+                        ? '待补充材料'
+                        : '待复核'
+                : payload.taskStatus,
             updatedAt: formatHistoryTime(),
             issues,
             history
@@ -3033,6 +3118,21 @@
         }[char]));
     }
 
+    function hasAllProjectSystems(systems) {
+        const normalized = Array.from(new Set((systems || []).filter(system => PROJECT_SYSTEMS.includes(system))));
+        return PROJECT_SYSTEMS.every(system => normalized.includes(system));
+    }
+
+    function renderApplicableSystemTags(systems, tagClass = 'sys-tag-inline') {
+        const normalized = Array.from(new Set((systems || []).filter(system => PROJECT_SYSTEMS.includes(system))));
+        if (hasAllProjectSystems(normalized)) {
+            return '<span class="common-applicable-tag">通用</span>';
+        }
+        return normalized.map(system =>
+            `<span class="${tagClass} ${escapeHtml(system)}" data-sys="${escapeHtml(system)}">${escapeHtml(system)}</span>`
+        ).join('');
+    }
+
     function renderMaterialNav() {
         const nav = document.querySelector('.material-nav');
         if (!nav) return;
@@ -3058,7 +3158,7 @@
                         <span class="item-status-badge ${globalStats.pending > 0 ? 'error' : (globalStats.awaitingReview > 0 ? 'warning' : 'success')}">${globalStats.pending > 0 ? `${globalStats.pending}个待整改` : (globalStats.awaitingReview > 0 ? `${globalStats.awaitingReview}个待复核` : '已处理')}</span>
                     </div>
                     <div class="item-system-tags">
-                        ${PROJECT_SYSTEMS.map(sys => `<span class="item-system-tag ${sys}" data-sys="${sys}">${sys}</span>`).join('')}
+                        ${renderApplicableSystemTags(PROJECT_SYSTEMS, 'item-system-tag')}
                     </div>
                     <div class="material-summary-meta">
                         <span>${MATERIAL_CATALOG.length}项材料 · ${Object.keys(ISSUE_MATERIALS).length}项有退回问题</span>
@@ -3096,11 +3196,11 @@
         const detailId = issue ? issue.detailId : item.id;
         const isActive = detailId === currentMaterialType;
         const fileCount = getMaterialFileCount(item);
-        const systemsHtml = item.category === '通用材料'
-            ? ''
-            : item.systems.map(sys => `<span class="item-system-tag ${sys}" data-sys="${sys}">${sys}</span>`).join('');
+        const systemsHtml = renderApplicableSystemTags(item.systems, 'item-system-tag');
         const status = getMaterialIssueStatus(detailId);
-        const statusHtml = `<span class="item-status-badge ${status.className}">${status.label}</span>`;
+        const statusHtml = status.total > 0
+            ? `<span class="item-status-badge ${status.className}">${status.label}</span>`
+            : '';
         const classes = ['material-item', issue ? 'returned has-issue' : 'passed', isActive ? 'active' : ''].filter(Boolean).join(' ');
 
         return `
@@ -3119,9 +3219,8 @@
                     <div class="item-name">${escapeHtml(item.name)}</div>
                     ${statusHtml}
                 </div>
-                ${systemsHtml ? `<div class="item-system-tags">${systemsHtml}</div>` : ''}
-                <div class="item-footer">
-                    <span>${escapeHtml(item.category)}</span>
+                <div class="item-detail-row">
+                    ${systemsHtml ? `<div class="item-system-tags">${systemsHtml}</div>` : '<span></span>'}
                     <span class="file-count-pill">${fileCount > 0 ? `${fileCount}个文件` : '未上传'}</span>
                 </div>
             </div>
@@ -3308,6 +3407,10 @@
             item.setAttribute('data-pending-count', status.pending);
             item.setAttribute('data-handled-count', status.handled);
             const badge = item.querySelector('.item-status-badge');
+            if (detailId !== 'all' && status.total === 0) {
+                badge?.remove();
+                return;
+            }
             if (badge) {
                 badge.className = `item-status-badge ${status.className}`;
                 badge.textContent = status.label;
@@ -3547,16 +3650,14 @@
                 typeClass = 'info';
             }
 
-            // 涉及领域标签
-            const systemsHtml = problem.systems.split(',').map(sys => 
-                `<span class="sys-tag-inline ${escapeHtml(sys.trim())}">${escapeHtml(sys.trim())}</span>`
-            ).join('');
-
             // 状态管理：默认待整改；整改完成或无需解决后进入待复核；复核结果由评定端同步。
             const status = normalizeProblemStatus(problem.status);
             const skipReason = problem.skipReason || '';
             const activeMaterialName = document.querySelector('.material-item.active')?.getAttribute('data-name') || document.getElementById('current-material-title')?.textContent || '归档材料';
             const materialName = problem.materialName || activeMaterialName;
+            const materialSystems = MATERIAL_CATALOG.find(item => item.name === materialName)?.systems
+                || String(problem.systems || '').split(',').map(system => system.trim()).filter(Boolean);
+            const systemsHtml = renderApplicableSystemTags(materialSystems);
             const requirementText = problem.requirement || problem.requiredAttachment || problem.reviewNote || (problem.type === '补充材料'
                 ? '按退回要求补充对应材料或附件。'
                 : problem.type === '补充审核'
@@ -3837,13 +3938,11 @@
         const pendingCountEl = document.getElementById('pending-count');
         const pendingProgressEl = document.getElementById('pending-progress');
         const timelinePendingEl = document.getElementById('timeline-pending');
-        const returnStatsEl = document.getElementById('returnStats');
         const unreturnedMaterialCount = document.getElementById('unreturnedMaterialCount');
 
         if (pendingCountEl) pendingCountEl.textContent = `${stats.handled}/${stats.total}`;
         if (pendingProgressEl) pendingProgressEl.style.width = stats.total > 0 ? `${(stats.handled / stats.total) * 100}%` : '0%';
         if (timelinePendingEl) timelinePendingEl.textContent = stats.pending > 0 ? `待整改：${stats.pending}个问题` : `待复核：${stats.awaitingReview}个问题`;
-        if (returnStatsEl) returnStatsEl.textContent = `MSF11-20 共 48 项 | ${Object.keys(ISSUE_MATERIALS).length} 项有问题 | ${stats.pending} 个待整改问题 | ${stats.awaitingReview} 个待复核问题`;
         if (unreturnedMaterialCount) unreturnedMaterialCount.textContent = `${48 - Object.keys(ISSUE_MATERIALS).length}项`;
         const projectTip = document.getElementById('projectTip');
         if (projectTip) {
@@ -3890,17 +3989,12 @@
         }
         
         if (files.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: rgba(0,0,0,0.4); padding: 32px;">该材料项暂无具体文件，请通过本地上传或资料库选择补充。</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: rgba(0,0,0,0.4); padding: 32px;">该材料项暂无具体文件，请通过本地上传或资料库选择补充。</td></tr>';
             return;
         }
         
         files.forEach(file => {
             const tr = document.createElement('tr');
-            
-            // 覆盖体系标签
-            const systemsHtml = Array.from(new Set(file.systems)).map(sys => 
-                `<span class="sys-tag-inline ${sys}">${sys}</span>`
-            ).join('');
             
             // 文件图标
             const fileIcon = file.type === 'PDF' ? 
@@ -3913,11 +4007,10 @@
                         ${fileIcon}
                         <div>
                             <div>${file.name}</div>
-                            <div class="file-sub-meta">所属材料：${escapeHtml(file.materialName || document.getElementById('current-material-title').textContent)} | ${file.stage} | ${file.uploadDate} | ${file.size}</div>
+                            <div class="file-sub-meta">初次认证 | 上传时间：${escapeHtml(file.uploadDate)}</div>
                         </div>
                     </div>
                 </td>
-                <td><div class="sys-tags-inline">${systemsHtml}</div></td>
                 <td>
                     <div class="action-btns">
                         <button class="btn-mini btn-mini-outline" onclick="previewFile('${file.id}')">

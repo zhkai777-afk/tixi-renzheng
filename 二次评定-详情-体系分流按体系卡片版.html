@@ -917,20 +917,25 @@
             align-items: flex-start;
         }
 
-        .issue-more-wrap { position: relative; }
+        .issue-more-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .issue-more-wrap.open {
+            flex: 1 0 100%;
+            width: 100%;
+        }
 
         .issue-more-menu {
-            position: absolute;
-            top: calc(100% + 6px);
-            right: 0;
-            z-index: 30;
             display: none;
-            min-width: 128px;
+            width: 100%;
+            margin-top: 6px;
             padding: 6px;
             border: 1px solid #dfe7f2;
             border-radius: 6px;
             background: #fff;
-            box-shadow: 0 8px 22px rgba(15, 23, 42, .14);
         }
 
         .issue-more-wrap.open .issue-more-menu {
@@ -2205,6 +2210,92 @@
             gap: 14px;
         }
 
+        .modal-assigned-section {
+            border: 1px solid var(--ui-border);
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .modal-assigned-header {
+            min-height: 42px;
+            padding: 0 14px;
+            border-bottom: 1px solid var(--ui-border-soft);
+            background: #F8FAFC;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modal-assigned-title {
+            color: #0F172A;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .modal-assigned-count {
+            color: #64748B;
+            font-size: 12px;
+        }
+
+        .modal-assigned-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .modal-assigned-card {
+            padding: 11px 12px;
+            border: 1px solid var(--ui-border);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .modal-assigned-card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .modal-assigned-name {
+            min-width: 0;
+            color: #0F172A;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .modal-assigned-company {
+            margin-top: 2px;
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .modal-assigned-domains {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .modal-assigned-domain {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .modal-assigned-empty {
+            padding: 20px;
+            color: #64748B;
+            font-size: 13px;
+            text-align: center;
+        }
+
         .coverage-panel {
             width: 100%;
             border: 1px solid var(--ui-border);
@@ -2809,7 +2900,7 @@
         }
 
         .global-stat-card.system-top-card {
-            min-height: 104px;
+            min-height: 88px;
             padding: 10px 12px;
             justify-content: flex-start;
             gap: 7px;
@@ -2981,6 +3072,12 @@
         .content-header {
             min-height: 72px;
             padding: 18px 20px 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .content-header .title-text {
+            margin-bottom: 0;
         }
 
         .content-body {
@@ -3185,23 +3282,21 @@
             gap: 8px;
         }
 
-        .expert-list-toggle {
-            margin-top: 10px;
-            display: inline-flex;
-            background: #fff;
-            border-color: #2563EB;
-            color: #2563EB;
-            font-weight: 600;
-        }
-
-        .expert-list-toggle:hover {
-            background: #EFF6FF;
-            border-color: #2563EB;
-            color: #1D4ED8;
-        }
-
         .expert-list {
-            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .expert-list .expert-card {
+            margin-bottom: 0;
+        }
+
+        .expert-simulation-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 2px;
         }
 
         .decision-actions {
@@ -3564,9 +3659,6 @@
                     全部材料跨体系视图
                     <span class="t-tag tag-primary">协调员视角</span>
                 </div>
-                <div style="font-size: 13px; color: #666; margin-top: 8px;" id="contentSubtitle">
-                    查看所有认证领域的材料评审汇总情况及专家评定意见统计
-                </div>
             </div>
 
             <div class="content-body" id="contentBody">
@@ -3576,7 +3668,7 @@
         <aside class="sidebar-right">
             <div class="sidebar-right-header">
                 <div class="sidebar-right-title">复评控制台</div>
-                <div class="sidebar-right-subtitle">系统根据专家覆盖、有效问题和体系级分流结果自动判断当前可执行动作。</div>
+                <div class="sidebar-right-subtitle">查看已指派的评定专家，并模拟专家提交二次评定结果。</div>
             </div>
             <div class="sidebar-scroll" id="rightConsole"></div>
         </aside>
@@ -3620,7 +3712,7 @@
         </div>
         <div class="modal-footer">
             <button class="t-button btn-outline" onclick="closeExpertModal()">取消</button>
-            <button class="t-button btn-primary" onclick="confirmExpertSelection()">确认指派</button>
+            <button class="t-button btn-primary" id="confirmExpertSelectionBtn" onclick="confirmExpertSelection()">确认指派</button>
         </div>
     </div>
 </div>
@@ -4498,8 +4590,6 @@ let pendingConfirmAction = null;
             全部材料跨体系视图
             <span class="t-tag tag-primary">协调员视角</span>
         `;
-        document.getElementById('contentSubtitle').textContent = '查看所有认证领域的材料评审汇总情况及专家评定意见统计';
-
         const body = document.getElementById('contentBody');
 
         // 统计卡片
@@ -4709,8 +4799,6 @@ let pendingConfirmAction = null;
             ${data.title}
             <span class="t-tag tag-gray" style="font-weight: normal;">${data.tag}</span>
         `;
-        document.getElementById('contentSubtitle').textContent = data.subtitle;
-
         // 获取该材料的问题清单
         const materialIssues = issuesData[materialId] || [];
 
@@ -5228,7 +5316,6 @@ let pendingConfirmAction = null;
     let pendingUndoAction = null;
     let issueModalContext = { materialId: 'all', type: '材料问题' };
     let editingIssueId = null;
-    let expertsExpanded = false;
     let expertReviewStarted = false;
     let expertReviewCompleted = false;
     let taskCompleted = false;
@@ -5236,6 +5323,8 @@ let pendingConfirmAction = null;
     let modalExpertPage = 1;
     let modalExpertSelection = {};
     let modalExpertFilterState = { domain: '', name: '', company: '', codes: '' };
+    let modalAssignedExperts = [];
+    let modalExpertPool = [];
 
     const systemNameMap = {
         Q: '质量管理体系(QMS)',
@@ -5283,8 +5372,8 @@ let pendingConfirmAction = null;
         showToast('任务已完成，当前页面为只读状态。');
     }
 
-    function collectCoverage(extraExperts = []) {
-        const experts = [...assignedExperts, ...extraExperts];
+    function collectCoverage(extraExperts = [], baseExperts = assignedExperts) {
+        const experts = [...baseExperts, ...extraExperts];
         const coveredSystems = new Set();
         const coveredCodesBySystem = {};
         getProjectSystems().forEach(sys => { coveredCodesBySystem[sys] = new Set(); });
@@ -5516,7 +5605,6 @@ let pendingConfirmAction = null;
             const status = getSystemStatus(sys);
             const progress = getSystemProgress(stats);
             const activeClass = currentSystemFilter === sys ? 'active' : '';
-            const blocker = getSystemPassBlocker(sys);
             return `
             <div class="global-stat-card system-top-card ${activeClass}" onclick="selectSystemOverview('${sys}')">
                 <div class="system-card-headline">
@@ -5529,7 +5617,6 @@ let pendingConfirmAction = null;
                     <span>未整改 ${stats.total}</span>
                 </div>
                 <div class="system-progress"><div class="system-progress-bar" style="width:${progress}%;"></div></div>
-                <div class="global-stat-note">${escapeHtml(blocker || '满足复核条件，等待页头统一放行')}</div>
             </div>
         `}).join('');
     }
@@ -5538,9 +5625,6 @@ let pendingConfirmAction = null;
         currentMaterialId = 'all';
         const activeSystemName = currentSystemFilter === 'all' ? '全部体系' : getSystemFullName(currentSystemFilter);
         document.getElementById('contentTitle').innerHTML = `${currentSystemFilter === 'all' ? '全部材料跨体系视图' : escapeHtml(activeSystemName + '材料视图')} <span class="t-tag tag-primary">协调员视角</span>`;
-        document.getElementById('contentSubtitle').textContent = currentSystemFilter === 'all'
-            ? '查看体系覆盖、专家指派、问题整改和材料文件情况'
-            : `当前聚焦 ${activeSystemName}，只展示涉及该体系的问题和文件证据`;
         let tableRowsHtml = '';
         getCatalogMaterialIds().forEach(materialId => {
             const material = materialsData[materialId];
@@ -5550,7 +5634,7 @@ let pendingConfirmAction = null;
                 const systemsHtml = renderTableSystemBadges(file.applicableSystems);
                 tableRowsHtml += `
                     <tr onclick="switchToMaterialDetail('${materialId}', ${fileIndex})" style="cursor: pointer;">
-                        <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.title)}</div></div></td>
+                        <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">审核类型：初次认证 · 上传时间：${escapeHtml(file.uploadTime || '-')}</div></div></td>
                         <td><div class="systems-cell">${systemsHtml}</div></td>
                         <td><button class="t-button btn-outline btn-small" onclick="event.stopPropagation(); previewFile('${escapeHtml(file.name)}')">预览</button></td>
                     </tr>`;
@@ -5692,20 +5776,17 @@ let pendingConfirmAction = null;
         }).join('');
         const title = scopeMaterialId ? '当前材料整改问题清单' : `整改问题清单 ${system !== 'all' ? '(' + system + ')' : '(全部)'}`;
         const toolbarActions = isTaskReadOnly()
-            ? '<button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>'
-            : `<button class="t-button btn-primary btn-small" onclick="openIssueModal('${scopeMaterialId || currentMaterialId}', '材料问题')">登记问题</button>
-                        <button class="t-button btn-outline btn-small" onclick="openHistoryModal()">历史问题记录</button>`;
+            ? ''
+            : `<button class="t-button btn-primary btn-small" onclick="openIssueModal('${scopeMaterialId || currentMaterialId}', '材料问题')">登记问题</button>`;
         return `
             <div class="material-table-container" style="margin-bottom:20px;">
                 <div class="material-table-header issue-toolbar">
                     <div style="display:flex;align-items:center;gap:8px;"><span>${title}</span><span style="font-size:12px;color:#64748B;font-weight:500;">当前有效 ${issues.length} 项</span></div>
-                    <div class="issue-toolbar-actions">
-                        ${toolbarActions}
-                    </div>
+                    ${toolbarActions ? `<div class="issue-toolbar-actions">${toolbarActions}</div>` : ''}
                 </div>
                 <div class="issue-table-scroll">
                     <table class="material-data-table issue-table">
-                        <thead><tr><th style="width:60px;">序号</th><th style="width:180px;">所属材料</th><th style="width:104px;">涉及体系</th><th style="width:132px;">问题类型</th><th style="width:260px;">原问题描述</th><th style="width:220px;">要求整改材料/附件</th><th style="width:240px;">整改说明/整改材料</th><th class="issue-status-col">复核状态</th><th class="issue-action-col">操作</th></tr></thead>
+                        <thead><tr><th style="width:60px;">序号</th><th style="width:180px;">所属材料</th><th style="width:104px;">适用体系</th><th style="width:132px;">问题类型</th><th style="width:260px;">原问题描述</th><th style="width:220px;">要求整改材料/附件</th><th style="width:240px;">整改说明/整改材料</th><th class="issue-status-col">状态</th><th class="issue-action-col">操作</th></tr></thead>
                         <tbody>${rowsHtml || '<tr><td colspan="9"><div class="empty-state">暂无有效整改问题。问题关闭后可结合右侧控制台判断是否通过复评。</div></td></tr>'}</tbody>
                     </table>
                 </div>
@@ -5717,13 +5798,10 @@ let pendingConfirmAction = null;
         if (!data) return;
         currentMaterialId = materialId;
         document.getElementById('contentTitle').innerHTML = `${escapeHtml(data.title)} <span class="t-tag tag-gray" style="font-weight: normal;">${escapeHtml(data.tag)}</span>`;
-        const activeSystemName = currentSystemFilter === 'all' ? '全部体系' : getSystemFullName(currentSystemFilter);
-        document.getElementById('contentSubtitle').textContent = `${data.subtitle} · 当前查看：${activeSystemName}`;
         const materialIssues = getActiveIssues().filter(issue => issue.materialId === materialId && (currentSystemFilter === 'all' || issue.systems.includes(currentSystemFilter)));
         const fileRowsHtml = (data.files || []).filter(file => currentSystemFilter === 'all' || file.applicableSystems.includes(currentSystemFilter)).map(file => {
-            const fileExt = file.name.split('.').pop().toUpperCase();
             const systemsHtml = renderTableSystemBadges(file.applicableSystems);
-            return `<tr><td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(data.title)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)} · ${escapeHtml(fileExt)}</div></div></td><td><div class="systems-cell">${systemsHtml}</div></td><td class="actions-cell"><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button></td></tr>`;
+            return `<tr><td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">审核类型：初次认证 · 上传时间：${escapeHtml(file.uploadTime || '-')}</div></div></td><td><div class="systems-cell">${systemsHtml}</div></td><td class="actions-cell"><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button></td></tr>`;
         }).join('');
         document.getElementById('contentBody').innerHTML = `
             ${renderIssuesListView(currentSystemFilter, materialId)}
@@ -6097,22 +6175,17 @@ let pendingConfirmAction = null;
         if (issueSection) issueSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function renderCoveragePanel(extraExperts = []) {
-        const coverage = collectCoverage(extraExperts);
+    function renderCoveragePanel(extraExperts = [], baseExperts = assignedExperts) {
+        const coverage = collectCoverage(extraExperts, baseExperts);
         const systemRows = getProjectSystems().map(sys => {
             const missingCodes = coverage.missingCodes.filter(item => item.sys === sys).map(item => item.code);
             const ok = coverage.coveredSystems.has(sys) && missingCodes.length === 0;
             return `<div class="coverage-row"><span><span class="sys-badge-lg ${sys}">${sys}</span> ${systemNameMap[sys]}</span><span class="coverage-chip ${ok ? 'covered' : 'missing'}">${ok ? '已覆盖' : '缺 ' + (missingCodes.join(',') || '专家')}</span></div>`;
         }).join('');
-        return `<div class="coverage-panel"><div class="coverage-panel-title">覆盖校验</div><div class="coverage-list">${systemRows}</div><div class="task-next-step" style="background:${coverage.complete ? '#ECFDF5' : '#FFF7ED'};border-color:${coverage.complete ? '#A7F3D0' : '#FED7AA'};color:${coverage.complete ? '#047857' : '#C2410C'};">${coverage.complete ? '已覆盖所有体系和专业代码，可以确认指派。' : '当前为部分覆盖，可先确认已选择专家，未覆盖体系后续继续补派。'}</div></div>`;
+        return `<div class="coverage-panel"><div class="coverage-panel-title">覆盖校验</div><div class="coverage-list">${systemRows}</div><div class="task-next-step" style="background:${coverage.complete ? '#ECFDF5' : '#FFF7ED'};border-color:${coverage.complete ? '#A7F3D0' : '#FED7AA'};color:${coverage.complete ? '#047857' : '#C2410C'};">${coverage.complete ? '当前指派方案已覆盖所有体系和专业代码。' : '当前指派方案为部分覆盖，可继续删除或重新选择专家。'}</div></div>`;
     }
 
     function renderExpertList() {
-        updateTaskConsole();
-    }
-
-    function toggleExpertList() {
-        expertsExpanded = !expertsExpanded;
         updateTaskConsole();
     }
 
@@ -6137,13 +6210,36 @@ let pendingConfirmAction = null;
         modalExpertPage = 1;
         modalExpertSelection = {};
         modalExpertFilterState = { domain: '', name: '', company: '', codes: '' };
+        modalAssignedExperts = assignedExperts.map(expert => cloneAssignmentExpert(expert));
+        modalExpertPool = [
+            ...modalExpertData.map(expert => cloneAssignmentExpert(expert)),
+            ...assignedExperts
+                .filter(expert => !modalExpertData.some(candidate => candidate.id === expert.id))
+                .map(expert => cloneAssignmentExpert(expert))
+        ];
         document.getElementById('expertSelectionModal').classList.add('active');
+        const confirmBtn = document.getElementById('confirmExpertSelectionBtn');
+        if (confirmBtn) confirmBtn.textContent = assignedExperts.length ? '确认调整' : '确认指派';
         renderModalExperts();
+    }
+
+    function cloneAssignmentExpert(expert) {
+        return {
+            ...expert,
+            domains: (expert.domains || []).map(domain => ({
+                ...domain,
+                codes: [...(domain.codes || [])]
+            }))
+        };
+    }
+
+    function getModalExpertById(expertId) {
+        return modalExpertPool.find(expert => expert.id === expertId);
     }
 
     function getSelectedModalExperts() {
         return Object.entries(modalExpertSelection).map(([expertId, selectedDomains]) => {
-            const expert = modalExpertData.find(exp => exp.id === expertId);
+            const expert = getModalExpertById(expertId);
             if (!expert) return null;
             const domains = Object.entries(selectedDomains).map(([sys, codes]) => {
                 const sourceDomain = expert.domains.find(domain => domain.sys === sys);
@@ -6159,7 +6255,7 @@ let pendingConfirmAction = null;
         const name = modalExpertFilterState.name.toLowerCase();
         const company = modalExpertFilterState.company.toLowerCase();
         const codesInput = modalExpertFilterState.codes.toLowerCase().trim();
-        return modalExpertData.filter(exp => !assignedExperts.some(item => item.id === exp.id)).filter(exp => {
+        return modalExpertPool.filter(exp => !modalAssignedExperts.some(item => item.id === exp.id)).filter(exp => {
             const expertDomains = exp.domains.map(d => d.sys);
             if (domain && !expertDomains.includes(domain)) return false;
             if (name && !exp.name.toLowerCase().includes(name)) return false;
@@ -6190,6 +6286,52 @@ let pendingConfirmAction = null;
         }).join('')}</div>`;
     }
 
+    function renderModalAssignedExperts() {
+        if (!modalAssignedExperts.length) {
+            return `
+                <section class="modal-assigned-section">
+                    <div class="modal-assigned-header">
+                        <span class="modal-assigned-title">已指派专家</span>
+                        <span class="modal-assigned-count">0 人 · 调整确认后生效</span>
+                    </div>
+                    <div class="modal-assigned-empty">当前未保留已指派专家，可从上方列表重新选择。</div>
+                </section>`;
+        }
+        const cards = modalAssignedExperts.map(expert => {
+            const domains = (expert.domains || []).map(domain => `
+                <span class="modal-assigned-domain">
+                    <span class="sys-badge-lg ${escapeHtml(domain.sys)}">${escapeHtml(domain.sys)}</span>
+                    <span>${escapeHtml((domain.codes || []).join('、') || '无专业代码')}</span>
+                </span>`).join('');
+            return `
+                <div class="modal-assigned-card">
+                    <div class="modal-assigned-card-head">
+                        <div class="modal-assigned-name">
+                            ${escapeHtml(expert.name)}
+                            <div class="modal-assigned-company">${escapeHtml(expert.company || '-')}</div>
+                        </div>
+                        <button type="button" class="t-button btn-danger btn-small" onclick="removeModalAssignedExpert('${escapeHtml(expert.id)}')">删除</button>
+                    </div>
+                    <div class="modal-assigned-domains">${domains}</div>
+                </div>`;
+        }).join('');
+        return `
+            <section class="modal-assigned-section">
+                <div class="modal-assigned-header">
+                    <span class="modal-assigned-title">已指派专家</span>
+                    <span class="modal-assigned-count">${modalAssignedExperts.length} 人 · 调整确认后生效</span>
+                </div>
+                <div class="modal-assigned-list">${cards}</div>
+            </section>`;
+    }
+
+    function removeModalAssignedExpert(expertId) {
+        modalAssignedExperts = modalAssignedExperts.filter(expert => expert.id !== expertId);
+        delete modalExpertSelection[expertId];
+        modalExpertPage = 1;
+        renderModalExperts();
+    }
+
     function renderModalExperts() {
         const filteredExperts = getFilteredModalExperts();
         const totalPages = Math.max(1, Math.ceil(filteredExperts.length / MODAL_EXPERT_PAGE_SIZE));
@@ -6203,7 +6345,7 @@ let pendingConfirmAction = null;
         const pageStart = filteredExperts.length ? start + 1 : 0;
         const pageEnd = Math.min(start + MODAL_EXPERT_PAGE_SIZE, filteredExperts.length);
         const modalBody = document.querySelector('#expertSelectionModal .modal-body');
-        modalBody.innerHTML = `<div class="expert-modal-layout"><div id="expertCoveragePreview">${renderCoveragePanel(getSelectedModalExperts())}</div><div class="expert-filter-bar"><select class="search-input" style="width:150px;padding-left:12px;" id="modalFilterDomain"><option value="">全部领域</option><option value="Q">质量体系(Q)</option><option value="E">环境体系(E)</option><option value="S">职业健康(S)</option><option value="F">食品安全(F)</option></select><input type="text" class="search-input" style="width:150px;padding-left:12px;" placeholder="专家姓名" id="modalFilterName" value="${escapeHtml(modalExpertFilterState.name)}"><input type="text" class="search-input" style="width:200px;padding-left:12px;" placeholder="所属公司/机构" id="modalFilterCompany" value="${escapeHtml(modalExpertFilterState.company)}"><input type="text" class="search-input" style="width:150px;padding-left:12px;" placeholder="专业代码" id="modalFilterCodes" value="${escapeHtml(modalExpertFilterState.codes)}"><div class="expert-filter-actions"><button class="t-button btn-primary btn-small" onclick="applyModalExpertFilters()">查询</button><button class="t-button btn-outline btn-small" onclick="resetModalExpertFilters()">重置</button></div></div><table class="expert-table"><thead><tr><th class="radio-cell">选择</th><th>专家姓名</th><th>所属机构/公司</th><th>覆盖领域及专业代码</th><th>负责项目数</th><th>预计结束日期</th></tr></thead><tbody>${rows || emptyRow}</tbody></table><div class="expert-pagination"><span>共 ${filteredExperts.length} 条，当前 ${pageStart}-${pageEnd} 条，每页 ${MODAL_EXPERT_PAGE_SIZE} 条</span><div class="expert-page-controls"><button class="t-button btn-outline btn-small expert-page-btn" onclick="goModalExpertPage(-1)" ${modalExpertPage <= 1 ? 'disabled' : ''}>上一页</button><span>${modalExpertPage} / ${totalPages}</span><button class="t-button btn-outline btn-small expert-page-btn" onclick="goModalExpertPage(1)" ${modalExpertPage >= totalPages ? 'disabled' : ''}>下一页</button></div></div></div>`;
+        modalBody.innerHTML = `<div class="expert-modal-layout"><div id="expertCoveragePreview">${renderCoveragePanel(getSelectedModalExperts(), modalAssignedExperts)}</div><div class="expert-filter-bar"><select class="search-input" style="width:150px;padding-left:12px;" id="modalFilterDomain"><option value="">全部领域</option><option value="Q">质量体系(Q)</option><option value="E">环境体系(E)</option><option value="S">职业健康(S)</option><option value="F">食品安全(F)</option></select><input type="text" class="search-input" style="width:150px;padding-left:12px;" placeholder="专家姓名" id="modalFilterName" value="${escapeHtml(modalExpertFilterState.name)}"><input type="text" class="search-input" style="width:200px;padding-left:12px;" placeholder="所属公司/机构" id="modalFilterCompany" value="${escapeHtml(modalExpertFilterState.company)}"><input type="text" class="search-input" style="width:150px;padding-left:12px;" placeholder="专业代码" id="modalFilterCodes" value="${escapeHtml(modalExpertFilterState.codes)}"><div class="expert-filter-actions"><button class="t-button btn-primary btn-small" onclick="applyModalExpertFilters()">查询</button><button class="t-button btn-outline btn-small" onclick="resetModalExpertFilters()">重置</button></div></div><table class="expert-table"><thead><tr><th class="radio-cell">选择</th><th>专家姓名</th><th>所属机构/公司</th><th>覆盖领域及专业代码</th><th>负责项目数</th><th>预计结束日期</th></tr></thead><tbody>${rows || emptyRow}</tbody></table><div class="expert-pagination"><span>共 ${filteredExperts.length} 条，当前 ${pageStart}-${pageEnd} 条，每页 ${MODAL_EXPERT_PAGE_SIZE} 条</span><div class="expert-page-controls"><button class="t-button btn-outline btn-small expert-page-btn" onclick="goModalExpertPage(-1)" ${modalExpertPage <= 1 ? 'disabled' : ''}>上一页</button><span>${modalExpertPage} / ${totalPages}</span><button class="t-button btn-outline btn-small expert-page-btn" onclick="goModalExpertPage(1)" ${modalExpertPage >= totalPages ? 'disabled' : ''}>下一页</button></div></div>${renderModalAssignedExperts()}</div>`;
         document.getElementById('modalFilterDomain').value = modalExpertFilterState.domain;
         ['modalFilterDomain', 'modalFilterName', 'modalFilterCompany', 'modalFilterCodes'].forEach(id => {
             document.getElementById(id)?.addEventListener('keydown', event => {
@@ -6254,7 +6396,7 @@ let pendingConfirmAction = null;
     }
 
     function toggleModalExpertSelection(expertId, checked) {
-        const expert = modalExpertData.find(item => item.id === expertId);
+        const expert = getModalExpertById(expertId);
         if (!expert) return;
         if (checked) {
             modalExpertSelection[expertId] = {};
@@ -6271,18 +6413,29 @@ let pendingConfirmAction = null;
         const preview = document.getElementById('expertCoveragePreview');
         if (!preview) return;
         const selected = getSelectedModalExperts();
-        preview.innerHTML = renderCoveragePanel(selected);
-        const confirmBtn = document.querySelector('#expertSelectionModal .modal-footer .btn-primary');
-        if (confirmBtn) confirmBtn.disabled = selected.length === 0;
+        preview.innerHTML = renderCoveragePanel(selected, modalAssignedExperts);
+        const confirmBtn = document.getElementById('confirmExpertSelectionBtn');
+        if (confirmBtn) confirmBtn.disabled = false;
     }
 
     function confirmExpertSelection() {
         if (isTaskReadOnly()) { blockReadOnlyAction(); return; }
         const selected = getSelectedModalExperts();
-        if (selected.length === 0) { showToast('请先选择至少一名专家。'); return; }
         const today = new Date().toISOString().split('T')[0];
-        selected.forEach(expert => assignedExperts.push({ id: expert.id, name: expert.name, company: expert.company, domains: expert.domains, projects: expert.projects, endDate: expert.endDate, deadline: today, assigned: true }));
-        expertReviewStarted = true;
+        assignedExperts = [...modalAssignedExperts, ...selected].map(expert => ({
+            id: expert.id,
+            name: expert.name,
+            company: expert.company,
+            domains: (expert.domains || []).map(domain => ({
+                ...domain,
+                codes: [...(domain.codes || [])]
+            })),
+            projects: expert.projects,
+            endDate: expert.endDate,
+            deadline: expert.deadline || today,
+            assigned: true
+        }));
+        expertReviewStarted = assignedExperts.length > 0;
         expertReviewCompleted = false;
         closeExpertModal();
         renderExpertList();
@@ -6395,17 +6548,9 @@ let pendingConfirmAction = null;
         }
         const headerExpertAssignBtn = document.getElementById('headerExpertAssignBtn');
         if (headerExpertAssignBtn) {
-            headerExpertAssignBtn.style.display = isTaskReadOnly() || isCurrentScopeCoverageComplete(coverage) ? 'none' : '';
+            headerExpertAssignBtn.style.display = isTaskReadOnly() ? 'none' : '';
+            headerExpertAssignBtn.textContent = isCurrentScopeCoverageComplete(coverage) ? '调整专家' : '指派专家';
         }
-        const coverageRows = getProjectSystems().map(sys => {
-            const missingCodes = coverage.missingCodes.filter(item => item.sys === sys).map(item => item.code);
-            const covered = coverage.coveredSystems.has(sys) && missingCodes.length === 0;
-            return `
-                <div class="coverage-row">
-                    <span class="coverage-left"><span class="sys-badge ${sys}">${sys}</span>${systemNameMap[sys] || sys}</span>
-                    <span class="coverage-chip ${covered ? 'covered' : 'missing'}">${covered ? '已覆盖' : '缺 ' + (missingCodes.join(',') || '专家')}</span>
-                </div>`;
-        }).join('');
         const expertCards = assignedExperts.map((expert, index) => {
             const systems = expert.domains.map(item => item.sys);
             const systemsHtml = systems.map(sys => `<span class="system-badge-table ${sys}">${sys}</span>`).join('');
@@ -6428,12 +6573,9 @@ let pendingConfirmAction = null;
                     </div>
                 </div>`;
         }).join('');
-        const expertToggle = assignedExperts.length
-            ? `<button class="t-button btn-outline btn-small expert-list-toggle" onclick="toggleExpertList()">${expertsExpanded ? '收起具体专家' : '展开具体专家'}</button>`
-            : '<div class="empty-state" style="padding:18px;">暂未指派专家</div>';
-        const expertList = assignedExperts.length && expertsExpanded
+        const expertList = assignedExperts.length
             ? `<div class="expert-list">${expertCards}</div>`
-            : '';
+            : '<div class="empty-state" style="padding:18px;">暂未指派专家</div>';
         const issueActionLogs = deletedIssueLogs.slice(-3).reverse().map(log => `<div class="blocker-item">${log.action === 'resolved' ? '已整改' : '已删除'}：${escapeHtml(log.type)} · ${escapeHtml(log.deleteReason)}</div>`).join('');
         const decisionLogs = systemDecisionLogs.slice(-4).reverse().map(log => `
             <div class="blocker-item">
@@ -6441,54 +6583,14 @@ let pendingConfirmAction = null;
                 <span style="color:#64748B;">${escapeHtml(log.time)} · ${escapeHtml(log.note || '')}</span>
             </div>
         `).join('');
-        const systemFlowRows = getProjectSystems().map(sys => {
-            const status = getSystemStatus(sys);
-            const stats = getSystemIssueStats(sys);
-            const note = status.key === 'ready'
-                ? '可进入证书决定'
-                    : status.key === 'problem'
-                    ? `${stats.total} 项未整改问题`
-                    : status.key === 'passed'
-                        ? '已进入证书决定'
-                        : '等待完成评定';
-            return `
-                <div class="coverage-row">
-                    <span class="coverage-left"><span class="sys-badge ${sys}">${sys}</span>${systemNameMap[sys] || sys}</span>
-                    <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;min-width:0;">
-                        <span style="color:#64748B;font-size:12px;white-space:nowrap;">${escapeHtml(note)}</span>
-                    </span>
-                </div>`;
-        }).join('');
         const rightConsole = document.getElementById('rightConsole');
         if (rightConsole) {
             rightConsole.innerHTML = `
                 <div class="console-card">
-                    <div class="console-card-header"><span>任务状态</span><span class="status-pill">${state}</span></div>
+                    <div class="console-card-header"><span>评定专家信息</span>${isTaskReadOnly() ? '<span class="status-pill">只读</span>' : `<button class="t-button btn-outline btn-small" onclick="openExpertModal()">${isCurrentScopeCoverageComplete(coverage) ? '调整专家' : '指派专家'}</button>`}</div>
                     <div class="console-card-body">
-                        <div class="task-state">${state}</div>
-                        <div class="blocker-list">${blockers.length ? blockers.map(item => `<div class="blocker-item ${item.includes('未整改') ? 'danger' : ''}">${escapeHtml(item)}</div>`).join('') : '<div class="blocker-item" style="background:#E6F7F1;color:#00875A;">暂无阻断项</div>'}</div>
-                        <div class="task-next-step">${escapeHtml(next)}</div>
-                    </div>
-                </div>
-                <div class="console-card">
-                    <div class="console-card-header"><span>专家覆盖</span>${isTaskReadOnly() ? '<span class="status-pill">只读</span>' : `<button class="t-button btn-outline btn-small" onclick="openExpertModal()">${assignedExperts.length ? '调整' : '指派'}</button>`}</div>
-                    <div class="console-card-body">${coverageRows}${expertToggle}${expertList}</div>
-                </div>
-                <div class="console-card">
-                    <div class="console-card-header"><span>体系分流</span></div>
-                    <div class="console-card-body">${systemFlowRows}</div>
-                </div>
-                <div class="console-card">
-                    <div class="console-card-header"><span>复评判断</span></div>
-                    <div class="console-card-body">
-                        <div class="stats-row"><span>项目体系</span><strong>${getProjectSystems().length}个</strong></div>
-                        <div class="stats-row"><span>可通过体系</span><strong style="color:var(--pass-color);">${groups.ready.length}个 ${groups.ready.join('、')}</strong></div>
-                        <div class="stats-row"><span>未整改体系</span><strong style="color:var(--reject-color);">${groups.problem.length}个 ${groups.problem.join('、')}</strong></div>
-                        <div class="stats-row"><span>已通过体系</span><strong>${groups.passed.length}个</strong></div>
-                        <div class="stats-row"><span>未整改问题</span><strong style="color:${issueCount ? 'var(--reject-color)' : 'var(--pass-color)'};">${issueCount}项</strong></div>
-                        <div class="stats-row"><span>问题处理日志</span><strong>${deletedIssueLogs.length}条</strong></div>
-                        ${groups.problem.length ? '<div class="task-next-step" style="background:#FFF7ED;border-color:#FED7AA;color:#C2410C;">存在未整改问题的体系暂不可通过；请在问题清单逐项退回、编辑或删除处理。</div>' : ''}
-                        ${isTaskReadOnly() ? '<div class="task-next-step" style="background:#E6F7F1;border-color:#B8E8D7;color:#00875A;">任务已完成，页面只读；可继续预览文件和查看历史记录。</div>' : `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                        ${expertList}
+                        ${isTaskReadOnly() ? '' : `<div class="expert-simulation-actions">
                             <button class="t-button btn-outline btn-small" onclick="simulateExpertIssue()">模拟专家提出问题</button>
                             <button class="t-button btn-outline btn-small" onclick="simulateExpertNoIssue()">模拟专家无问题</button>
                         </div>`}

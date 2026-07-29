@@ -301,6 +301,7 @@
         .supplement-system-tag.e { border-color: #b8e8d7; background: #e6f7f1; color: #00875a; }
         .supplement-system-tag.s { border-color: #ffd5a8; background: #fff3e5; color: #c46000; }
         .supplement-system-tag.f { border-color: #d6caff; background: #f1edff; color: #6339d8; }
+        .supplement-system-tag.common { min-width: 42px; border-color: #d1d5db; background: #f3f4f6; color: #4b5563; }
         .issue-row-actions { display: flex; gap: 6px; }
         .issue-row-actions .t-button { flex: 1; height: 30px; min-width: 0; padding: 0 8px; font-size: 12px; }
         .issue-row-actions .t-button:disabled { opacity: .45; cursor: not-allowed; }
@@ -914,6 +915,9 @@
         .issue-system-badge.e .issue-system-code { background: #ecfdf5; color: #047857; }
         .issue-system-badge.s .issue-system-code { background: #fff7ed; color: #c2410c; }
         .issue-system-badge.f .issue-system-code { background: #f5f3ff; color: #6d28d9; }
+        .issue-system-badge.common { border-color: #d1d5db; background: #f8fafc; color: #4b5563; }
+        .issue-system-badge.common .issue-system-code { width: auto; padding: 0 6px; background: #e5e7eb; color: #374151; }
+        .issue-system-placeholder { min-height: 32px; display: inline-flex; align-items: center; color: var(--text-placeholder); font-size: 13px; }
         .issue-system-hint { color: var(--text-placeholder); font-size: 12px; }
         .saved-deficiency-panel { display: none; margin-bottom: 16px; border: 1px solid #b7d3ff; border-radius: 8px; background: #f7faff; overflow: hidden; }
         .saved-deficiency-panel.visible { display: block; }
@@ -1123,17 +1127,34 @@
 <div id="issueReturnModal" class="modal-overlay">
     <div class="modal-content" style="width: 480px;">
         <div class="modal-header">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">退回补充材料问题</h3>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">驳回整改反馈</h3>
             <i class="t-icon t-icon-close" style="cursor: pointer; color: var(--text-placeholder); font-size: 20px;" onclick="closeIssueReturnModal()"></i>
         </div>
         <div class="modal-body">
-            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px;">退回后，项目管理人员需要根据复核原因重新补充整改反馈。</div>
-            <label class="form-label" for="issueReturnReasonInput">退回原因 <span style="color: var(--danger-color);">*</span></label>
-            <textarea id="issueReturnReasonInput" class="decision-textarea" placeholder="请输入至少5个字的退回原因"></textarea>
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px;">驳回后，项目管理人员需要根据复核意见重新提交整改反馈。</div>
+            <label class="form-label" for="issueReturnReasonInput">驳回原因 <span style="color: var(--danger-color);">*</span></label>
+            <textarea id="issueReturnReasonInput" class="decision-textarea" placeholder="请输入至少5个字的驳回原因"></textarea>
         </div>
         <div class="modal-footer">
             <button class="t-button t-button--ghost" onclick="closeIssueReturnModal()">取消</button>
-            <button class="t-button t-button--danger" onclick="submitIssueReturn()">确认退回</button>
+            <button class="t-button t-button--danger" onclick="submitIssueReturn()">确认驳回</button>
+        </div>
+    </div>
+</div>
+
+<div id="issueApproveModal" class="modal-overlay">
+    <div class="modal-content" style="width: 480px;">
+        <div class="modal-header">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">确认通过整改反馈</h3>
+            <i class="t-icon t-icon-close" style="cursor: pointer; color: var(--text-placeholder); font-size: 20px;" onclick="closeIssueApproveModal()"></i>
+        </div>
+        <div class="modal-body">
+            <div id="issueApproveMessage" style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;"></div>
+            <div style="margin-top: 12px; padding: 10px 12px; border: 1px solid #b8e8d7; border-radius: 6px; background: #f2fbf7; color: #00875a; font-size: 13px;">审核意见：整改材料符合要求，问题复核通过。</div>
+        </div>
+        <div class="modal-footer">
+            <button class="t-button t-button--ghost" onclick="closeIssueApproveModal()">取消</button>
+            <button class="t-button t-button--primary" onclick="confirmRectificationReview()">确认通过</button>
         </div>
     </div>
 </div>
@@ -1198,12 +1219,12 @@
                 </div>
                 <div class="form-item">
                     <label class="form-label" for="deficiencyMaterialSelect">所属材料 <span style="color: var(--danger-color);">*</span></label>
-                    <select class="t-select" id="deficiencyMaterialSelect"></select>
+                    <select class="t-select" id="deficiencyMaterialSelect" onchange="handleDeficiencyMaterialChange()"></select>
                 </div>
                 <div class="form-item full">
                     <div class="form-label">涉及体系</div>
                     <div class="issue-system-options" id="deficiencySystemOptions" role="group" aria-label="当前任务涉及体系"></div>
-                    <div class="issue-system-hint">根据当前任务自动带出，仅用于展示。</div>
+                    <div class="issue-system-hint">根据所选材料的适用范围自动带出，仅用于展示。</div>
                 </div>
                 <div class="form-item full">
                     <label class="form-label" for="deficiencyDescription">问题描述 <span style="color: var(--danger-color);">*</span></label>
@@ -1439,45 +1460,95 @@ const taskConfig = {
     source: pageParams.get('source') || ''
 };
 
-const CERT_DECISION_FLOW_PREFIX = 'certificate-decision-rectification:';
+const CERT_DECISION_FLOW_PREFIX = 'certificate-decision-rectification:v3:';
 
 function certificateDecisionStorageKey(taskNo = taskConfig.taskNo) {
     return `${CERT_DECISION_FLOW_PREFIX}${taskNo}`;
 }
 
 function createDefaultCertificateDecisionFlow() {
-    if (taskConfig.taskNo !== '1100-QS-2026-0005') return null;
-    return {
-        taskNo: taskConfig.taskNo,
-        customer: '安捷通运输仓储有限公司',
-        sourceStage: 'certificate-decision',
-        stage: 'certificate_decision_returned',
-        taskStatus: '待补充材料',
-        updatedAt: '2026-04-02 10:20:00',
-        issues: [{
-            id: 'CERT-ISSUE-001',
-            type: 'supplement_material',
-            typeName: '补充材料',
-            materialId: 'MSF11-20-025',
-            materialName: '法规符合性证明文件（适用时）',
-            systems: ['Q', 'S'],
-            desc: '运输服务场所及车辆证明材料不完整，现有归档文件无法确认全部运营场所和车辆权属信息。',
-            attachment: '请补充全部运营及仓储场所清单、车辆权属或租赁证明及仓储设施现场照片。',
-            deadline: '2026-04-05 17:00',
-            status: 'returned_to_project',
-            createdBy: '认证决定员-李敏',
-            createdAt: '2026-04-02 10:20:00',
-            rectificationDesc: '',
-            rectificationAttachment: '',
-            reviewComment: ''
-        }],
-        history: [{
-            node: '认证决定登记',
-            operator: '认证决定员-李敏',
-            time: '2026-04-02 10:20:00',
-            detail: '登记1个补充材料问题，任务进入待补充材料。'
-        }]
+    const flows = {
+        '1100-QS-2026-0005': {
+            taskNo: taskConfig.taskNo,
+            customer: '安捷通运输仓储有限公司',
+            sourceStage: 'certificate-decision',
+            stage: 'rectification_submitted',
+            taskStatus: '已补充待审核',
+            updatedAt: '2026-04-04 15:26:00',
+            issues: [{
+                id: 'CERT-ISSUE-002',
+                type: 'supplement_material',
+                typeName: '补充材料',
+                materialId: 'MSF11-20-020',
+                materialName: '主要危险源和OHS风险',
+                systems: ['S'],
+                systemScope: 'specific',
+                desc: '主要危险源和OHS风险清单未覆盖外包装卸、临时仓储及车辆维修作业，风险辨识范围不完整。',
+                attachment: '请补充上述作业场景的危险源辨识、风险等级及现有控制措施。',
+                deadline: '2026-04-05 17:00',
+                status: 'returned_to_project',
+                createdBy: '认证决定员-李敏',
+                createdAt: '2026-04-02 10:20:00',
+                rectificationDesc: '',
+                rectificationAttachment: '',
+                reviewComment: ''
+            }, {
+                id: 'CERT-ISSUE-001',
+                type: 'supplement_material',
+                typeName: '补充材料',
+                materialId: 'MSF11-20-025',
+                materialName: '法规符合性证明文件（适用时）',
+                systems: ['Q', 'S'],
+                systemScope: 'common',
+                desc: '运输服务场所及车辆证明材料不完整，现有归档文件无法确认全部运营场所和车辆权属信息。',
+                attachment: '请补充全部运营及仓储场所清单、车辆权属或租赁证明及仓储设施现场照片。',
+                deadline: '2026-04-05 17:00',
+                status: 'rectification_submitted',
+                createdBy: '认证决定员-李敏',
+                createdAt: '2026-04-02 10:20:00',
+                rectificationDesc: '已补充全部运营及仓储场所清单、车辆权属证明，并附仓储设施现场照片，材料覆盖本次 Q/S 认证范围。',
+                rectificationAttachment: '运营场所及车辆仓储证明材料-整改版.zip',
+                rectificationTime: '2026-04-04 15:26:00',
+                reviewComment: ''
+            }],
+            history: [
+                { node: '认证决定登记', operator: '认证决定员-李敏', time: '2026-04-02 10:20:00', detail: '登记2个补充材料问题，任务进入待补充材料。' },
+                { node: '项目补材提交', operator: '项目管理员-王宁', time: '2026-04-04 15:26:00', detail: '已完成其中1项整改并提交运营场所及车辆仓储证明材料，等待认证决定员复核。' }
+            ]
+        },
+        '1100-F-2026-0014': {
+            taskNo: taskConfig.taskNo,
+            customer: '禾谷食品供应链有限公司',
+            sourceStage: 'certificate-decision',
+            stage: 'rectification_submitted',
+            taskStatus: '已补充待审核',
+            updatedAt: '2026-04-02 14:35:00',
+            issues: [{
+                id: 'CERT-ISSUE-014',
+                type: 'supplement_material',
+                typeName: '补充材料',
+                materialId: 'MSF11-20-031',
+                materialName: '食品安全检测报告',
+                systems: ['F'],
+                systemScope: 'common',
+                desc: '现有检测报告未覆盖本次申请认证的全部产品范围。',
+                attachment: '请补充覆盖全部申请产品范围且在有效期内的食品安全检测报告。',
+                deadline: '2026-04-03 17:00',
+                status: 'rectification_submitted',
+                createdBy: '认证决定员-李敏',
+                createdAt: '2026-04-01 09:40:00',
+                rectificationDesc: '已补充覆盖全部申请产品范围的有效检测报告。',
+                rectificationAttachment: '食品安全检测报告-补充版.pdf',
+                rectificationTime: '2026-04-02 14:35:00',
+                reviewComment: ''
+            }],
+            history: [
+                { node: '认证决定登记', operator: '认证决定员-李敏', time: '2026-04-01 09:40:00', detail: '登记1个补充材料问题，任务进入待补充材料。' },
+                { node: '项目补材提交', operator: '项目管理员-王宁', time: '2026-04-02 14:35:00', detail: '已提交补充材料，等待认证决定员审核。' }
+            ]
+        }
     };
+    return flows[taskConfig.taskNo] || null;
 }
 
 function readCertificateDecisionFlow() {
@@ -1525,7 +1596,11 @@ let missingItemIndex = 1;
 let selectedTreeNode = 'all'; // 当前选中的树节点：all, stage1, stage2, general, 或具体子分类名
 let pendingDeficiencyIssues = [];
 let reviewMode = taskConfig.source === 'certificate-decision-list'
-    && (taskConfig.entryStatus === '待补充材料' || certificateDecisionFlow?.taskStatus === '待补充材料');
+    && (
+        ['待补充材料', '已补充待审核'].includes(taskConfig.entryStatus)
+        || ['待补充材料', '已补充待审核'].includes(certificateDecisionFlow?.taskStatus)
+        || certificateDecisionFlow?.issues?.some(issue => issue.status === 'rectification_submitted')
+    );
 let supplementMode = false;
 let supplementRequest = mockSupplementRequests[taskConfig.taskNo] || {
     items: [
@@ -1558,6 +1633,7 @@ let currentAddMaterialCategory = null;
 let currentAddMaterialSubcategory = null;
 let pendingDecision = null;
 let pendingIssueReturnId = null;
+let pendingIssueApproveId = null;
 
 function init() {
     document.getElementById('taskNoDisplay').textContent = taskConfig.taskNo;
@@ -1608,14 +1684,14 @@ function renderSupplementRequest() {
                 return `<tr>
                     <td><span class="supplement-request-index">${index + 1}</span><div class="supplement-cell-sub">补充材料</div></td>
                     <td><div class="supplement-cell-main">${escapeHtml(item.name)}</div><div class="supplement-cell-sub">${escapeHtml(issue?.materialId || '')}</div></td>
-                    <td><div class="supplement-system-list">${(issue?.systems || [currentDomain]).map(system => `<span class="supplement-system-tag ${system.toLowerCase()}">${escapeHtml(system)}</span>`).join('')}</div></td>
+                    <td><div class="supplement-system-list">${renderIssueSystemTags(issue, [currentDomain])}</div></td>
                     <td>${issue?.desc ? escapeHtml(issue.desc) : '<span class="supplement-feedback-empty">未登记问题描述</span>'}</td>
                     <td>${item.requirement ? escapeHtml(item.requirement) : '<span class="supplement-feedback-empty">未填写（选填）</span>'}</td>
                     <td>${feedbackText ? `<div>${escapeHtml(feedbackText)}</div><div class="supplement-cell-sub">附件：${escapeHtml(feedbackAttachment || '未提交')} · ${escapeHtml(issue.rectificationTime || '-')}</div>` : '<span class="supplement-feedback-empty">项目管理人员尚未提交整改反馈</span>'}</td>
-                    <td><span class="review-status-pill ${statusMeta.className}">${statusMeta.text}</span></td>
+                    <td><span class="review-status-pill ${statusMeta.className}">${statusMeta.text}</span>${issue?.reviewComment ? `<div class="supplement-cell-sub">${escapeHtml(issue.reviewComment)}<br>${escapeHtml(issue.reviewedBy || '认证决定员-李敏')} · ${escapeHtml(issue.reviewedAt || '-')}</div>` : ''}</td>
                     <td>${issue && reviewMode ? `<div class="issue-row-actions">
-                            <button class="t-button t-button--ghost" style="color:var(--warning-color);border-color:var(--warning-color);" onclick="openIssueReturnModal('${issue.id}')" ${canReview ? '' : 'disabled'}>退回</button>
-                            <button class="t-button t-button--primary" onclick="approveRectificationReview('${issue.id}')" ${canReview ? '' : 'disabled'}>通过</button>
+                            <button class="t-button t-button--ghost" style="color:var(--danger-color);border-color:var(--danger-color);" onclick="openIssueReturnModal('${issue.id}')" ${canReview ? '' : 'disabled'}>驳回</button>
+                            <button class="t-button t-button--primary" onclick="openIssueApproveModal('${issue.id}')" ${canReview ? '' : 'disabled'}>通过</button>
                         </div>
                     ` : '<span class="supplement-feedback-empty">—</span>'}</td>
                 </tr>`;
@@ -1630,7 +1706,7 @@ function getRectificationStatusMeta(status) {
         returned_to_project: { text: '待整改', className: '' },
         rectification_submitted: { text: '待复核', className: 'ready' },
         review_passed: { text: '已通过', className: 'ready' },
-        review_rejected: { text: '已退回', className: 'returned' }
+        review_rejected: { text: '已驳回', className: 'returned' }
     };
     return statusMap[status] || { text: '待补充', className: '' };
 }
@@ -1659,6 +1735,9 @@ function renderContent() {
         'missing': '待补充材料'
     };
     statusTag.textContent = statusText[d.status] || d.status;
+    if (reviewMode && certificateDecisionFlow?.issues?.some(issue => issue.status === 'rectification_submitted')) {
+        statusTag.textContent = '已补充待审核';
+    }
 
     const supplementButton = document.getElementById('supplementMaterialButton');
     const supplementPanel = document.getElementById('supplementReasonPanel');
@@ -1683,17 +1762,21 @@ function renderContent() {
         `;
     } else if (reviewMode) {
         const readyCount = certificateDecisionFlow?.issues?.filter(issue => issue.status === 'rectification_submitted').length || 0;
+        const pendingCount = certificateDecisionFlow?.issues?.filter(issue => issue.status === 'returned_to_project').length || 0;
         const passedCount = certificateDecisionFlow?.issues?.filter(issue => issue.status === 'review_passed').length || 0;
+        const rejectedCount = certificateDecisionFlow?.issues?.filter(issue => issue.status === 'review_rejected').length || 0;
         const totalCount = certificateDecisionFlow?.issues?.length || 0;
         const allIssuesPassed = totalCount > 0 && passedCount === totalCount;
         headerActions.innerHTML = allIssuesPassed ? `
             <div style="background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 12px;border-radius:6px;color:#047857;font-size:13px;">补充材料问题已全部通过（${passedCount}/${totalCount}）</div>
+            <button class="t-button t-button--ghost" style="height:36px;color:var(--warning-color);border-color:var(--warning-color);" onclick="openDeficiencyModal()"><i class="fas fa-plus"></i> 继续登记补材问题</button>
             <button class="t-button t-button--primary" style="height:36px;" onclick="approveDomain()"><i class="fas fa-check"></i> 证书决定通过</button>
             <button class="t-button t-button--ghost" style="height:36px;color:var(--danger-color);border-color:var(--danger-color);" onclick="rejectDomain()"><i class="fas fa-xmark"></i> 证书决定驳回</button>
         ` : `
             <div style="background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:6px;color:#b45309;font-size:13px;">
-                ${readyCount ? `待复核 ${readyCount} 项，已通过 ${passedCount}/${totalCount}` : `等待整改提交（${passedCount}/${totalCount || 1}）`}
+                ${rejectedCount ? `已驳回 ${rejectedCount} 项，等待重新提交整改反馈` : (readyCount ? `待整改 ${pendingCount} 项，待复核 ${readyCount} 项，已通过 ${passedCount}/${totalCount}` : `待整改 ${pendingCount} 项，等待项目管理人员提交整改反馈`)}
             </div>
+            <button class="t-button t-button--ghost" style="height:36px;color:var(--warning-color);border-color:var(--warning-color);" onclick="openDeficiencyModal()"><i class="fas fa-plus"></i> 继续登记补材问题</button>
         `;
     } else if (supplementMode) {
         headerActions.innerHTML = `
@@ -2042,7 +2125,30 @@ function getDeficiencySystems() {
     return allowedSystems.filter(system => uniqueSystems.includes(system));
 }
 
-function renderDeficiencySystems() {
+function isCommonMaterial(material) {
+    const allowedSystems = ['Q', 'E', 'S', 'F'];
+    return Boolean(material) && allowedSystems.every(system => material.systems.includes(system));
+}
+
+function getDeficiencyMaterialScope(material) {
+    const taskSystems = getDeficiencySystems();
+    if (!material) return { type: 'empty', systems: [] };
+    if (isCommonMaterial(material)) return { type: 'common', systems: taskSystems };
+    return {
+        type: 'specific',
+        systems: taskSystems.filter(system => material.systems.includes(system))
+    };
+}
+
+function renderIssueSystemTags(issue, fallbackSystems = [currentDomain]) {
+    const material = catalogMaterials.find(item => item.id === issue?.materialId);
+    const isCommon = issue?.systemScope === 'common' || (!issue?.systemScope && isCommonMaterial(material));
+    if (isCommon) return '<span class="supplement-system-tag common">通用</span>';
+    const systems = issue?.systems?.length ? issue.systems : fallbackSystems;
+    return systems.map(system => `<span class="supplement-system-tag ${system.toLowerCase()}">${escapeHtml(system)}</span>`).join('');
+}
+
+function renderDeficiencySystems(materialId = document.getElementById('deficiencyMaterialSelect')?.value || '') {
     const systemNames = {
         Q: '质量管理体系',
         E: '环境管理体系',
@@ -2050,9 +2156,19 @@ function renderDeficiencySystems() {
         F: '食品安全体系'
     };
     const container = document.getElementById('deficiencySystemOptions');
-    const systems = getDeficiencySystems();
-    container.dataset.systems = systems.join(',');
-    container.innerHTML = systems.map(system => `
+    const material = catalogMaterials.find(item => item.id === materialId);
+    const scope = getDeficiencyMaterialScope(material);
+    container.dataset.scope = scope.type;
+    container.dataset.systems = scope.systems.join(',');
+    if (scope.type === 'empty') {
+        container.innerHTML = '<span class="issue-system-placeholder">请先选择所属材料</span>';
+        return;
+    }
+    if (scope.type === 'common') {
+        container.innerHTML = '<span class="issue-system-badge common"><span class="issue-system-code">通用</span><span>适用于当前任务全部体系</span></span>';
+        return;
+    }
+    container.innerHTML = scope.systems.map(system => `
         <span class="issue-system-badge ${system.toLowerCase()}">
             <span class="issue-system-code">${system}</span>
             <span>${systemNames[system]}</span>
@@ -2060,10 +2176,16 @@ function renderDeficiencySystems() {
     `).join('');
 }
 
+function handleDeficiencyMaterialChange() {
+    renderDeficiencySystems();
+}
+
 function openDeficiencyModal() {
     document.getElementById('deficiencyModal').style.display = 'flex';
     const materialSelect = document.getElementById('deficiencyMaterialSelect');
+    const taskSystems = getDeficiencySystems();
     materialSelect.innerHTML = '<option value="">请选择所属材料</option>' + catalogMaterials
+        .filter(item => isCommonMaterial(item) || item.systems.some(system => taskSystems.includes(system)))
         .map(item => `<option value="${item.id}">${item.id} · ${escapeHtml(item.name)}</option>`)
         .join('');
     materialSelect.value = '';
@@ -2104,7 +2226,8 @@ function buildDeficiencyFromForm() {
         typeName: '补充材料',
         materialId: material.id,
         materialName: material.name,
-        systems: getDeficiencySystems(),
+        systems: getDeficiencyMaterialScope(material).systems,
+        systemScope: getDeficiencyMaterialScope(material).type,
         desc: description,
         attachment,
         deadline,
@@ -2121,6 +2244,7 @@ function clearDeficiencyForm() {
     document.getElementById('deficiencyMaterialSelect').value = '';
     document.getElementById('deficiencyDescription').value = '';
     document.getElementById('deficiencyAttachment').value = '';
+    renderDeficiencySystems('');
     document.getElementById('deficiencyMaterialSelect').focus();
 }
 
@@ -2136,6 +2260,7 @@ function renderSavedDeficiencies() {
             <span class="saved-deficiency-index">${index + 1}</span>
             <div>
                 <div class="saved-deficiency-name">${escapeHtml(issue.materialName)}</div>
+                <div class="supplement-system-list" style="margin-top:4px;">${renderIssueSystemTags(issue)}</div>
                 <div class="saved-deficiency-desc">${escapeHtml(issue.desc)}</div>
             </div>
             <button class="saved-deficiency-remove" type="button" onclick="removeSavedDeficiency(${index})">移除</button>
@@ -2409,19 +2534,21 @@ function submitDeficiency() {
         pendingDeficiencyIssues.push(issue);
     }
 
-    const issues = pendingDeficiencyIssues.slice();
+    const newIssues = pendingDeficiencyIssues.slice();
+    const existingIssues = certificateDecisionFlow?.issues || [];
+    const issues = [...existingIssues, ...newIssues];
     const now = currentTimeText();
     const payload = {
         taskNo: taskConfig.taskNo,
-        customer: taskConfig.taskNo === '1100-QS-2026-0005' ? '安捷通运输仓储有限公司' : '当前认证客户',
-        sourceStage: 'certificate-decision',
+        customer: certificateDecisionFlow?.customer || (taskConfig.taskNo === '1100-QS-2026-0005' ? '安捷通运输仓储有限公司' : '当前认证客户'),
+        sourceStage: certificateDecisionFlow?.sourceStage || 'certificate-decision',
         stage: 'certificate_decision_returned',
         taskStatus: '待补充材料',
         updatedAt: now,
         issues,
         history: [
             ...(certificateDecisionFlow?.history || []),
-            { node: '认证决定登记', operator: '认证决定员-李敏', time: now, detail: `登记 ${issues.length} 个补充材料问题，任务进入待补充材料。` }
+            { node: '认证决定登记', operator: '认证决定员-李敏', time: now, detail: `本次登记 ${newIssues.length} 个补充材料问题，当前累计 ${issues.length} 个。` }
         ]
     };
     saveCertificateDecisionFlow(payload);
@@ -2436,30 +2563,51 @@ function submitDeficiency() {
         deadline: issues[0]?.deadline || '-'
     };
 
-    const listParams = new URLSearchParams({
-        status: '待补充材料',
-        taskNo: taskConfig.taskNo,
-        registered: String(issues.length)
-    });
-    window.location.assign(`./证书决定管理.html?${listParams.toString()}`);
+    pendingDeficiencyIssues = [];
+    closeDeficiencyModal();
+    const nextParams = new URLSearchParams(window.location.search);
+    nextParams.set('status', '待补充材料');
+    nextParams.set('taskNo', taskConfig.taskNo);
+    nextParams.set('registered', String(issues.length));
+    window.history.replaceState(null, '', `${window.location.pathname}?${nextParams.toString()}`);
+    renderContent();
+    showToast(`已登记 ${newIssues.length} 个补充材料问题，可继续登记`, 'success');
 }
 
-function approveRectificationReview(issueId) {
+function openIssueApproveModal(issueId) {
     const targetIssue = certificateDecisionFlow?.issues?.find(issue => issue.id === issueId);
     if (!targetIssue || targetIssue.status !== 'rectification_submitted') {
         showToast('该问题尚未提交整改反馈，暂不能通过', 'warning');
         return;
     }
+    pendingIssueApproveId = issueId;
+    document.getElementById('issueApproveMessage').textContent = `确认通过“${targetIssue.materialName}”的本次整改反馈？通过后该问题将计入证书决定放行条件。`;
+    document.getElementById('issueApproveModal').style.display = 'flex';
+}
+
+function closeIssueApproveModal() {
+    document.getElementById('issueApproveModal').style.display = 'none';
+    pendingIssueApproveId = null;
+}
+
+function confirmRectificationReview() {
+    const issueId = pendingIssueApproveId;
+    const targetIssue = certificateDecisionFlow?.issues?.find(issue => issue.id === issueId);
+    if (!targetIssue || targetIssue.status !== 'rectification_submitted') {
+        closeIssueApproveModal();
+        showToast('该问题状态已变化，请刷新后重试', 'warning');
+        return;
+    }
     const comment = '整改材料符合要求，问题复核通过。';
     const now = currentTimeText();
     const nextIssues = certificateDecisionFlow.issues.map(issue => issue.id === issueId
-        ? { ...issue, status: 'review_passed', reviewComment: comment, reviewedAt: now }
+        ? { ...issue, status: 'review_passed', reviewComment: comment, reviewedBy: '认证决定员-李敏', reviewedAt: now }
         : issue);
     const allPassed = nextIssues.every(issue => issue.status === 'review_passed');
     const payload = {
         ...certificateDecisionFlow,
         stage: allPassed ? 'rectification_review_complete' : 'rectification_review_in_progress',
-        taskStatus: '待补充材料',
+        taskStatus: '已补充待审核',
         updatedAt: now,
         issues: nextIssues,
         history: [
@@ -2468,6 +2616,7 @@ function approveRectificationReview(issueId) {
         ]
     };
     saveCertificateDecisionFlow(payload);
+    closeIssueApproveModal();
     renderContent();
     showToast(allPassed ? '全部补充材料问题已通过，请在页面顶部形成证书决定' : '该补充材料问题已通过', 'success');
 }
@@ -2495,7 +2644,7 @@ function submitIssueReturn() {
     const commentInput = document.getElementById('issueReturnReasonInput');
     const comment = commentInput.value.trim();
     if (comment.length < 5) {
-        showToast('请输入至少5个字的退回原因', 'warning');
+        showToast('请输入至少5个字的驳回原因', 'warning');
         commentInput.focus();
         return;
     }
@@ -2511,16 +2660,16 @@ function submitIssueReturn() {
         taskStatus: '待补充材料',
         updatedAt: now,
         issues: certificateDecisionFlow.issues.map(issue => issue.id === issueId
-            ? { ...issue, status: 'review_rejected', reviewComment: comment, reviewedAt: now }
+            ? { ...issue, status: 'review_rejected', reviewComment: comment, reviewedBy: '认证决定员-李敏', reviewedAt: now }
             : issue),
         history: [
             ...(certificateDecisionFlow.history || []),
-            { node: '复核退回', operator: '认证决定员-李敏', time: now, detail: `${targetIssue.materialName}：${comment}` }
+            { node: '整改复核驳回', operator: '认证决定员-李敏', time: now, detail: `${targetIssue.materialName}：${comment}` }
         ]
     });
     closeIssueReturnModal();
     renderContent();
-    showToast('该问题已退回继续补充', 'warning');
+    showToast('整改反馈已驳回，等待项目管理人员重新提交', 'warning');
 }
 
 function submitSupplementMaterial() {

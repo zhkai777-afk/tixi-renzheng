@@ -91,17 +91,6 @@
             color: rgba(0,0,0,0.78);
             white-space: nowrap;
         }
-        .project-current {
-            display: inline-flex;
-            align-items: center;
-            height: 24px;
-            padding: 0 8px;
-            border-radius: 4px;
-            background: #F2F3F5;
-            color: rgba(0,0,0,0.56);
-            font-size: 12px;
-            white-space: nowrap;
-        }
         .project-tip {
             display: flex;
             align-items: center;
@@ -1345,7 +1334,6 @@
             }
             .project-title,
             .project-task,
-            .project-current,
             .title-text {
                 white-space: normal;
             }
@@ -1475,11 +1463,9 @@
                 <span class="project-title">归档材料提交</span>
                 <span class="project-task">任务号：TASK-2026-001</span>
                 <span class="header-meta">客户A · Q/E/S/F 四体系整合审核</span>
-                <span class="project-current" id="currentMaterialName">当前视图：材料清单台账</span>
             </div>
             <div class="header-right">
                 <button class="t-button btn-outline" onclick="startPageGuide()">操作指引</button>
-                <button class="t-button btn-outline" onclick="simulateAllUploaded()">模拟全部资料补齐</button>
                 <button class="t-button btn-outline" onclick="showToast('已保存草稿（模拟）')">保存草稿</button>
                 <button class="t-button btn-primary" id="submitBtn" onclick="openSubmitModal()">提交初次评定</button>
             </div>
@@ -1683,6 +1669,7 @@
 
 <script>
 const PROJECT_SYSTEMS = ['Q', 'E', 'S', 'F'];
+const PROJECT_AUDIT_TYPE = '初次认证';
 const SYSTEM_META = {
     Q: { name: '质量管理体系', short: '质量管理', color: 'var(--qms-color)', softBg: '#E8F1FF', softBorder: '#B7D3FF' },
     E: { name: '环境管理体系', short: '环境管理', color: 'var(--ems-color)', softBg: '#E6F7F1', softBorder: '#B8E8D7' },
@@ -1933,7 +1920,6 @@ function getStatusBadge(status) {
 function renderAllMaterialsView() {
     currentMaterialId = null;
     activeView = 'ledger';
-    document.getElementById('currentMaterialName').textContent = '当前视图：材料清单台账';
     document.getElementById('contentTitle').textContent = '材料清单台账';
     updateViewSwitch();
     renderPageTags(PROJECT_SYSTEMS);
@@ -1947,7 +1933,7 @@ function renderFileRows(filteredMaterials) {
     const fileRows = filteredMaterials.flatMap(material => {
         return getVisibleFilesForCurrentSystems(material).map(file => `
             <tr>
-                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">所属材料：${escapeHtml(material.materialName)} · ${escapeHtml(file.type)} · ${escapeHtml(file.source)} · ${escapeHtml(file.uploadTime)}</div></div></td>
+                <td><div class="file-name-cell"><div class="file-name-text">${escapeHtml(file.name)}</div><div class="file-parent-text">${PROJECT_AUDIT_TYPE} · ${escapeHtml(file.uploadTime)}</div></div></td>
                 <td><button class="t-button btn-outline btn-small" onclick="previewFile('${escapeHtml(file.name)}')">预览</button><button class="t-button btn-text btn-danger-text btn-small" onclick="deleteFile('${material.id}','${file.id}')">删除</button></td>
             </tr>`);
     }).join('');
@@ -1956,7 +1942,6 @@ function renderFileRows(filteredMaterials) {
 function renderCurrentFileListView(filteredMaterials = getFilteredMaterials()) {
     activeView = 'files';
     currentMaterialId = null;
-    document.getElementById('currentMaterialName').textContent = '当前视图：全部文件';
     document.getElementById('contentTitle').textContent = '全部文件视图';
     updateViewSwitch();
     const fileRows = renderFileRows(filteredMaterials);
@@ -2009,14 +1994,11 @@ function renderLedgerView() {
             </tr>
             ${expanded ? `<tr class="ledger-files-row"><td colspan="6"><div class="ledger-file-panel"><div class="ledger-file-panel-title"><span>该材料下的具体文件</span><span class="header-meta">${visibleFileCount ? visibleFileCount + ' 个文件' : '当前体系范围暂无文件'}</span></div><table class="compact-file-table"><thead><tr><th style="width:82%;">具体文件名称</th><th style="width:18%;">操作</th></tr></thead><tbody>${fileRows}</tbody></table></div></td></tr>` : ''}`;
     }).join('');
-    document.getElementById('currentMaterialName').textContent = currentMaterialId
-        ? `当前材料：${materials.find(item => item.id === currentMaterialId)?.materialName || ''}`
-        : '当前视图：材料清单台账';
     document.getElementById('contentTitle').textContent = '材料清单台账';
     document.getElementById('contentBody').innerHTML = `
         <div class="material-table-container">
             <div class="material-table-header">
-                <span>MSF11-20 材料清单台账</span>
+                <span>材料清单台账</span>
                 <span class="header-meta">当前显示 ${filtered.length} 项材料，按材料项补充文件</span>
             </div>
             <table class="material-ledger-table">
@@ -2034,7 +2016,6 @@ function selectMaterial(materialId, expand = true) {
     currentMaterialId = materialId;
     const material = materials.find(item => item.id === materialId);
     if (!material) return;
-    document.getElementById('currentMaterialName').textContent = `当前材料：${material.materialName}`;
     renderPageTags(material.applicableSystems);
     renderUploadSystemChecks(material);
     if (expand) expandedMaterialIds.add(material.id);
@@ -2147,9 +2128,9 @@ function updatePanels() {
     if (projectSummary) {
         projectSummary.innerHTML = `
             <div class="project-summary-card"><div class="project-summary-label">材料总项数</div><div class="project-summary-value">${total}</div></div>
-            <div class="project-summary-card"><div class="project-summary-label">已带入/已上传文件</div><div class="project-summary-value success">${fileCount}</div></div>
             <div class="project-summary-card"><div class="project-summary-label">已补齐材料项</div><div class="project-summary-value success">${ready}</div></div>
             <div class="project-summary-card"><div class="project-summary-label">缺失材料项</div><div class="project-summary-value ${missing ? 'danger' : 'success'}">${missing}</div></div>
+            <div class="project-summary-card"><div class="project-summary-label">已带入/已上传文件</div><div class="project-summary-value success">${fileCount}</div></div>
             <div class="project-summary-card"><div class="project-summary-label">整体完成率</div><div class="project-summary-value ${isReady ? 'success' : 'warning'}">${percent}%</div></div>`;
     }
     const systemStats = getSystemCompletionStats();
@@ -2201,30 +2182,6 @@ function clearUploadPreview() {
     pendingFiles = [];
     document.getElementById('fileUpload').value = '';
     document.getElementById('uploadPanel').classList.remove('active');
-}
-function createAutoSupplementFile(material) {
-    const safeName = material.materialName.replace(/[（(].*?[）)]/g, '').replace(/[\/]/g, '-');
-    return {
-        id: `${material.id}-auto-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        name: `${safeName || material.id}_补充上传.pdf`,
-        type: '附件',
-        source: '项目管理人员模拟补充',
-        size: '1.0 MB',
-        uploadTime: '刚刚',
-        systems: material.applicableSystems
-    };
-}
-function simulateAllUploaded() {
-    let added = 0;
-    materials.forEach(material => {
-        const coverage = getMaterialCoverage(material);
-        if (coverage.status !== 'ready') {
-            material.files.push(createAutoSupplementFile(material));
-            added++;
-        }
-    });
-    activeView === 'files' ? renderCurrentFileListView(getFilteredMaterials()) : renderLedgerView();
-    showToast(added > 0 ? `已模拟补齐 ${added} 项缺失材料，可以提交初次评定。` : '全部材料已补齐，无需重复补充。');
 }
 function confirmUpload() {
     const material = materials.find(item => item.id === currentMaterialId);
@@ -2442,7 +2399,7 @@ const PAGE_GUIDE_STEPS = [
     {
         "target": ".top-header",
         "title": "确认任务信息",
-        "body": "先核对任务号、客户和当前材料视图，确认本次处理的是 TASK-2026-001 的 Q/E/S/F 四体系归档材料。"
+        "body": "先核对任务号、客户和认证领域，确认本次处理的是 TASK-2026-001 的 Q/E/S/F 四体系归档材料。"
     },
     {
         "target": ".sidebar-left",

@@ -176,6 +176,90 @@
             box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.08);
         }
 
+        .multi-select {
+            position: relative;
+            min-width: 0;
+        }
+
+        .multi-select-trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .multi-select-trigger::after {
+            content: "";
+            width: 7px;
+            height: 7px;
+            flex: 0 0 auto;
+            border-right: 1px solid #b4bac4;
+            border-bottom: 1px solid #b4bac4;
+            transform: translateY(-2px) rotate(45deg);
+            transition: transform 0.18s ease;
+        }
+
+        .multi-select.open .multi-select-trigger::after {
+            transform: translateY(2px) rotate(225deg);
+        }
+
+        .multi-select-summary {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .multi-select-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            z-index: 30;
+            display: none;
+            width: 100%;
+            min-width: 220px;
+            border: 1px solid var(--line-strong);
+            border-radius: 4px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(21, 35, 66, 0.14);
+            padding: 6px;
+        }
+
+        .multi-select.open .multi-select-menu {
+            display: grid;
+            gap: 2px;
+        }
+
+        .multi-option {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 34px;
+            border-radius: 4px;
+            color: var(--text-main);
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+
+        .multi-option:hover {
+            background: #f3f6fa;
+        }
+
+        .multi-option input {
+            width: 15px;
+            height: 15px;
+            margin: 0;
+            accent-color: var(--primary);
+        }
+
+        .multi-select-trigger:focus-visible,
+        .multi-option:has(input:focus-visible) {
+            outline: 2px solid rgba(0, 82, 217, 0.35);
+            outline-offset: 2px;
+        }
+
         select.control {
             appearance: none;
             background-image:
@@ -222,62 +306,13 @@
 
         .btn:focus-visible,
         .tab:focus-visible,
-        .type-chip:focus-visible,
         .page-btn:focus-visible {
             outline: 2px solid rgba(0, 82, 217, 0.35);
             outline-offset: 2px;
         }
 
-        .type-filter {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 20px 0 18px;
-        }
-
-        .type-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            height: 30px;
-            border: 1px solid #dfe5ee;
-            border-radius: 4px;
-            background: #fff;
-            color: var(--text-main);
-            padding: 0 14px;
-        }
-
-        .type-chip.active {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #fff;
-            font-weight: 600;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary);
-        }
-
-        .dot.green {
-            background: var(--success);
-        }
-
-        .dot.orange {
-            background: var(--warning);
-        }
-
-        .dot.purple {
-            background: var(--f);
-        }
-
-        .dot.red {
-            background: var(--danger);
-        }
-
         .table-panel {
+            margin-top: 20px;
             border: 1px solid var(--line-strong);
             overflow-x: auto;
             background: #fff;
@@ -703,8 +738,7 @@
                 text-align: left;
             }
 
-            .filter-actions,
-            .type-filter {
+            .filter-actions {
                 gap: 8px;
             }
 
@@ -741,21 +775,29 @@
                 </div>
                 <div class="field">
                     <label for="customer">客户名称</label>
-                    <select class="control" id="customer" name="customer">
-                        <option value="">全部</option>
-                        <option value="华锐精密机械制造有限公司">华锐精密机械制造有限公司</option>
-                        <option value="绿源生态食品科技股份有限公司">绿源生态食品科技股份有限公司</option>
-                        <option value="恒信芯联电子元器件有限公司">恒信芯联电子元器件有限公司</option>
-                    </select>
+                    <input class="control" id="customer" name="customer" type="search" placeholder="请输入客户名称关键字" autocomplete="off">
                 </div>
                 <div class="field">
-                    <label for="statusSelect">状态</label>
-                    <select class="control" id="statusSelect" name="statusSelect">
-                        <option value="">全部</option>
-                        <option value="待指派专家">待指派专家</option>
-                        <option value="二次评定中">二次评定中</option>
-                        <option value="二次评定通过">二次评定通过</option>
-                    </select>
+                    <label id="statusLabel">状态</label>
+                    <div class="multi-select" id="statusSelect">
+                        <button class="control multi-select-trigger" id="statusTrigger" type="button" aria-labelledby="statusLabel statusSummary" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="multi-select-summary" id="statusSummary">全部</span>
+                        </button>
+                        <div class="multi-select-menu" id="statusMenu" role="group" aria-labelledby="statusLabel">
+                            <label class="multi-option">
+                                <input type="checkbox" value="待指派专家">
+                                <span>待指派专家</span>
+                            </label>
+                            <label class="multi-option">
+                                <input type="checkbox" value="二次评定中">
+                                <span>二次评定中</span>
+                            </label>
+                            <label class="multi-option">
+                                <input type="checkbox" value="二次评定通过">
+                                <span>二次评定通过</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="filter-actions">
                     <button class="btn primary" type="submit">查询</button>
@@ -763,15 +805,6 @@
                     <button class="btn link" type="button" id="expandBtn">展开⌄</button>
                 </div>
             </form>
-
-            <div class="type-filter" aria-label="认证类型">
-                <button class="type-chip active" type="button" data-type="全部类型">全部类型</button>
-                <button class="type-chip" type="button" data-type="初次认证"><span class="dot"></span>初次认证</button>
-                <button class="type-chip" type="button" data-type="认证转化"><span class="dot purple"></span>认证转化</button>
-                <button class="type-chip" type="button" data-type="监督审核"><span class="dot green"></span>监督审核</button>
-                <button class="type-chip" type="button" data-type="证书变更"><span class="dot red"></span>证书变更</button>
-                <button class="type-chip" type="button" data-type="再认证审核"><span class="dot orange"></span>再认证审核</button>
-            </div>
 
             <div class="table-panel">
                 <table>
@@ -783,7 +816,6 @@
                             <th>认证类型</th>
                             <th>归属机构</th>
                             <th>归属部门</th>
-                            <th>专家覆盖</th>
                             <th>进入认证决定时间</th>
                             <th>问题整改概览</th>
                             <th>状态</th>
@@ -798,7 +830,6 @@
                             <td><div class="type-tags"><span class="tag blue">初次认证</span></div></td>
                             <td>中国质量认证中心（CQC）</td>
                             <td>检验认证部</td>
-                            <td><span class="tag orange">待指派</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status assign">待指派专家</span></td>
@@ -811,7 +842,6 @@
                             <td><div class="type-tags"><span class="tag green">监督一</span><span class="tag orange">监督二</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag orange">待指派</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status assign">待指派专家</span></td>
@@ -824,7 +854,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag orange">Q/F 已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill return">待退回问题 2</span><span class="issue-pill review">待复核问题 1</span></div></td>
                             <td><span class="status review">二次评定中</span></td>
@@ -837,7 +866,6 @@
                             <td><div class="type-tags"><span class="tag orange">监督二</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag orange">Q/E 已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill review">待复核问题 4</span></div></td>
                             <td><span class="status review">二次评定中</span></td>
@@ -850,7 +878,6 @@
                             <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill return">待退回问题 5</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status review">二次评定中</span></td>
@@ -863,7 +890,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -876,7 +902,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -889,7 +914,6 @@
                             <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -902,7 +926,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -915,7 +938,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -928,7 +950,6 @@
                             <td><div class="type-tags"><span class="tag blue">初次认证</span><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -941,7 +962,6 @@
                             <td><div class="type-tags"><span class="tag purple">再认证审核</span></div></td>
                             <td>中国检验认证集团北京有限公司</td>
                             <td>检验认证部</td>
-                            <td><span class="tag green">已覆盖</span></td>
                             <td>2026-03-30&nbsp;&nbsp;10:30:30</td>
                             <td><div class="issue-overview"><span class="issue-pill">待退回问题 0</span><span class="issue-pill">待复核问题 0</span></div></td>
                             <td><span class="status pass">二次评定通过</span></td>
@@ -981,14 +1001,15 @@
         const rows = Array.from(document.querySelectorAll("#taskRows tr"));
         const tabs = Array.from(document.querySelectorAll(".tab"));
         const tabCounts = Array.from(document.querySelectorAll("[data-count-for]"));
-        const chips = Array.from(document.querySelectorAll(".type-chip"));
         const form = document.querySelector("#searchForm");
         const taskNo = document.querySelector("#taskNo");
         const customer = document.querySelector("#customer");
         const statusSelect = document.querySelector("#statusSelect");
+        const statusTrigger = document.querySelector("#statusTrigger");
+        const statusSummary = document.querySelector("#statusSummary");
+        const statusCheckboxes = Array.from(document.querySelectorAll("#statusMenu input[type='checkbox']"));
         const toast = document.querySelector("#toast");
         let activeStatus = "全部";
-        let activeType = "全部类型";
 
         function showToast(message) {
             toast.textContent = message;
@@ -999,20 +1020,18 @@
 
         function rowMatches(row) {
             const rowStatus = row.dataset.status;
-            const rowType = row.dataset.type;
             const rowTask = row.dataset.task.toLowerCase();
-            const rowCustomer = row.dataset.customer;
+            const rowCustomer = row.dataset.customer.toLowerCase();
             const keyword = taskNo.value.trim().toLowerCase();
-            const selectedCustomer = customer.value;
-            const selectedStatus = statusSelect.value;
+            const customerKeyword = customer.value.trim().toLowerCase();
+            const selectedStatuses = getSelectedStatuses();
 
             const statusOk = activeStatus === "全部" || rowStatus === activeStatus;
-            const typeOk = activeType === "全部类型" || rowType.includes(activeType);
             const taskOk = !keyword || rowTask.includes(keyword);
-            const customerOk = !selectedCustomer || rowCustomer === selectedCustomer;
-            const selectStatusOk = !selectedStatus || rowStatus === selectedStatus;
+            const customerOk = !customerKeyword || rowCustomer.includes(customerKeyword);
+            const selectStatusOk = selectedStatuses.length === 0 || selectedStatuses.includes(rowStatus);
 
-            return statusOk && typeOk && taskOk && customerOk && selectStatusOk;
+            return statusOk && taskOk && customerOk && selectStatusOk;
         }
 
         function applyFilters() {
@@ -1037,36 +1056,81 @@
             const targetStatus = status || "全部";
             activeStatus = targetStatus;
             tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === targetStatus));
-            statusSelect.value = targetStatus === "全部" ? "" : targetStatus;
+        }
+
+        function getSelectedStatuses() {
+            return statusCheckboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value);
+        }
+
+        function updateStatusSummary() {
+            const selectedStatuses = getSelectedStatuses();
+            statusSummary.textContent = selectedStatuses.length === 0
+                ? "全部"
+                : selectedStatuses.length === 1
+                    ? selectedStatuses[0]
+                    : `已选 ${selectedStatuses.length} 项`;
+            statusTrigger.title = selectedStatuses.length > 1 ? selectedStatuses.join("、") : "";
+        }
+
+        function setSelectedStatuses(statuses) {
+            statusCheckboxes.forEach((checkbox) => {
+                checkbox.checked = statuses.includes(checkbox.value);
+            });
+            updateStatusSummary();
+        }
+
+        function setStatusMenuOpen(open) {
+            statusSelect.classList.toggle("open", open);
+            statusTrigger.setAttribute("aria-expanded", String(open));
         }
 
         tabs.forEach((tab) => {
             tab.addEventListener("click", () => {
                 syncActiveTab(tab.dataset.status);
+                setSelectedStatuses(tab.dataset.status === "全部" ? [] : [tab.dataset.status]);
                 applyFilters();
             });
         });
 
-        chips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                chips.forEach((item) => item.classList.remove("active"));
-                chip.classList.add("active");
-                activeType = chip.dataset.type;
-                applyFilters();
+        statusTrigger.addEventListener("click", () => {
+            setStatusMenuOpen(!statusSelect.classList.contains("open"));
+        });
+
+        statusCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", () => {
+                activeStatus = "全部";
+                tabs.forEach((item) => item.classList.toggle("active", item.dataset.status === "全部" && getSelectedStatuses().length === 0));
+                updateStatusSummary();
             });
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!statusSelect.contains(event.target)) setStatusMenuOpen(false);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && statusSelect.classList.contains("open")) {
+                setStatusMenuOpen(false);
+                statusTrigger.focus();
+            }
         });
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
-            syncActiveTab(statusSelect.value || "全部");
+            const selectedStatuses = getSelectedStatuses();
+            syncActiveTab(selectedStatuses.length === 1 ? selectedStatuses[0] : "全部");
+            if (selectedStatuses.length > 1) {
+                tabs.forEach((item) => item.classList.remove("active"));
+            }
+            setStatusMenuOpen(false);
             applyFilters();
         });
 
         form.addEventListener("reset", () => {
             window.setTimeout(() => {
-                activeType = "全部类型";
                 syncActiveTab("全部");
-                chips.forEach((item) => item.classList.toggle("active", item.dataset.type === "全部类型"));
+                setSelectedStatuses([]);
+                setStatusMenuOpen(false);
                 applyFilters();
             });
         });

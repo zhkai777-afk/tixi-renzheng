@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>认证决定审批 - 体系认证平台</title>
+  <style>
+    :root {
+      --primary:#0052d9; --primary-hover:#003cab; --page:#f5f5f5; --surface:#fff;
+      --text:rgba(0,0,0,.9); --text-2:rgba(0,0,0,.6); --text-3:rgba(0,0,0,.4);
+      --border:#e7e7e7; --border-soft:#edf1f5; --danger:#e34d59; --warning:#ed7b2f;
+      --success:#00a870; --radius:8px; --shadow:0 1px 2px rgba(15,23,42,.04);
+    }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--page);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;font-size:14px}
+    button,input,select{font:inherit} button{cursor:pointer} button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(0,82,217,.18);outline-offset:1px}
+    .page{width:100%;min-height:100vh;padding:16px}.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:16px}
+    h1{font-size:20px;line-height:28px;margin:0 0 4px;font-weight:650}.description{font-size:13px;color:var(--text-2);line-height:20px}
+    .role-note{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #b7d3ff;border-radius:6px;background:#f5f9ff;color:#0052d9;font-size:13px;white-space:nowrap}
+    .role-note svg{width:16px;height:16px;flex:none}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+    .stat{padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .stat-label{color:var(--text-2);font-size:12px;margin-bottom:8px}.stat-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}.stat-value{font-size:24px;line-height:28px;font-weight:650;font-variant-numeric:tabular-nums}.stat-tip{font-size:12px;color:var(--text-3)}
+    .workspace{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    .tabs{display:flex;align-items:center;gap:28px;height:54px;padding:0 20px;border-bottom:1px solid var(--border);overflow:auto}
+    .tab{position:relative;align-self:stretch;display:inline-flex;align-items:center;gap:7px;padding:0;border:0;background:transparent;color:var(--text-2);white-space:nowrap}
+    .tab:hover{color:var(--primary)}.tab.active{color:var(--primary);font-weight:600}.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--primary)}
+    .count{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#f2f3f5;color:var(--text-2);font-size:11px;display:inline-flex;align-items:center;justify-content:center}.tab.active .count{background:#e8f1ff;color:var(--primary)}
+    .filters{padding:16px 20px;border-bottom:1px solid var(--border)}.filter-grid{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,1.25fr) minmax(150px,.85fr) minmax(140px,.8fr) auto;gap:12px;align-items:end}
+    .field{display:grid;gap:6px}.field label{font-size:12px;color:var(--text-2)}.control{width:100%;height:36px;padding:0 10px;border:1px solid #dcdde1;border-radius:6px;background:#fff;color:var(--text)}.control:hover{border-color:#aeb2b8}.control:focus{border-color:var(--primary)}
+    .actions{display:flex;gap:8px}.btn{height:36px;padding:0 16px;border:1px solid #dcdde1;border-radius:6px;background:#fff;color:var(--text);font-weight:500}.btn:hover{border-color:#aeb2b8;background:#fafafa}.btn-primary{border-color:var(--primary);background:var(--primary);color:#fff}.btn-primary:hover{border-color:var(--primary-hover);background:var(--primary-hover)}
+    .toolbar{min-height:48px;padding:8px 20px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid var(--border-soft)}
+    .result{font-size:12px;color:var(--text-2)}.result strong{color:var(--text);font-variant-numeric:tabular-nums}
+    .table-wrap{overflow-x:auto}table{width:100%;min-width:1200px;border-collapse:collapse;table-layout:fixed}th{height:42px;padding:0 12px;background:#fafafa;text-align:left;font-size:13px;font-weight:600;color:var(--text-2);border-bottom:1px solid var(--border)}td{height:72px;padding:10px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle;font-size:13px}tbody tr:hover{background:#fafafa}
+    .task-link{padding:0;border:0;background:transparent;color:var(--primary);font-weight:600}.task-link:hover{text-decoration:underline}.customer{font-weight:600;line-height:20px}.sub{margin-top:3px;color:var(--text-3);font-size:12px;line-height:18px}.badges{display:flex;gap:4px;flex-wrap:wrap}.sys{display:inline-flex;align-items:center;justify-content:center;width:24px;height:20px;border:1px solid;border-radius:4px;font-size:12px;font-weight:700}.sys.Q{background:#e8f1ff;border-color:#b7d3ff;color:#0052d9}.sys.E{background:#e6f7f1;border-color:#b8e8d7;color:#00875a}.sys.S{background:#fff3e5;border-color:#ffd5a8;color:#c46000}.sys.F{background:#f1edff;border-color:#d6caff;color:#6339d8}
+    .decision{display:inline-flex;padding:3px 8px;border:1px solid #ffc4c8;border-radius:4px;background:#fff0f1;color:#b4232d;font-size:12px;font-weight:600}.status{display:inline-flex;padding:3px 8px;border:1px solid;border-radius:4px;font-size:12px;font-weight:600}.status.pending{background:#fff7e8;border-color:#ffd8a8;color:#a45300}.status.agreed{background:#e8f8f2;border-color:#b8e8d7;color:#00875a}.status.returned{background:#fff0f1;border-color:#ffc4c8;color:#b4232d}
+    .row-btn{height:32px;padding:0 11px;border:1px solid #b7d3ff;border-radius:5px;background:#fff;color:var(--primary);font-size:12px;font-weight:600}.row-btn:hover{background:#e8f1ff}.date{font-variant-numeric:tabular-nums;color:var(--text-2);line-height:19px}
+    .empty{display:none;padding:72px 20px;text-align:center}.empty.visible{display:block}.empty svg{width:44px;height:44px;color:#b7bcc5}.empty-title{margin-top:12px;font-weight:600}.empty-desc{margin:6px 0 16px;color:var(--text-2);font-size:13px}
+    .pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:56px;padding:10px 20px}.page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid #dcdde1;border-radius:5px;background:#fff}.page-btn.active{border-color:var(--primary);color:var(--primary);font-weight:600}.page-btn:disabled{cursor:not-allowed;opacity:.45}
+    .toast{position:fixed;z-index:1000;left:50%;bottom:28px;transform:translate(-50%,14px);display:flex;align-items:center;gap:8px;max-width:min(480px,calc(100vw - 32px));padding:11px 16px;border-radius:6px;background:#1f2937;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr)}.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{grid-column:1/-1}.role-note{white-space:normal}}
+    @media(max-width:680px){.page{padding:12px}.page-head{display:block}.role-note{margin-top:12px}.stats{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:12px}.filter-grid{grid-template-columns:1fr}.actions{grid-column:auto}.btn{flex:1}.table-wrap{overflow:visible}table,thead,tbody,tr,td{display:block;width:100%;min-width:0}thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}tbody{display:grid;gap:10px;padding:12px;background:var(--page)}tbody tr{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fff}td{display:grid;grid-template-columns:92px minmax(0,1fr);height:auto;min-height:38px;padding:8px 0;border-bottom:1px dashed var(--border)}td:last-child{border-bottom:0}td::before{content:attr(data-label);font-size:12px;color:var(--text-3)}.pager{justify-content:center}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-head">
+      <div><h1>认证决定审批</h1><div class="description">审批认证决定人提交的“不予通过”结论，审批同意后业务结束，退回后重新认定。</div></div>
+      <div class="role-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span>当前角色：认证决定审批领导</span></div>
+    </header>
+
+    <section class="stats" aria-label="审批任务统计">
+      <div class="stat"><div class="stat-label">待审批</div><div class="stat-row"><strong class="stat-value" id="statPending">0</strong><span class="stat-tip">需优先决策</span></div></div>
+      <div class="stat"><div class="stat-label">今日新增</div><div class="stat-row"><strong class="stat-value" id="statToday">0</strong><span class="stat-tip">当日提交</span></div></div>
+      <div class="stat"><div class="stat-label">已同意不予通过</div><div class="stat-row"><strong class="stat-value" id="statAgreed">0</strong><span class="stat-tip">业务已结束</span></div></div>
+      <div class="stat"><div class="stat-label">已退回重新认定</div><div class="stat-row"><strong class="stat-value" id="statReturned">0</strong><span class="stat-tip">等待重新认定</span></div></div>
+    </section>
+
+    <main class="workspace">
+      <nav class="tabs" id="tabs" role="tablist" aria-label="审批状态筛选"></nav>
+      <section class="filters" aria-label="审批任务查询条件">
+        <div class="filter-grid">
+          <div class="field"><label for="taskNo">任务号</label><input id="taskNo" class="control" type="search" placeholder="输入任务号" autocomplete="off"></div>
+          <div class="field"><label for="customer">客户名称</label><input id="customer" class="control" type="search" placeholder="输入客户名称" autocomplete="off"></div>
+          <div class="field"><label for="certType">认证类型</label><select id="certType" class="control"><option value="">全部类型</option><option>初次认证</option><option>监督审核</option><option>再认证</option></select></div>
+          <div class="field"><label for="dateFrom">提交日期</label><input id="dateFrom" class="control" type="date"></div>
+          <div class="actions"><button class="btn btn-primary" id="searchBtn" type="button">查询</button><button class="btn" id="resetBtn" type="button">重置</button></div>
+        </div>
+      </section>
+      <div class="toolbar"><div class="result" id="result" aria-live="polite"></div></div>
+      <section class="table-wrap" id="tableWrap" aria-label="认证决定审批任务列表">
+        <table>
+          <colgroup><col style="width:135px"><col style="width:175px"><col style="width:95px"><col style="width:95px"><col style="width:95px"><col style="width:110px"><col style="width:135px"><col style="width:95px"><col style="width:75px"></colgroup>
+          <thead><tr><th>任务号</th><th>客户名称</th><th>认证领域</th><th>认证类型</th><th>认证决定</th><th>决定人员</th><th>提交审批时间</th><th>审批状态</th><th>操作</th></tr></thead>
+          <tbody id="taskRows"></tbody>
+        </table>
+      </section>
+      <div class="empty" id="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v14H3z"/><path d="M3 9h18M8 13h3"/></svg><div class="empty-title">未找到符合条件的审批任务</div><div class="empty-desc">请调整状态、领域或查询条件。</div><button class="btn" id="emptyReset" type="button">清空筛选</button></div>
+      <div class="pager" id="pager"></div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span></div>
+
+  <script>
+    const baseTasks = [
+      {no:'TASK-2026-001',customer:'客户A',systems:['E'],type:'初次认证',org:'宁波认证业务部',rejected:['E'],decider:'李敏',submitted:'2026-07-28 09:36:18',status:'待审批'},
+      {no:'1100-QE-2026-0006',customer:'盛达新材料化工有限公司',systems:['E'],type:'再认证',org:'华信技术检验认证有限公司',rejected:['E'],decider:'周婷',submitted:'2026-07-28 08:52:10',status:'待审批'},
+      {no:'1100-F-2026-0014',customer:'禾谷食品供应链有限公司',systems:['F'],type:'初次认证',org:'食品认证部',rejected:['F'],decider:'孙洁',submitted:'2026-07-27 16:20:45',status:'待审批'},
+      {no:'1100-QS-2026-0016',customer:'智维信息技术服务有限公司',systems:['Q'],type:'再认证',org:'综合业务部',rejected:['Q'],decider:'李敏',submitted:'2026-07-27 14:01:19',status:'已同意'},
+      {no:'1100-ES-2026-0018',customer:'启明城市服务管理有限公司',systems:['S'],type:'监督审核',org:'综合业务部',rejected:['S'],decider:'王蕾',submitted:'2026-07-26 11:18:33',status:'已退回'},
+      {no:'1100-Q-2026-0020',customer:'锦程织造服饰有限公司',systems:['Q'],type:'初次认证',org:'检验认证部',rejected:['Q'],decider:'周婷',submitted:'2026-07-25 17:46:09',status:'已同意'},
+      {no:'1100-EF-2026-0022',customer:'绿源生态食品科技股份有限公司',systems:['F'],type:'监督审核',org:'食品认证部',rejected:['F'],decider:'孙洁',submitted:'2026-07-24 10:18:20',status:'已退回'},
+      {no:'1100-QES-2026-0024',customer:'科瑞智联新能源科技有限公司',systems:['E'],type:'再认证',org:'检验认证部',rejected:['E'],decider:'李敏',submitted:'2026-07-23 11:23:51',status:'已同意'}
+    ];
+    const storagePrefix='certificate-approval:';
+    const tasks=baseTasks.map(task=>{try{const saved=JSON.parse(localStorage.getItem(storagePrefix+task.no)||'null');return saved?.approvalStatus?{...task,status:saved.approvalStatus}:task}catch{return task}});
+    const statusTabs=['待审批','已同意','已退回','全部'];
+    const state={status:'待审批',page:1,pageSize:6,filtered:[]};
+    const $=s=>document.querySelector(s); const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function badges(items){return `<div class="badges">${items.map(s=>`<span class="sys ${s}" title="${{Q:'质量管理体系',E:'环境管理体系',S:'职业健康安全',F:'食品安全体系'}[s]}">${s}</span>`).join('')}</div>`}
+    function statusClass(s){return s==='待审批'?'pending':s==='已同意'?'agreed':'returned'}
+    function renderStats(){const count=s=>tasks.filter(t=>t.status===s).length;$('#statPending').textContent=count('待审批');$('#statToday').textContent=tasks.filter(t=>t.submitted.startsWith('2026-07-28')).length;$('#statAgreed').textContent=count('已同意');$('#statReturned').textContent=count('已退回')}
+    function renderTabs(){tabs.innerHTML=statusTabs.map(s=>`<button class="tab ${state.status===s?'active':''}" type="button" role="tab" data-status="${s}" aria-selected="${state.status===s}">${s}<span class="count">${s==='全部'?tasks.length:tasks.filter(t=>t.status===s).length}</span></button>`).join('')}
+    function applyFilters(reset=true){const no=taskNo.value.trim().toLowerCase(),name=customer.value.trim().toLowerCase(),type=certType.value,date=dateFrom.value;state.filtered=tasks.filter(t=>(state.status==='全部'||t.status===state.status)&&(!no||t.no.toLowerCase().includes(no))&&(!name||t.customer.toLowerCase().includes(name))&&(!type||t.type===type)&&(!date||t.submitted.startsWith(date)));if(reset)state.page=1;renderTable()}
+    function openDetail(no){location.href=`./认证决定审批-详情.html?taskNo=${encodeURIComponent(no)}`}
+    function renderTable(){const start=(state.page-1)*state.pageSize,rows=state.filtered.slice(start,start+state.pageSize);taskRows.innerHTML=rows.map(t=>`<tr><td data-label="任务号"><button class="task-link" type="button" data-open="${esc(t.no)}">${esc(t.no)}</button></td><td data-label="客户名称"><div class="customer">${esc(t.customer)}</div></td><td data-label="认证领域">${badges(t.systems)}</td><td data-label="认证类型">${esc(t.type)}</td><td data-label="认证决定"><span class="decision">不予通过</span></td><td data-label="决定人员"><div>${esc(t.decider)}</div><div class="sub">认证决定人员</div></td><td data-label="提交审批时间"><div class="date">${esc(t.submitted.slice(0,10))}<br>${esc(t.submitted.slice(11))}</div></td><td data-label="审批状态"><span class="status ${statusClass(t.status)}">${esc(t.status)}</span></td><td data-label="操作"><button class="row-btn" type="button" data-open="${esc(t.no)}">${t.status==='待审批'?'审批':'查看'}</button></td></tr>`).join('');const empty=rows.length===0;tableWrap.style.display=empty?'none':'';$('#empty').classList.toggle('visible',empty);result.innerHTML=`共 <strong>${state.filtered.length}</strong> 条不予通过决定${empty?'':`，当前显示 ${start+1}-${Math.min(start+rows.length,state.filtered.length)} 条`}`;renderPager(empty)}
+    function renderPager(empty){if(empty){pager.style.display='none';return}pager.style.display='flex';const total=Math.max(1,Math.ceil(state.filtered.length/state.pageSize));pager.innerHTML=`<button class="page-btn" data-page="prev" ${state.page===1?'disabled':''} aria-label="上一页">‹</button>${Array.from({length:total},(_,i)=>`<button class="page-btn ${state.page===i+1?'active':''}" data-page="${i+1}">${i+1}</button>`).join('')}<button class="page-btn" data-page="next" ${state.page===total?'disabled':''} aria-label="下一页">›</button>`}
+    let toastTimer;function showToast(text){clearTimeout(toastTimer);toastText.textContent=text;toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
+    tabs.addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;state.status=b.dataset.status;renderTabs();applyFilters()});taskRows.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openDetail(b.dataset.open)});searchBtn.addEventListener('click',()=>{applyFilters();showToast(`已更新查询结果，共 ${state.filtered.length} 条任务`)});[taskNo,customer].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')searchBtn.click()}));
+    function reset(){taskNo.value='';customer.value='';certType.value='';dateFrom.value='';state.status='待审批';renderTabs();applyFilters()}
+    resetBtn.addEventListener('click',reset);emptyReset.addEventListener('click',reset);pager.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;const total=Math.max(1,Math.ceil(state.filtered.length/state.pageSize));state.page=b.dataset.page==='prev'?state.page-1:b.dataset.page==='next'?state.page+1:Number(b.dataset.page);state.page=Math.max(1,Math.min(total,state.page));renderTable()});
+    renderStats();renderTabs();applyFilters(false);
+  </script>
+</body>
+</html>
