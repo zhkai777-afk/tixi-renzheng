@@ -136,6 +136,7 @@
         .tab-button[aria-selected="true"] .tab-count { background: #e8f1ff; color: var(--primary); }
         .tab-button[data-status="待评定"] .tab-count { background: #fff0d6; color: var(--warning); }
         .tab-button[data-status="已补充待审核"] .tab-count { background: #e8f1ff; color: var(--primary); }
+        .tab-button[data-status="认证决定驳回"] .tab-count { background: #fff0ef; color: var(--danger); }
 
         .content-area { padding: 16px 20px 20px; }
 
@@ -308,6 +309,7 @@
         .status-review { border-color: #b7d3ff; background: #e8f1ff; color: #0052d9; }
         .status-passed { border-color: #b8e8d7; background: #e6f7f1; color: #00875a; }
         .status-rejected { border-color: #ffc7c3; background: #fff0ef; color: #c9352e; }
+        .status-approval-returned { border-color: #ffc7c3; background: #fff0ef; color: #c9352e; }
         .date-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
         .empty-state { display: none; padding: 60px 20px; text-align: center; }
@@ -455,7 +457,7 @@
     <div class="page-shell">
         <header class="page-heading">
             <h1>认证决定管理</h1>
-            <div class="page-description">集中处理进入证书决定环节的认证任务，优先关注待评定与待补充事项</div>
+            <div class="page-description">集中处理进入证书决定环节的认证任务，优先关注待评定、待补充与审批驳回事项</div>
         </header>
 
         <main class="workspace" aria-label="证书决定任务列表">
@@ -479,6 +481,7 @@
                                 <option>待评定</option>
                                 <option>待补充材料</option>
                                 <option>已补充待审核</option>
+                                <option>认证决定驳回</option>
                                 <option>已通过</option>
                                 <option>不予通过</option>
                             </select>
@@ -608,6 +611,20 @@
         ];
 
         const CERT_DECISION_FLOW_PREFIX = 'certificate-decision-rectification:';
+        const CERT_APPROVAL_FLOW_PREFIX = 'certificate-approval:';
+        const defaultApprovalReturns = {
+            '1100-QE-2026-0006': {
+                approvalStatus: '已退回',
+                businessStatus: '认证决定驳回',
+                opinion: '现有不予通过依据不足，请补充说明整改逾期情况，并重新核对环境管理体系证据后再次提交认证决定。',
+                returnReason: '现有不予通过依据不足，请补充说明整改逾期情况，并重新核对环境管理体系证据后再次提交认证决定。',
+                approver: '王经理',
+                approvedAt: '2026-07-28 10:18:36',
+                returnedBy: '王经理',
+                returnedAt: '2026-07-28 10:18:36',
+                history: [{ node: '审批退回重新认定', operator: '王经理', time: '2026-07-28 10:18:36', detail: '现有不予通过依据不足，请补充说明整改逾期情况，并重新核对环境管理体系证据后再次提交认证决定。' }]
+            }
+        };
         tasks.forEach(task => {
             try {
                 const flow = JSON.parse(localStorage.getItem(`${CERT_DECISION_FLOW_PREFIX}${task.no}`) || 'null');
@@ -620,15 +637,27 @@
             } catch (error) {
                 console.warn('无法同步证书决定补材状态', error);
             }
+            try {
+                const savedApprovalFlow = JSON.parse(localStorage.getItem(`${CERT_APPROVAL_FLOW_PREFIX}${task.no}`) || 'null');
+                const approvalFlow = savedApprovalFlow || defaultApprovalReturns[task.no] || null;
+                if (approvalFlow?.approvalStatus === '已退回') {
+                    task.status = '认证决定驳回';
+                    task.approvalReturn = approvalFlow;
+                } else if (approvalFlow?.taskStatus && ['待评定', '待补充材料', '已补充待审核', '已通过', '不予通过'].includes(approvalFlow.taskStatus)) {
+                    task.status = approvalFlow.taskStatus;
+                }
+            } catch (error) {
+                console.warn('无法同步认证决定审批驳回状态', error);
+            }
         });
 
         const pageParams = new URLSearchParams(window.location.search);
         const requestedStatus = pageParams.get('status');
         const requestedTaskNo = pageParams.get('taskNo') || '';
         const state = { status: requestedStatus || '全部', type: '全部类型', page: 1, pageSize: 10, filtered: tasks.slice(), currentTask: null };
-        const statusOptions = ['全部', '待评定', '待补充材料', '已补充待审核', '已通过', '不予通过'];
+        const statusOptions = ['全部', '待评定', '待补充材料', '已补充待审核', '认证决定驳回', '已通过', '不予通过'];
         const typeOptions = ['全部类型', '初次认证', '监督审核', '再认证'];
-        const statusClass = { '待评定': 'status-pending', '待补充材料': 'status-supplement', '已补充待审核': 'status-review', '已通过': 'status-passed', '不予通过': 'status-rejected' };
+        const statusClass = { '待评定': 'status-pending', '待补充材料': 'status-supplement', '已补充待审核': 'status-review', '认证决定驳回': 'status-approval-returned', '已通过': 'status-passed', '不予通过': 'status-rejected' };
         const typeClass = { '初次认证': 'initial', '监督审核': 'surveillance', '再认证': 'recertification' };
 
         const $ = selector => document.querySelector(selector);
@@ -647,7 +676,7 @@
 
         function systemBadge(system) {
             const names = { Q: '质量管理体系', E: '环境管理体系', S: '职业健康安全', F: '食品安全体系' };
-            const labels = { Q: 'QMS', E: 'EMS', S: 'OHSMS', F: 'FSMS' };
+            const labels = { Q: 'Q', E: 'E', S: 'S', F: 'F' };
             return `<span class="system-badge system-${system}" title="${names[system]}">${labels[system]}</span>`;
         }
 
@@ -695,7 +724,7 @@
                     <td data-label="当前状态"><span class="status-tag ${statusClass[task.status]}">${task.status}</span></td>
                     <td data-label="操作">
                         <div class="row-actions">
-                            <button class="detail-button" type="button" data-detail="${task.no}">查看详情</button>
+                            <button class="detail-button" type="button" data-detail="${task.no}">${task.status === '认证决定驳回' ? '查看驳回详情' : '查看详情'}</button>
                         </div>
                     </td>
                 </tr>`).join('');
@@ -736,6 +765,17 @@
         function openDetail(taskNo) {
             const task = tasks.find(item => item.no === taskNo);
             if (!task) return;
+            if (task.status === '认证决定驳回') {
+                const params = new URLSearchParams({
+                    taskNo: task.no,
+                    status: task.status,
+                    domain: task.system || 'Q',
+                    source: 'certificate-decision-list',
+                    mode: 'approval-return'
+                });
+                window.location.assign(`./认证决定审批-详情.html?${params.toString()}`);
+                return;
+            }
             const params = new URLSearchParams({
                 taskNo: task.no,
                 status: task.status,
@@ -750,6 +790,7 @@
             $('#detailModal').classList.remove('open');
             const trigger = state.currentTask && document.querySelector(`[data-detail="${state.currentTask.no}"]`);
             if (trigger) trigger.focus();
+            state.currentTask = null;
         }
 
         let toastTimer;
@@ -819,9 +860,17 @@
         $('#modalCancelButton').addEventListener('click', closeDetail);
         $('#detailModal').addEventListener('click', event => { if (event.target === $('#detailModal')) closeDetail(); });
         $('#enterDetailButton').addEventListener('click', () => {
-            const taskNo = state.currentTask ? state.currentTask.no : '';
-            closeDetail();
-            showToast(`${taskNo} 的证书决定详情入口已就绪`);
+            const task = state.currentTask;
+            if (!task) return;
+            const params = new URLSearchParams({
+                taskNo: task.no,
+                status: task.status,
+                domain: task.system || 'Q',
+                source: 'certificate-decision-list',
+                stage: 'certificate-decision',
+                mode: 'approval-return'
+            });
+            window.location.assign(`./证书认定4-10-03 2.html?${params.toString()}`);
         });
         document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('#detailModal').classList.contains('open')) closeDetail(); });
 
