@@ -956,10 +956,6 @@
 <div class="workspace-container">
     <header class="top-header">
         <div style="display: flex; align-items: center; gap: 16px;">
-            <button class="t-button t-button--ghost" style="border: none; padding: 0 8px; height: 32px; box-shadow: none; background: transparent;" onclick="history.back()">
-                <i class="t-icon t-icon-arrow-left"></i> 返回
-            </button>
-            <div style="width: 1px; height: 16px; background: var(--border-light);"></div>
             <div style="font-size: 16px; font-weight: 600; display: flex; align-items: center;">
                 证书认定详情
                 <span style="margin-left: 12px; color: var(--text-placeholder); font-weight: normal; font-size: 14px;">
@@ -1637,9 +1633,16 @@ let pendingIssueApproveId = null;
 
 function init() {
     document.getElementById('taskNoDisplay').textContent = taskConfig.taskNo;
-    if (supplementMode || reviewMode) {
-        const currentDomainData = domains.find(x => x.id === currentDomain);
-        if (currentDomainData) currentDomainData.status = 'missing';
+    const currentDomainData = domains.find(x => x.id === currentDomain);
+    const persistedStatus = certificateDecisionFlow?.taskStatus || taskConfig.entryStatus;
+    if (currentDomainData && persistedStatus === '不予通过') {
+        currentDomainData.status = 'rejected';
+        reviewMode = false;
+    } else if (currentDomainData && persistedStatus === '已通过') {
+        currentDomainData.status = 'approved';
+        reviewMode = false;
+    } else if (currentDomainData && (supplementMode || reviewMode)) {
+        currentDomainData.status = 'missing';
     }
     renderContent();
     
@@ -1728,6 +1731,7 @@ function renderContent() {
     
     const statusTag = document.getElementById('domainStatusTag');
     statusTag.className = 'status-tag ' + d.status;
+    statusTag.hidden = d.status === 'rejected';
     const statusText = {
         'approved': '已通过',
         'rejected': '未通过',
@@ -1754,10 +1758,16 @@ function renderContent() {
             </div>
         `;
     } else if (d.status === 'rejected') {
+        const decisionReason = certificateDecisionFlow?.decisionReason
+            || [...(certificateDecisionFlow?.history || [])].reverse().find(item => item.node === '证书决定驳回')?.detail
+            || '未记录不予通过原因';
         headerActions.innerHTML = `
-            <div style="background: #fff2f1; border: 1px solid #ffb6b1; padding: 8px 16px; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: var(--danger-color); font-weight: 600;">
-                <i class="fas fa-times-circle"></i>
-                本领域已驳回
+            <div style="max-width:min(640px,55vw);background:#fff2f1;border:1px solid #ffb6b1;padding:7px 12px;border-radius:6px;display:flex;align-items:flex-start;gap:8px;color:var(--danger-color);">
+                <i class="fas fa-times-circle" style="margin-top:2px;"></i>
+                <div style="min-width:0;">
+                    <div style="font-size:13px;font-weight:600;line-height:1.4;">本领域不予通过</div>
+                    <div style="margin-top:2px;font-size:12px;font-weight:400;line-height:1.4;color:#b4232f;white-space:normal;word-break:break-word;">原因：${escapeHtml(decisionReason)}</div>
+                </div>
             </div>
         `;
     } else if (reviewMode) {
@@ -1915,16 +1925,21 @@ function submitDecision() {
             return;
         }
         const now = currentTimeText();
-        if (certificateDecisionFlow) {
-            saveCertificateDecisionFlow({
-                ...certificateDecisionFlow,
-                stage: 'certificate_decision_rejected',
-                taskStatus: '不予通过',
-                decisionReason: reason,
-                updatedAt: now,
-                history: [...(certificateDecisionFlow.history || []), { node: '证书决定驳回', operator: '认证决定员-李敏', time: now, detail: reason }]
-            });
-        }
+        const currentFlow = certificateDecisionFlow || {
+            taskNo: taskConfig.taskNo,
+            customer: '当前认证客户',
+            sourceStage: 'certificate-decision',
+            issues: [],
+            history: []
+        };
+        saveCertificateDecisionFlow({
+            ...currentFlow,
+            stage: 'certificate_decision_rejected',
+            taskStatus: '不予通过',
+            decisionReason: reason,
+            updatedAt: now,
+            history: [...(currentFlow.history || []), { node: '证书决定驳回', operator: '认证决定员-李敏', time: now, detail: reason }]
+        });
         reviewMode = false;
         d.status = 'rejected';
         closeDecisionModal();

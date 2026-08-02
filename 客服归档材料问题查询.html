@@ -64,19 +64,6 @@
             min-width: 0;
         }
 
-        .back-link {
-            height: 32px;
-            padding: 0 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: #fff;
-            color: rgba(0, 0, 0, 0.72);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            flex: 0 0 auto;
-        }
-
         .title-wrap {
             min-width: 0;
         }
@@ -709,16 +696,6 @@
             margin-top: 4px;
         }
 
-        .history-note {
-            margin-top: 8px;
-            padding: 8px 10px;
-            background: #f7f8fa;
-            border-radius: 6px;
-            color: rgba(0, 0, 0, 0.78);
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
         .drawer-mask {
             position: fixed;
             inset: 0;
@@ -882,7 +859,6 @@
 <div class="page">
     <header class="top-header">
         <div class="header-left">
-            <a class="back-link" href="index.html">返回目录</a>
             <div class="title-wrap">
                 <h1 class="page-title">客服归档材料问题查询</h1>
                 <div class="page-subtitle">按客户、体系、认证类型、评定阶段、审核组长和协调员定位归档材料问题及所处阶段</div>
@@ -891,7 +867,6 @@
         <div class="header-right">
             <button class="t-button btn-primary" type="button" id="queryBtn">查询</button>
             <button class="t-button" type="button" id="resetBtn">重置筛选</button>
-            <button class="t-button btn-primary" type="button" id="exportBtn">导出当前结果</button>
         </div>
     </header>
 
@@ -1032,7 +1007,7 @@
     <div class="drawer-header">
         <div>
             <div class="drawer-title">问题定位</div>
-            <div class="drawer-subtitle">查看阶段、责任人与下一步口径</div>
+            <div class="drawer-subtitle">查看阶段、责任人与处理轨迹</div>
         </div>
         <button class="drawer-close" type="button" id="drawerClose" aria-label="关闭详情">×</button>
     </div>
@@ -1332,7 +1307,6 @@ function bindFilters() {
     document.addEventListener("click", () => closeAllMultiSelects());
     document.getElementById("queryBtn").addEventListener("click", applyQuery);
     document.getElementById("resetBtn").addEventListener("click", resetFilters);
-    document.getElementById("exportBtn").addEventListener("click", exportCurrentResult);
     document.getElementById("drawerMask").addEventListener("click", closeDrawer);
     document.getElementById("drawerClose").addEventListener("click", closeDrawer);
     document.addEventListener("keydown", event => {
@@ -1538,7 +1512,6 @@ function renderHistoryRecords(issue) {
                     <div class="history-row">所属材料：${escapeHtml(record.material)}</div>
                     <div class="history-row">涉及体系：<span class="badges">${renderSystemBadges(record.systems)}</span></div>
                     <div class="history-row">问题描述：${escapeHtml(record.description)}</div>
-                    <div class="history-note">处理说明：${escapeHtml(record.note)}</div>
                 </div>
             </div>
         `;
@@ -1549,7 +1522,7 @@ function renderDetail(items) {
     const panel = document.getElementById("detailPanel");
     const selected = items.find(item => item.id === state.selectedId);
     if (!selected) {
-        panel.innerHTML = `<div class="empty-state">请选择一条问题记录查看阶段、责任人与下一步口径。</div>`;
+        panel.innerHTML = `<div class="empty-state">请选择一条问题记录查看阶段、责任人与处理轨迹。</div>`;
         return;
     }
     panel.innerHTML = `
@@ -1581,15 +1554,11 @@ function renderDetail(items) {
             <div class="detail-title">材料与问题</div>
             <div class="detail-row">
                 <div class="detail-label">材料项</div>
-                <div class="detail-value">${escapeHtml(selected.materialId)} · ${escapeHtml(selected.materialName)}</div>
+                <div class="detail-value">${escapeHtml(selected.materialName)}</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">问题描述</div>
                 <div class="detail-value">${escapeHtml(selected.issueSummary)}</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">下一步</div>
-                <div class="detail-value">${escapeHtml(selected.nextStep)}</div>
             </div>
         </div>
 
@@ -1648,11 +1617,6 @@ function resetFilters() {
     closeAllMultiSelects();
     showToast("筛选条件已重置");
     render();
-}
-
-function exportCurrentResult() {
-    const count = getFilteredIssues().length;
-    showToast(`已生成当前查询结果，共 ${count} 条。原型中仅模拟导出反馈。`);
 }
 
 function renderSystemBadges(systems) {
