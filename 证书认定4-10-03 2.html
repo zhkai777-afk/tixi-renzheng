@@ -844,6 +844,118 @@
             box-shadow: 0 0 0 2px rgba(0,82,217,0.1);
         }
 
+        .header-right-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .header-dynamic-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .approval-history-modal {
+            width: min(980px, calc(100vw - 32px));
+            max-height: calc(100vh - 48px);
+        }
+
+        .approval-history-subtitle {
+            margin-top: 4px;
+            color: var(--text-placeholder);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .approval-history-table-wrap {
+            overflow: auto;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+        }
+
+        .approval-history-table {
+            width: 100%;
+            min-width: 740px;
+            border-collapse: collapse;
+        }
+
+        .approval-history-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+            background: #fafafa;
+            color: var(--text-secondary);
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .approval-history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: var(--text-main);
+            font-size: 13px;
+            line-height: 1.55;
+            vertical-align: top;
+        }
+
+        .approval-history-table tr:last-child td { border-bottom: 0; }
+        .approval-history-table tr:hover td { background: #fafafa; }
+
+        .history-node-name { font-weight: 600; }
+        .history-node-round { margin-top: 2px; color: var(--text-placeholder); font-size: 12px; }
+        .history-reason { color: #b4232f; word-break: break-word; }
+        .history-empty-reason { color: var(--text-placeholder); }
+
+        .history-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .history-status.pass { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+        .history-status.reject { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+
+        .approval-history-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 14px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .history-page-button {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 9px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .history-page-button:hover:not(:disabled) { border-color: var(--brand-color); color: var(--brand-color); }
+        .history-page-button.active { border-color: var(--brand-color); background: var(--brand-color); color: #fff; }
+        .history-page-button:disabled { color: var(--text-placeholder); background: #f5f5f5; cursor: not-allowed; }
+        .history-page-total { margin-right: 4px; }
+
         @media (max-width: 1180px) {
             .top-header {
                 height: auto;
@@ -865,6 +977,12 @@
                 width: 220px;
                 flex-basis: 220px;
             }
+
+            .header-right-actions,
+            .header-dynamic-actions {
+                flex-wrap: wrap;
+            }
+
         }
 
         @media (max-width: 860px) {
@@ -966,7 +1084,12 @@
                 <span id="domainStatusTag" class="status-tag pending">待评定</span>
             </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 12px;" id="headerActions"></div>
+        <div class="header-right-actions">
+            <button class="t-button t-button--ghost" style="height: 36px;" onclick="openApprovalHistoryModal()">
+                <i class="t-icon t-icon-time"></i> 历史记录
+            </button>
+            <div class="header-dynamic-actions" id="headerActions"></div>
+        </div>
     </header>
 
     <div class="main-layout">
@@ -996,6 +1119,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="approvalHistoryPagination" class="approval-history-pagination" aria-label="历史审批记录分页"></div>
         </div>
 
         <!-- 下半部分：归档材料清单 - 改为左右分栏 -->
@@ -1116,6 +1240,37 @@
         <div class="modal-footer">
             <button class="t-button t-button--ghost" onclick="closeDecisionModal()">取消</button>
             <button id="decisionConfirmBtn" class="t-button t-button--primary" onclick="submitDecision()">确认</button>
+        </div>
+    </div>
+</div>
+
+<div id="approvalHistoryModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="approvalHistoryTitle">
+    <div class="modal-content approval-history-modal">
+        <div class="modal-header">
+            <div>
+                <h3 id="approvalHistoryTitle" style="margin: 0; font-size: 16px; font-weight: 600;">历史审批记录</h3>
+                <div id="approvalHistorySubtitle" class="approval-history-subtitle"></div>
+            </div>
+            <i class="t-icon t-icon-close" style="cursor: pointer; color: var(--text-placeholder); font-size: 20px;" onclick="closeApprovalHistoryModal()"></i>
+        </div>
+        <div class="modal-body">
+            <div class="approval-history-table-wrap">
+                <table class="approval-history-table" aria-label="认证申请历史审批记录">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">审批环节</th>
+                            <th style="width: 160px;">处理时间</th>
+                            <th style="width: 80px;">状态</th>
+                            <th style="width: 130px;">操作人</th>
+                            <th>驳回原因</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalHistoryTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="t-button t-button--ghost" onclick="closeApprovalHistoryModal()">关闭</button>
         </div>
     </div>
 </div>
@@ -1453,7 +1608,8 @@ const taskConfig = {
     taskNo: pageParams.get('taskNo') || 'TA2024001',
     domainId: pageParams.get('domain') || 'Q',
     entryStatus: pageParams.get('status') || '',
-    source: pageParams.get('source') || ''
+    source: pageParams.get('source') || '',
+    auditType: pageParams.get('auditType') || 'initialCertification'
 };
 
 const CERT_DECISION_FLOW_PREFIX = 'certificate-decision-rectification:v3:';
@@ -1566,6 +1722,114 @@ function saveCertificateDecisionFlow(payload) {
 
 function currentTimeText() {
     return new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-');
+}
+
+function isSurveillanceAudit() {
+    const auditType = String(taskConfig.auditType || '').toLowerCase();
+    return auditType.includes('surveillance') || auditType.includes('监督');
+}
+
+function getPassNextNode() {
+    return isSurveillanceAudit() ? '监督审核通知' : '证书签发';
+}
+
+function getDefaultApprovalHistory() {
+    const passNextNode = getPassNextNode();
+    const downstreamOperator = isSurveillanceAudit() ? '通知审核人-王珊' : '证书签发人-王珊';
+    const downstreamReason = isSurveillanceAudit()
+        ? '监督审核范围与本次认证决定不一致，请核实后重新认定。'
+        : '证书认证范围与申请材料表述不一致，请核实后重新认定。';
+
+    return [
+        {
+            id: 'APPROVAL-HISTORY-001', round: 1, node: '认证决定',
+            time: '2026-07-28 09:25:00', status: '驳回', operator: '认证决定员-李敏',
+            nextNode: '认证决定审批', rejectReason: '认证范围依据不足，暂不予通过。'
+        },
+        {
+            id: 'APPROVAL-HISTORY-002', round: 1, node: '认证决定审批',
+            time: '2026-07-28 14:10:00', status: '驳回', operator: '审批人-周航',
+            nextNode: '认证决定', rejectReason: '不予通过依据说明不完整，请补充后重新认定。'
+        },
+        {
+            id: 'APPROVAL-HISTORY-003', round: 2, node: '认证决定',
+            time: '2026-07-30 09:18:00', status: '通过', operator: '认证决定员-李敏',
+            nextNode: passNextNode, rejectReason: ''
+        },
+        {
+            id: 'APPROVAL-HISTORY-004', round: 2, node: passNextNode,
+            time: '2026-07-30 15:42:00', status: '驳回', operator: downstreamOperator,
+            nextNode: '认证决定', rejectReason: downstreamReason
+        }
+    ];
+}
+
+function getApprovalHistory() {
+    const storedHistory = certificateDecisionFlow?.approvalHistory;
+    const history = Array.isArray(storedHistory) && storedHistory.length
+        ? storedHistory
+        : getDefaultApprovalHistory();
+    return history.map(item => ({
+        ...item,
+        node: item.node === '证书认定' ? '认证决定' : item.node,
+        nextNode: item.nextNode === '证书认定' ? '认证决定' : item.nextNode
+    }));
+}
+
+function getNextApprovalRound() {
+    const rounds = getApprovalHistory().map(item => Number(item.round) || 0);
+    return Math.max(0, ...rounds) + 1;
+}
+
+const APPROVAL_HISTORY_PAGE_SIZE = 3;
+let approvalHistoryPage = 1;
+
+function openApprovalHistoryModal() {
+    approvalHistoryPage = 1;
+    renderApprovalHistory();
+    document.getElementById('approvalHistoryModal').style.display = 'flex';
+}
+
+function closeApprovalHistoryModal() {
+    document.getElementById('approvalHistoryModal').style.display = 'none';
+}
+
+function renderApprovalHistory() {
+    const history = [...getApprovalHistory()].sort((a, b) => String(b.time).localeCompare(String(a.time)));
+    const totalPages = Math.max(1, Math.ceil(history.length / APPROVAL_HISTORY_PAGE_SIZE));
+    approvalHistoryPage = Math.min(Math.max(approvalHistoryPage, 1), totalPages);
+    const pageStart = (approvalHistoryPage - 1) * APPROVAL_HISTORY_PAGE_SIZE;
+    const pageHistory = history.slice(pageStart, pageStart + APPROVAL_HISTORY_PAGE_SIZE);
+
+    document.getElementById('approvalHistorySubtitle').textContent = `任务号：${taskConfig.taskNo} · 当前领域：${currentDomain}`;
+
+    document.getElementById('approvalHistoryTableBody').innerHTML = history.length
+        ? pageHistory.map(item => `
+            <tr>
+                <td><div class="history-node-name">${escapeHtml(item.node || '-')}</div><div class="history-node-round">第 ${escapeHtml(item.round || '-')} 轮</div></td>
+                <td>${escapeHtml(item.time || '-')}</td>
+                <td><span class="history-status ${item.status === '通过' ? 'pass' : 'reject'}">${escapeHtml(item.status || '-')}</span></td>
+                <td>${escapeHtml(item.operator || '-')}</td>
+                <td>${item.rejectReason ? `<span class="history-reason">${escapeHtml(item.rejectReason)}</span>` : '<span class="history-empty-reason">—</span>'}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--text-placeholder);">暂无历史审批记录</td></tr>';
+
+    document.getElementById('approvalHistoryPagination').innerHTML = `
+        <span class="history-page-total">共 ${history.length} 条</span>
+        <button class="history-page-button" type="button" onclick="changeApprovalHistoryPage(${approvalHistoryPage - 1})" ${approvalHistoryPage === 1 ? 'disabled' : ''}>上一页</button>
+        ${Array.from({ length: totalPages }, (_, index) => {
+            const page = index + 1;
+            return `<button class="history-page-button ${page === approvalHistoryPage ? 'active' : ''}" type="button" onclick="changeApprovalHistoryPage(${page})" aria-current="${page === approvalHistoryPage ? 'page' : 'false'}">${page}</button>`;
+        }).join('')}
+        <button class="history-page-button" type="button" onclick="changeApprovalHistoryPage(${approvalHistoryPage + 1})" ${approvalHistoryPage === totalPages ? 'disabled' : ''}>下一页</button>`;
+}
+
+function changeApprovalHistoryPage(page) {
+    const totalPages = Math.max(1, Math.ceil(getApprovalHistory().length / APPROVAL_HISTORY_PAGE_SIZE));
+    const targetPage = Math.min(Math.max(Number(page) || 1, 1), totalPages);
+    if (targetPage === approvalHistoryPage) return;
+    approvalHistoryPage = targetPage;
+    renderApprovalHistory();
 }
 
 let certificateDecisionFlow = readCertificateDecisionFlow();
@@ -1897,8 +2161,8 @@ function openDecisionModal(type) {
         ? (isSupplementDecision ? '确认本次证书决定通过' : '确认认证通过')
         : (isSupplementDecision ? '确认驳回本次证书决定' : '确认不予通过');
     const message = type === 'approve'
-        ? `确认通过 ${d.name} 下的全部 ${d.count} 张证书？通过后本体系将进入已通过状态。`
-        : `${d.name} 将标记为不予通过，请填写原因便于后续追溯。`;
+        ? `确认通过 ${d.name} 下的全部 ${d.count} 张证书？通过后任务将进入“${getPassNextNode()}”。`
+        : `${d.name} 将标记为不予通过，并进入“认证决定审批”。请填写原因便于后续追溯。`;
 
     document.getElementById('decisionTitle').textContent = title;
     document.getElementById('decisionMessage').textContent = message;
@@ -1932,12 +2196,23 @@ function submitDecision() {
             issues: [],
             history: []
         };
+        const approvalHistory = [...getApprovalHistory(), {
+            id: `APPROVAL-HISTORY-${Date.now()}`,
+            round: getNextApprovalRound(),
+            node: '认证决定',
+            time: now,
+            status: '驳回',
+            operator: '认证决定员-李敏',
+            nextNode: '认证决定审批',
+            rejectReason: reason
+        }];
         saveCertificateDecisionFlow({
             ...currentFlow,
             stage: 'certificate_decision_rejected',
             taskStatus: '不予通过',
             decisionReason: reason,
             updatedAt: now,
+            approvalHistory,
             history: [...(currentFlow.history || []), { node: '证书决定驳回', operator: '认证决定员-李敏', time: now, detail: reason }]
         });
         reviewMode = false;
@@ -1953,15 +2228,32 @@ function submitDecision() {
 
     if (pendingDecision === 'approve') {
         const now = currentTimeText();
-        if (certificateDecisionFlow) {
-            saveCertificateDecisionFlow({
-                ...certificateDecisionFlow,
-                stage: 'certificate_decision_approved',
-                taskStatus: '已通过',
-                updatedAt: now,
-                history: [...(certificateDecisionFlow.history || []), { node: '证书决定通过', operator: '认证决定员-李敏', time: now, detail: '全部补充材料问题已复核通过，同意本次证书决定通过。' }]
-            });
-        }
+        const currentFlow = certificateDecisionFlow || {
+            taskNo: taskConfig.taskNo,
+            customer: '当前认证客户',
+            sourceStage: 'certificate-decision',
+            issues: [],
+            history: []
+        };
+        const passNextNode = getPassNextNode();
+        const approvalHistory = [...getApprovalHistory(), {
+            id: `APPROVAL-HISTORY-${Date.now()}`,
+            round: getNextApprovalRound(),
+            node: '认证决定',
+            time: now,
+            status: '通过',
+            operator: '认证决定员-李敏',
+            nextNode: passNextNode,
+            rejectReason: ''
+        }];
+        saveCertificateDecisionFlow({
+            ...currentFlow,
+            stage: 'certificate_decision_approved',
+            taskStatus: '已通过',
+            updatedAt: now,
+            approvalHistory,
+            history: [...(currentFlow.history || []), { node: '证书决定通过', operator: '认证决定员-李敏', time: now, detail: `本次证书决定通过，进入${passNextNode}。` }]
+        });
         reviewMode = false;
         d.status = 'approved';
         closeDecisionModal();

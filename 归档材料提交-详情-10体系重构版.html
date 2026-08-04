@@ -515,6 +515,100 @@
             height: 100%;
             border-radius: inherit;
         }
+        .system-setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 9px;
+            padding-top: 9px;
+            border-top: 1px solid #f0f2f5;
+        }
+        .system-setting-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            min-width: 0;
+        }
+        .system-setting-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 1px 6px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #f7f8fa;
+            color: #586174;
+            font-size: 11px;
+            line-height: 16px;
+            white-space: nowrap;
+        }
+        .system-setting-chip.urgent {
+            border-color: #fed7aa;
+            background: #fff7ed;
+            color: #c2410c;
+        }
+        .system-setting-edit-btn {
+            flex-shrink: 0;
+            border: none;
+            padding: 2px 0;
+            background: transparent;
+            color: var(--qms-color);
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .system-setting-editor {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 8px;
+            margin-top: 9px;
+            padding-top: 9px;
+            border-top: 1px solid #f0f2f5;
+        }
+        .system-setting-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: rgba(0,0,0,.55);
+            font-size: 11px;
+        }
+        .system-setting-field select {
+            width: 100%;
+            height: 28px;
+            padding: 0 6px;
+            border: 1px solid #dfe7f2;
+            border-radius: 4px;
+            background: #fff;
+            color: rgba(0,0,0,.82);
+            font-family: inherit;
+            font-size: 12px;
+        }
+        .system-setting-readonly {
+            display: flex;
+            align-items: center;
+            height: 28px;
+            padding: 0 7px;
+            border: 1px solid #edf0f4;
+            border-radius: 4px;
+            background: #f7f8fa;
+            color: rgba(0,0,0,.62);
+            font-size: 12px;
+        }
+        .system-setting-urgent-field {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .system-setting-urgent-field input { accent-color: var(--qms-color); }
+        .system-setting-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
         .blocker-list {
             display: flex;
             flex-direction: column;
@@ -1462,7 +1556,6 @@
             </div>
             <div class="header-right">
                 <button class="t-button btn-outline" onclick="startPageGuide()">操作指引</button>
-                <button class="t-button btn-outline" onclick="showToast('已保存草稿（模拟）')">保存草稿</button>
                 <button class="t-button btn-primary" id="submitBtn" onclick="openSubmitModal()">提交初次评定</button>
             </div>
         </div>
@@ -1707,6 +1800,12 @@ let pendingDelete = null;
 let expandedMaterialIds = new Set();
 let selectedLibraryFiles = new Set();
 let libraryFilters = { category: 'all', keyword: '', system: 'all', fileType: 'all', step: 'all' };
+let editingSystemSetting = null;
+const systemCertificationSettings = Object.fromEntries(PROJECT_SYSTEMS.map(system => [system, {
+    auditType: PROJECT_AUDIT_TYPE,
+    urgent: false,
+    recertificationType: 'A'
+}]));
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2088,7 +2187,19 @@ function renderRightConsole(systemStats, total, ready, missing) {
     document.getElementById('systemScopeText').textContent = `${PROJECT_SYSTEMS.length} 个体系`;
     document.getElementById('consoleProgressList').innerHTML = [...systemStats]
         .sort((a, b) => b.lack - a.lack || a.percent - b.percent)
-        .map(item => `
+        .map(item => {
+            const setting = systemCertificationSettings[item.system];
+            const isEditing = editingSystemSetting === item.system;
+            const recertificationOptions = ['A', 'B', 'C'].map(type => `<option value="${type}" ${setting.recertificationType === type ? 'selected' : ''}>${type}</option>`).join('');
+            const settingHtml = isEditing
+                ? `<div class="system-setting-editor">
+                    <div class="system-setting-field"><span>认证类型</span><span class="system-setting-readonly">${escapeHtml(setting.auditType)}</span></div>
+                    <label class="system-setting-field">再认证类型<select id="systemRecertificationType-${item.system}">${recertificationOptions}</select></label>
+                    <label class="system-setting-field system-setting-urgent-field"><input type="checkbox" id="systemUrgent-${item.system}" ${setting.urgent ? 'checked' : ''}> 标注为加急</label>
+                    <div class="system-setting-actions"><button type="button" class="t-button btn-outline btn-small" onclick="cancelSystemCertificationEdit()">取消</button><button type="button" class="t-button btn-primary btn-small" onclick="saveSystemCertificationSetting('${item.system}')">保存</button></div>
+                </div>`
+                : `<div class="system-setting-row"><div class="system-setting-summary"><span class="system-setting-chip">${escapeHtml(setting.auditType)}</span><span class="system-setting-chip ${setting.urgent ? 'urgent' : ''}">${setting.urgent ? '加急' : '非加急'}</span><span class="system-setting-chip">再认证类型：${escapeHtml(setting.recertificationType)}</span></div><button type="button" class="system-setting-edit-btn" onclick="editSystemCertificationSetting('${item.system}')">编辑</button></div>`;
+            return `
             <div class="console-progress-item">
                 <div class="console-progress-head">
                     <div class="console-progress-name">
@@ -2102,7 +2213,26 @@ function renderRightConsole(systemStats, total, ready, missing) {
                     <span>已完成 ${item.done}/${item.scoped.length}</span>
                     <span class="${item.lack === 0 ? 'done-text' : 'missing-text'}">${item.lack === 0 ? '已齐全' : '缺失 ' + item.lack + ' 项'}</span>
                 </div>
-            </div>`).join('');
+                ${settingHtml}
+            </div>`;
+        }).join('');
+}
+function editSystemCertificationSetting(system) {
+    editingSystemSetting = system;
+    updatePanels();
+}
+function cancelSystemCertificationEdit() {
+    editingSystemSetting = null;
+    updatePanels();
+}
+function saveSystemCertificationSetting(system) {
+    const setting = systemCertificationSettings[system];
+    if (!setting) return;
+    setting.recertificationType = document.getElementById(`systemRecertificationType-${system}`).value;
+    setting.urgent = document.getElementById(`systemUrgent-${system}`).checked;
+    editingSystemSetting = null;
+    updatePanels();
+    showToast(`${system} 体系属性已更新`);
 }
 function updatePanels() {
     const total = materials.length;
