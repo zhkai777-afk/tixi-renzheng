@@ -25,3 +25,6 @@ page-style-spec.md
 *.pdf
 *.drawio
 *.inspect.ndjson
+
+# Local environment artifacts.
+fontconfig-codex.xml

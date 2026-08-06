@@ -149,7 +149,7 @@
             background: #F8FBFF;
         }
         .global-stat-card.system-top-card {
-            min-height: 104px;
+            min-height: 136px;
             padding: 10px 12px;
             justify-content: flex-start;
             gap: 7px;
@@ -234,6 +234,32 @@
             height: 100%;
             border-radius: inherit;
             background: #2563EB;
+        }
+        .system-card-tags {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+            padding-top: 2px;
+        }
+        .system-card-tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 22px;
+            padding: 0 7px;
+            border: 1px solid #DCE4EE;
+            border-radius: 4px;
+            background: #F8FAFC;
+            color: #52677F;
+            font-size: 12px;
+            line-height: 20px;
+            white-space: nowrap;
+        }
+        .system-card-tag.urgent {
+            border-color: #FFD5A8;
+            background: #FFF3E5;
+            color: #C45A00;
         }
         .metric-strong { font-weight: 700; color: var(--text-main); }
         .main-layout {
@@ -1011,7 +1037,7 @@
             overflow: hidden;
         }
         .modal.wide { width: min(920px, calc(100vw - 32px)); }
-        .modal.expert-picker { width: min(900px, calc(100vw - 32px)); }
+        .modal.expert-picker { width: min(1080px, calc(100vw - 32px)); }
         .modal-header, .modal-footer {
             min-height: 56px;
             padding: 0 18px;
@@ -1193,8 +1219,8 @@
         }
         .modal-filter-row {
             display: grid;
-            grid-template-columns: 150px 150px minmax(180px, 1fr) auto auto;
-            gap: 16px;
+            grid-template-columns: repeat(3, minmax(130px, 1fr)) minmax(160px, 1.15fr) minmax(130px, 1fr) auto auto;
+            gap: 10px;
             align-items: center;
             margin-bottom: 16px;
         }
@@ -1214,6 +1240,12 @@
             cursor: pointer;
             color: #334155;
             font-size: 13px;
+        }
+        .expert-domain-hint {
+            margin-top: 4px;
+            color: #64748B;
+            font-size: 12px;
+            line-height: 1.45;
         }
         .expert-pagination {
             display: flex;
@@ -1638,8 +1670,20 @@
                         <option value="S">职业健康安全(S)</option>
                         <option value="F">食品安全体系(F)</option>
                     </select>
+                    <select id="expertRegionFilter" onchange="renderExpertCandidates()">
+                        <option value="">全部区域</option>
+                        <option value="华北">华北</option>
+                        <option value="华东">华东</option>
+                        <option value="华南">华南</option>
+                        <option value="西南">西南</option>
+                    </select>
                     <input class="form-control" id="expertNameFilter" placeholder="专家姓名" oninput="renderExpertCandidates()">
-                    <input class="form-control" id="expertOrgFilter" placeholder="所属公司/机构" oninput="renderExpertCandidates()">
+                    <input class="form-control" id="expertCqcFilter" placeholder="CQC编号" oninput="renderExpertCandidates()">
+                    <select id="expertEmploymentFilter" onchange="renderExpertCandidates()">
+                        <option value="">专职/兼职（全部）</option>
+                        <option value="专职">专职</option>
+                        <option value="兼职">兼职</option>
+                    </select>
                     <button class="t-button btn-primary" onclick="renderExpertCandidates()">查询</button>
                     <button class="t-button btn-outline" onclick="resetExpertFilters()">重置</button>
                 </div>
@@ -1648,11 +1692,11 @@
                         <thead>
                             <tr>
                                 <th style="width:52px;">选择</th>
-                                <th style="width:120px;">专家姓名</th>
-                                <th style="width:170px;">所属机构/公司</th>
-                                <th>覆盖领域</th>
-                                <th style="width:110px;">负责项目数</th>
-                                <th style="width:140px;">预计结束日期</th>
+                                <th style="width:110px;">专家姓名</th>
+                                <th style="width:100px;">所属区域</th>
+                                <th style="width:310px;">领域</th>
+                                <th style="width:150px;">CQC编号</th>
+                                <th style="width:100px;">专职/兼职</th>
                             </tr>
                         </thead>
                         <tbody id="expertCandidateBody"></tbody>
@@ -1700,6 +1744,12 @@ const SYSTEM_META = {
     S: { name: '职业健康安全', short: '职业健康安全', color: '#FF7D00', softBg: '#FFF3E5', softBorder: '#FFD5A8' },
     F: { name: '食品安全体系', short: '食品安全', color: '#7B4DFE', softBg: '#F1EDFF', softBorder: '#D6CAFF' }
 };
+const SYSTEM_CARD_TAGS = {
+    Q: { certificationType: '初次认证', urgency: '非加急', recertificationType: 'A' },
+    E: { certificationType: '初次认证', urgency: '非加急', recertificationType: 'A' },
+    S: { certificationType: '初次认证', urgency: '加急', recertificationType: 'A' },
+    F: { certificationType: '初次认证', urgency: '非加急', recertificationType: 'A' }
+};
 const CATEGORY_LABELS = {
     '通用材料': '通用材料',
     '一阶段材料': '一阶段材料',
@@ -1707,12 +1757,12 @@ const CATEGORY_LABELS = {
 };
 const FALLBACK_CATALOG = [{"id":"MSF11-20-001","category":"通用材料","materialName":"认证发证推荐表","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":1,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-002","category":"通用材料","materialName":"证书内容确认件（标黄代表需要pdf附件）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":2,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-003","category":"通用材料","materialName":"认证申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":3,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-004","category":"通用材料","materialName":"全国认证认可信息公共服务平台(认e云)查询截图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":4,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-005","category":"通用材料","materialName":"获证方情况调查表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":5,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-006","category":"通用材料","materialName":"证书变更申请表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":6,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-007","category":"通用材料","materialName":"认证周期绩效评价表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":7,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-008","category":"通用材料","materialName":"认证申请评审表（或认证证书转换评审记录）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":8,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-009","category":"通用材料","materialName":"法律地位证明文件复印件（如营业执照）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":9,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-010","category":"通用材料","materialName":"相关资质证明原件复印件、守法证明（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":10,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-011","category":"通用材料","materialName":"生产工艺/服务流程图(适用时)","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":11,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-012","category":"通用材料","materialName":"管理体系过程清单（Q/E/S）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":12,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-013","category":"通用材料","materialName":"组织机构图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":13,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-014","category":"通用材料","materialName":"认证场所清单（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":14,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-015","category":"通用材料","materialName":"审核项目推进表","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":15,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-016","category":"通用材料","materialName":"地理位置示意图和厂区平面布置图","tag":"Q除外","applicableSystems":["E","S","F"],"sortOrder":16,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-017","category":"通用材料","materialName":"组织适用的产品或服务质量标准清单","tag":"Q/F/H","applicableSystems":["Q","F"],"sortOrder":17,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-018","category":"通用材料","materialName":"组织适用的法律法规、标准清单","tag":"E/S","applicableSystems":["E","S"],"sortOrder":18,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-019","category":"通用材料","materialName":"重要环境因素清单","tag":"E","applicableSystems":["E"],"sortOrder":19,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-020","category":"通用材料","materialName":"主要危险源和OHS风险","tag":"S","applicableSystems":["S"],"sortOrder":20,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-021","category":"通用材料","materialName":"使用的主要危险材料(适用时）","tag":"S","applicableSystems":["S"],"sortOrder":21,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-022","category":"通用材料","materialName":"质量/环境/职业健康/食品安全目标","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":22,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-023","category":"通用材料","materialName":"需要应对的风险和机遇注","tag":"E/S","applicableSystems":["E","S"],"sortOrder":23,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-024","category":"通用材料","materialName":"污染物排放监测报告/作业场所危害因素检测报告复印件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":24,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-025","category":"通用材料","materialName":"法规符合性证明文件（适用时）","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":25,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-026","category":"通用材料","materialName":"适用性声明","tag":"IS","applicableSystems":["Q","E","S","F"],"sortOrder":26,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-027","category":"通用材料","materialName":"详细产品（包括原辅料及终产品）及工艺描述","tag":"F/H","applicableSystems":["F"],"sortOrder":27,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-028","category":"通用材料","materialName":"生产车间平面布置图","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":28,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-029","category":"通用材料","materialName":"危害分析及OPRP、CCP等针对显著危害的控制措施","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":29,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-030","category":"通用材料","materialName":"FSMS（HACCP）认证申请组织添加剂使用清单","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":30,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-031","category":"通用材料","materialName":"食品安全检测报告","tag":"通用材料","applicableSystems":["Q","E","S","F"],"sortOrder":31,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-032","category":"通用材料","materialName":"食品安全认证申请组织自我声明","tag":"F/H","applicableSystems":["F"],"sortOrder":32,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-033","category":"一阶段材料","materialName":"一阶段不实施现场审核的申请（适用时）","tag":"通用","applicableSystems":["Q","E","S","F"],"sortOrder":33,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-034","category":"一阶段材料","materialName":"审核任务书","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":34,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-035","category":"一阶段材料","materialName":"首末次会议签到表（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":35,"requirements":{"initialCertification":"◆"}},{"id":"MSF11-20-036","category":"一阶段材料","materialName":"审核计划（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":36,"requirements":{"initialCertification":"◆"}},{"id":"MSF11-20-037","category":"一阶段材料","materialName":"第一阶段审核问题清单（适用时）","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":37,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-038","category":"一阶段材料","materialName":"第一阶段审核报告","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":38,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-039","category":"一阶段材料","materialName":"文件评审报告(适用时)","tag":"一阶段材料","applicableSystems":["Q","E","S","F"],"sortOrder":39,"requirements":{"initialCertification":{"raw":"","required":false,"rule":"not_required","label":"初次认证"}}},{"id":"MSF11-20-040","category":"二阶段及其他审核材料","materialName":"审核任务书","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":40,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-041","category":"二阶段及其他审核材料","materialName":"审核准备会记录(适用时)","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":41,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-042","category":"二阶段及其他审核材料","materialName":"首末次会议签到表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":42,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-043","category":"二阶段及其他审核材料","materialName":"审核计划","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":43,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-044","category":"二阶段及其他审核材料","materialName":"不符合项报告及纠正措施见证材料（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":44,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-045","category":"二阶段及其他审核材料","materialName":"核查记录表","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":45,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-046","category":"二阶段及其他审核材料","materialName":"审核报告","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":46,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-047","category":"二阶段及其他审核材料","materialName":"异地审核情况报备表（适用时）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":47,"requirements":{"initialCertification":"★"}},{"id":"MSF11-20-048","category":"二阶段及其他审核材料","materialName":"其他拟上报的资料（适用时，请注明上报材料类型）","tag":"二阶段及其他审核材料","applicableSystems":["Q","E","S","F"],"sortOrder":48,"requirements":{"initialCertification":"★"}}];
 const EXPERT_CANDIDATES = [
-    { id: 'e1', name: '刘建国', org: '内部专家', systems: ['Q'], activeProjects: 4, dueDate: '2026-04-15' },
-    { id: 'e2', name: '张明', org: '内部专家', systems: ['E', 'S'], activeProjects: 6, dueDate: '2026-04-18' },
-    { id: 'e3', name: '李华', org: '外部机构A', systems: ['F', 'Q'], activeProjects: 4, dueDate: '2026-04-15' },
-    { id: 'e4', name: '陈超', org: '外部机构B', systems: ['F'], activeProjects: 7, dueDate: '2026-04-20' },
-    { id: 'e5', name: '吴芳', org: '内部专家', systems: ['F', 'S'], activeProjects: 3, dueDate: '2026-04-12' },
-    { id: 'e6', name: '王磊', org: '外部机构C', systems: ['E', 'S'], activeProjects: 8, dueDate: '2026-04-18' }
+    { id: 'e1', name: '刘建国', region: '华北', cqcNumber: 'CQC-EX-10001', employment: '专职', qualifiedSystems: ['Q'] },
+    { id: 'e2', name: '张明', region: '华东', cqcNumber: 'CQC-EX-10002', employment: '专职', qualifiedSystems: ['E', 'S'] },
+    { id: 'e3', name: '李华', region: '华南', cqcNumber: 'CQC-EX-10003', employment: '兼职', qualifiedSystems: ['F', 'Q'] },
+    { id: 'e4', name: '陈超', region: '华北', cqcNumber: 'CQC-EX-10004', employment: '兼职', qualifiedSystems: ['F'] },
+    { id: 'e5', name: '吴芳', region: '西南', cqcNumber: 'CQC-EX-10005', employment: '专职', qualifiedSystems: ['F', 'S'] },
+    { id: 'e6', name: '王磊', region: '华东', cqcNumber: 'CQC-EX-10006', employment: '兼职', qualifiedSystems: ['E', 'S'] }
 ];
 let catalog = [];
 let materials = [];
@@ -1945,8 +1995,8 @@ function createMockFiles(item) {
 function initData() {
     materials = catalog.map(item => ({ ...item, files: createMockFiles(item) }));
     assignedExperts = [
-        { id: 'e1', name: '刘建国', org: '内部专家', systems: ['Q'], assignedAt: '2026-04-18 09:20', reviewStatus: 'submitted' },
-        { id: 'e2', name: '张明', org: '内部专家', systems: ['E','S'], assignedAt: '2026-04-18 09:25', reviewStatus: 'reviewing' }
+        { id: 'e1', name: '刘建国', region: '华北', cqcNumber: 'CQC-EX-10001', employment: '专职', systems: ['Q'], assignedAt: '2026-04-18 09:20', reviewStatus: 'submitted' },
+        { id: 'e2', name: '张明', region: '华东', cqcNumber: 'CQC-EX-10002', employment: '专职', systems: ['E','S'], assignedAt: '2026-04-18 09:25', reviewStatus: 'reviewing' }
     ];
     expertReviewStarted = true;
     expertReviewCompleted = false;
@@ -2271,6 +2321,7 @@ function renderGlobalStatsStrip() {
         const stats = getSystemIssueStats(system);
         const status = getSystemStatus(system);
         const progress = getSystemProgress(stats, system);
+        const cardTags = SYSTEM_CARD_TAGS[system];
         const activeClass = currentSystemFilter === system ? 'active' : '';
         return `
             <div class="global-stat-card system-top-card ${activeClass}" onclick="selectSystemOverview('${system}')">
@@ -2284,6 +2335,11 @@ function renderGlobalStatsStrip() {
                     <span>未整改 ${stats.total}</span>
                 </div>
                 <div class="system-progress"><div class="system-progress-bar" style="width:${progress}%;"></div></div>
+                <div class="system-card-tags" aria-label="${system} 体系认证属性">
+                    <span class="system-card-tag">${escapeHtml(cardTags.certificationType)}</span>
+                    <span class="system-card-tag ${cardTags.urgency === '加急' ? 'urgent' : ''}">${escapeHtml(cardTags.urgency)}</span>
+                    <span class="system-card-tag">再认证类型：${escapeHtml(cardTags.recertificationType)}</span>
+                </div>
             </div>`;
     }).join('');
 }
@@ -2506,7 +2562,7 @@ function renderRightConsole() {
         return `
         <div class="expert-card">
             <div class="expert-card-head">
-                <span>${escapeHtml(expert.name)} <span style="font-weight:400;color:#64748B;">(${escapeHtml(expert.org)})</span></span>
+                <span>${escapeHtml(expert.name)} <span style="font-weight:400;color:#64748B;">(${escapeHtml(expert.region)} · ${escapeHtml(expert.employment)})</span></span>
             </div>
             <div class="expert-meta">
                 负责体系：${expert.systems.join('、')}<br>
@@ -2812,8 +2868,8 @@ function renderAssignedExpertsPanel() {
     const cards = assignedExperts.map(expert => `
         <div class="assigned-expert-item">
             <div class="assigned-expert-main">
-                <div class="assigned-expert-name">${escapeHtml(expert.name)} <span style="font-weight:400;color:#64748B;">(${escapeHtml(expert.org)})</span></div>
-                <div class="assigned-expert-meta">负责体系：${expert.systems.join('、')}<br>指派时间：${escapeHtml(expert.assignedAt || '-')}</div>
+                <div class="assigned-expert-name">${escapeHtml(expert.name)} <span style="font-weight:400;color:#64748B;">(${escapeHtml(expert.region)} · ${escapeHtml(expert.employment)})</span></div>
+                <div class="assigned-expert-meta">CQC编号：${escapeHtml(expert.cqcNumber || '-')}<br>负责领域：${expert.systems.join('、')}<br>指派时间：${escapeHtml(expert.assignedAt || '-')}</div>
             </div>
             <div class="assigned-expert-actions">
                 <button type="button" class="t-button btn-danger btn-small" onclick="removeAssignedExpert('${expert.id}')">删除</button>
@@ -2882,22 +2938,28 @@ function renderCoveragePreview() {
 }
 function resetExpertFilters() {
     document.getElementById('expertDomainFilter').value = '';
+    document.getElementById('expertRegionFilter').value = '';
     document.getElementById('expertNameFilter').value = '';
-    document.getElementById('expertOrgFilter').value = '';
+    document.getElementById('expertCqcFilter').value = '';
+    document.getElementById('expertEmploymentFilter').value = '';
     renderExpertCandidates();
 }
 function renderExpertCandidates() {
     const domain = document.getElementById('expertDomainFilter').value;
+    const region = document.getElementById('expertRegionFilter').value;
     const name = document.getElementById('expertNameFilter').value.trim().toLowerCase();
-    const org = document.getElementById('expertOrgFilter').value.trim().toLowerCase();
+    const cqcNumber = document.getElementById('expertCqcFilter').value.trim().toLowerCase();
+    const employment = document.getElementById('expertEmploymentFilter').value;
     const candidates = EXPERT_CANDIDATES.filter(expert => !assignedExperts.some(item => item.id === expert.id)).filter(expert => {
-        if (domain && !expert.systems.includes(domain)) return false;
+        if (domain && !expert.qualifiedSystems.includes(domain)) return false;
+        if (region && expert.region !== region) return false;
         if (name && !expert.name.toLowerCase().includes(name)) return false;
-        if (org && !expert.org.toLowerCase().includes(org)) return false;
+        if (cqcNumber && !expert.cqcNumber.toLowerCase().includes(cqcNumber)) return false;
+        if (employment && expert.employment !== employment) return false;
         return true;
     });
     const rows = candidates.map(expert => {
-        const systemOptions = expert.systems.map(system => `
+        const systemOptions = PROJECT_SYSTEMS.map(system => `
             <label class="expert-system-option">
                 <input type="checkbox" name="candidateSystems-${expert.id}" value="${system}" onchange="syncCandidateExpertCheck('${expert.id}')">
                 <span class="system-badge-table ${system}">${system}</span>${SYSTEM_META[system].name}
@@ -2906,10 +2968,10 @@ function renderExpertCandidates() {
         <tr>
             <td><input type="checkbox" name="candidateExpert" value="${expert.id}" onchange="toggleCandidateSystems('${expert.id}', this.checked)"></td>
             <td>${escapeHtml(expert.name)}</td>
-            <td>${escapeHtml(expert.org)}</td>
-            <td><div class="expert-systems-picker">${systemOptions}</div></td>
-            <td>${expert.activeProjects || 0}个</td>
-            <td>${escapeHtml(expert.dueDate || '-')}</td>
+            <td>${escapeHtml(expert.region)}</td>
+            <td><div class="expert-systems-picker">${systemOptions}</div><div class="expert-domain-hint">勾选专家后，请指定其负责领域（范围为当前项目全部领域）。</div></td>
+            <td>${escapeHtml(expert.cqcNumber)}</td>
+            <td>${escapeHtml(expert.employment)}</td>
         </tr>`;
     }).join('');
     document.getElementById('expertCandidateBody').innerHTML = rows || '<tr><td colspan="6"><div class="empty-state" style="padding:20px;">暂无符合条件的专家</div></td></tr>';
@@ -2925,7 +2987,9 @@ function confirmExpertSelection() {
     selected.forEach(expert => assignedExperts.push({
         id: expert.id,
         name: expert.name,
-        org: expert.org,
+        region: expert.region,
+        cqcNumber: expert.cqcNumber,
+        employment: expert.employment,
         systems: expert.systems,
         assignedAt,
         reviewStatus: 'reviewing'
